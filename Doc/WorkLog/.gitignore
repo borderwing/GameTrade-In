@@ -1,0 +1,3 @@
+# ignore Microsoft Word lock files
+~$*.doc
+~$*.docx
