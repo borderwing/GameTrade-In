@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PublishActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/publishToolBar"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:background="?attr/colorPrimary"
+        >
+        <TextView
+            android:id = "@+id/publishTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="Publish">
+        </TextView>
+    </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/publishToolBar">
+        <EditText
+            android:id = "@+id/publishName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Name">
+        </EditText>
+        <EditText
+            android:id = "@+id/publishInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Info">
+        </EditText>
+        <EditText
+            android:id = "@+id/publishCredit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Credit">
+        </EditText>
+    </LinearLayout>
+
+</RelativeLayout>
