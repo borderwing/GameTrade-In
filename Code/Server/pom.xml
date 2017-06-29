@@ -37,7 +37,12 @@
       <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate-entitymanager</artifactId>
-        <version>5.2.10.Final</version>
+        <version>4.3.11.Final</version>
+      </dependency>
+      <dependency>
+          <groupId>org.hibernate</groupId>
+          <artifactId>hibernate-commons-annotations</artifactId>
+          <version>3.2.0.Final</version>
       </dependency>
       <dependency>
         <groupId>org.hibernate</groupId>
