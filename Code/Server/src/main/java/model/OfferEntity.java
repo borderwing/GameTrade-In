@@ -77,11 +77,11 @@ public class OfferEntity {
     }
 
     @Transient
-    public GamesEntity getGame() {
+    public GameEntity getGame() {
         return offerEntityPK.getGame();
     }
 
-    public void setGame(GamesEntity game) {
+    public void setGame(GameEntity game) {
         offerEntityPK.setGame(game);
     }
 

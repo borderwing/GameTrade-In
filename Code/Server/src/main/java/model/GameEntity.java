@@ -8,7 +8,7 @@ import java.util.Collection;
  */
 @Entity
 @Table(name = "games", catalog = "")
-public class GamesEntity {
+public class GameEntity {
     private int gameId;
     private String title;
     private String platform;
@@ -85,7 +85,7 @@ public class GamesEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GamesEntity that = (GamesEntity) o;
+        GameEntity that = (GameEntity) o;
 
         if (gameId != that.gameId) return false;
         if (title != null ? !title.equals(that.title) : that.title != null) return false;

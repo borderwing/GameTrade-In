@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GameDetailActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/gameDetailToolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:title="Details"
+        >
+
+    </android.support.v7.widget.Toolbar>
+
+    <ImageView
+        android:id="@+id/gameImage"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/gameDetailToolBar"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/gameicon">
+    </ImageView>
+
+    <TextView
+        android:id="@+id/gameText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GOO!"
+        />
+
+
+
+</RelativeLayout>
