@@ -8,15 +8,15 @@ import java.io.Serializable;
  */
 @Embeddable
 public class WishEntityPK implements Serializable {
-    private GamesEntity game;
+    private GameEntity game;
     private UserEntity user;
 
     @ManyToOne
-    public GamesEntity getGame() {
+    public GameEntity getGame() {
         return game;
     }
 
-    public void setGame(GamesEntity game) {
+    public void setGame(GameEntity game) {
         this.game = game;
     }
 

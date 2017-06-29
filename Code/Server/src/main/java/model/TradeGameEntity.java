@@ -1,7 +1,6 @@
 package model;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 /**
  * Created by homepppp on 2017/6/28.
@@ -14,7 +13,7 @@ public class TradeGameEntity {
     private Integer points;
     private Integer status;
 
-    private GamesEntity game;
+    private GameEntity game;
 
     private TradeOrderEntity tradeOrder;
 
@@ -92,11 +91,11 @@ public class TradeGameEntity {
 
     @ManyToOne
     @JoinColumn(name = "gameID", referencedColumnName = "gameID", nullable = false)
-    public GamesEntity getGame() {
+    public GameEntity getGame() {
         return game;
     }
 
-    public void setGame(GamesEntity game) {
+    public void setGame(GameEntity game) {
         this.game = game;
     }
 
