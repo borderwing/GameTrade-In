@@ -76,11 +76,11 @@ public class WishEntity {
     }
 
     @Transient
-    public GamesEntity getGame() {
+    public GameEntity getGame() {
         return wishEntityPK.getGame();
     }
 
-    public void setGame(GamesEntity game) {
+    public void setGame(GameEntity game) {
         wishEntityPK.setGame(game);
     }
 

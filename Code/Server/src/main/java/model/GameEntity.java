@@ -4,10 +4,10 @@ import javax.persistence.*;
 import java.util.Collection;
 
 /**
- * Created by homepppp on 2017/6/27.
+ * Created by homepppp on 2017/6/28.
  */
 @Entity
-@Table(name = "games", schema = "tradein", catalog = "")
+@Table(name = "games", catalog = "")
 public class GameEntity {
     private int gameId;
     private String title;
@@ -16,9 +16,9 @@ public class GameEntity {
     private String genre;
     private Integer evaluatePoint;
 
-    private Collection<OfferEntity> offersByGameId;
-    private Collection<TradeGameEntity> tradegamesByGameId;
-    private Collection<WisheEntity> wishesByGameId;
+    private Collection<WishEntity> wishes;
+    private Collection<OfferEntity> offers;
+    private Collection<TradeGameEntity> tradeGames;
 
     @Id
     @Column(name = "gameID", nullable = false)
@@ -109,30 +109,30 @@ public class GameEntity {
         return result;
     }
 
-    @OneToMany(mappedBy = "gamesByGameId")
-    public Collection<OfferEntity> getOffersByGameId() {
-        return offersByGameId;
+    @OneToMany(mappedBy = "wishEntityPK.game")
+    public Collection<WishEntity> getWishes() {
+        return wishes;
     }
 
-    public void setOffersByGameId(Collection<OfferEntity> offersByGameId) {
-        this.offersByGameId = offersByGameId;
+    public void setWishes(Collection<WishEntity> _wishes) {
+        wishes = _wishes;
     }
 
-    @OneToMany(mappedBy = "gamesByGameId")
-    public Collection<TradeGameEntity> getTradegamesByGameId() {
-        return tradegamesByGameId;
+    @OneToMany(mappedBy = "offerEntityPK.game")
+    public Collection<OfferEntity> getOffers() {
+        return offers;
     }
 
-    public void setTradegamesByGameId(Collection<TradeGameEntity> tradegamesByGameId) {
-        this.tradegamesByGameId = tradegamesByGameId;
+    public void setOffers(Collection<OfferEntity> _offers) {
+        offers = _offers;
     }
 
-    @OneToMany(mappedBy = "gamesByGameId")
-    public Collection<WisheEntity> getWishesByGameId() {
-        return wishesByGameId;
+    @OneToMany(mappedBy = "game")
+    public Collection<TradeGameEntity> getTradeGames() {
+        return tradeGames;
     }
 
-    public void setWishesByGameId(Collection<WisheEntity> wishesByGameId) {
-        this.wishesByGameId = wishesByGameId;
+    public void setTradeGames(Collection<TradeGameEntity> _tradeGames) {
+        tradeGames = _tradeGames;
     }
 }
