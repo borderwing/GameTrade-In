@@ -1,6 +1,7 @@
 package controller;
 
 import model.GameEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,13 +17,15 @@ import java.util.List;
  */
 
 @RestController
+@RequestMapping(value="/api/game")
 public class GameController {
 
+    @Autowired
     GameRepository gamerepository;
 
     //retrieve all games
 
-    @RequestMapping(value="/game/",method= RequestMethod.GET)
+    @RequestMapping(value="/",method= RequestMethod.GET)
     public ResponseEntity<List<GameEntity>> listAllGames(){
         System.out.println("fetch all the games....");
         List<GameEntity> games=gamerepository.findAll();
@@ -34,7 +37,7 @@ public class GameController {
 
     //retrieve single game
 
-    @RequestMapping(value="/game/{gameid}",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="/{gameid}",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") int gameid){
         System.out.println("Fetch game with id "+gameid);
         GameEntity game=gamerepository.findOne(gameid);
@@ -47,7 +50,7 @@ public class GameController {
 
     //create a game
 
-    @RequestMapping(value="/game/",method=RequestMethod.POST)
+    @RequestMapping(value="/",method=RequestMethod.POST)
     public ResponseEntity<Void> createGame(@RequestBody GameEntity game, UriComponentsBuilder ucBuilder){
         System.out.println("Create game: "+game.getTitle());
         if(gamerepository.findByTitle(game.getTitle())!=null){
@@ -62,7 +65,7 @@ public class GameController {
 
     //Update a game
 
-    @RequestMapping(value="/game/{gameid}",method=RequestMethod.PUT)
+    @RequestMapping(value="/{gameid}",method=RequestMethod.PUT)
     public ResponseEntity<GameEntity> updateGame(@PathVariable("gameid") int gameid,@RequestBody GameEntity game){
         System.out.println("Update game "+gameid);
         GameEntity currentGame=gamerepository.findOne(gameid);
@@ -85,7 +88,7 @@ public class GameController {
 
     //Delete a game
 
-    @RequestMapping(value="/game/{gameid}",method=RequestMethod.DELETE)
+    @RequestMapping(value="/{gameid}",method=RequestMethod.DELETE)
     public ResponseEntity<GameEntity> deleteGame(@PathVariable ("gameid") int gameid){
         System.out.println("Fetch and delete game with id "+gameid);
 
