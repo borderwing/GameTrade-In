@@ -83,52 +83,48 @@ public class UserController {
 
     // add items to wish list
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
-    public ResponseEntity<List<WishEntity>> addItemsToWishList(
+    public ResponseEntity<WishEntity> addItemsToWishList(
             @PathVariable("userId") int userId,
-            @RequestBody List<WishJsonItem> wishJsonItems
+            @RequestBody WishJsonItem wishJsonItem
     ){
-        if(wishJsonItems == null){
-            return new ResponseEntity<List<WishEntity>>(HttpStatus.OK);
+        if(wishJsonItem == null){
+            return new ResponseEntity<WishEntity>(HttpStatus.OK);
         }
         UserEntity user = userRepo.findOne(userId);
         if(user == null){
-            return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        List<WishEntity> addedWishes = new Vector<WishEntity>();
+        GameEntity game = gameRepo.findOne(wishJsonItem.getGameId());
+        if(game == null)  return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
 
-        for(WishJsonItem requestItem : wishJsonItems){
-            GameEntity game = gameRepo.findOne(requestItem.getGameId());
-            if(game == null)  continue;
+        WishEntityPK wishEntityPK = new WishEntityPK();
+        wishEntityPK.setUser(user);
+        wishEntityPK.setGame(game);
 
-            WishEntityPK wishEntityPK = new WishEntityPK();
-            wishEntityPK.setUser(user);
-            wishEntityPK.setGame(game);
+        WishEntity wish = wishRepo.findOne(wishEntityPK);
 
-            WishEntity wish = wishRepo.findOne(wishEntityPK);
-
-            if(wish != null){
-                // user have already added this game to her wish list
-                System.out.println("user " + user.getUserId() + " has already added game " +
-                                    game.getGameId() + " in her wish list.");
-                continue;
-            }
-
-            wish = new WishEntity();
-            wish.setPoints(requestItem.getPoints());
-            wish.setStatus(requestItem.getStatus());
-            wish.getWishEntityPK().setUser(user);
-            wish.getWishEntityPK().setGame(game);
-
-
-            wish = wishRepo.saveAndFlush(wish);
-            addedWishes.add(wish);
-
-            System.out.println("added game " + game.getGameId() + " to user " +
-                               user.getUserId() + "\'s wish list.");
+        if(wish != null){
+            // user have already added this game to her wish list
+            System.out.println("user " + user.getUserId() + " has already added game " +
+                                game.getGameId() + " in her wish list.");
+            return new ResponseEntity<WishEntity>(HttpStatus.CONFLICT);
         }
 
-        return new ResponseEntity<List<WishEntity>>((List<WishEntity>)addedWishes, HttpStatus.OK);
+        wish = new WishEntity();
+        wish.setPoints(wishJsonItem.getPoints());
+        wish.setStatus(wishJsonItem.getStatus());
+        wish.getWishEntityPK().setUser(user);
+        wish.getWishEntityPK().setGame(game);
+
+
+        wish = wishRepo.saveAndFlush(wish);
+
+        System.out.println("added game " + game.getGameId() + " to user " +
+                           user.getUserId() + "\'s wish list.");
+
+
+        return new ResponseEntity<WishEntity>(wish, HttpStatus.OK);
     }
 
 
