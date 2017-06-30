@@ -24,6 +24,7 @@ public class GameController {
 
     @RequestMapping(value="/game/",method= RequestMethod.GET)
     public ResponseEntity<List<GameEntity>> listAllGames(){
+        System.out.println("fetch all the games....");
         List<GameEntity> games=gamerepository.findAll();
         if(games.isEmpty()){
             return new ResponseEntity<List<GameEntity>>(HttpStatus.NO_CONTENT);
@@ -37,7 +38,7 @@ public class GameController {
     public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") int gameid){
         System.out.println("Fetch game with id "+gameid);
         GameEntity game=gamerepository.findOne(gameid);
-        if(game.equals(null)){
+        if(game==null){
             System.out.println("Games with id "+gameid+" not found");
             return new ResponseEntity<GameEntity>(game,HttpStatus.NOT_FOUND);
         }
