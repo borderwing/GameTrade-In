@@ -18,9 +18,14 @@ public class TradeGameEntity {
     private TradeOrderEntity tradeOrder;
 
     private UserEntity sender;
-    private UserEntity receiver;
     private AddressEntity fromAddress;
+    private Integer senderStatus = 0;
+
+    private UserEntity receiver;
     private AddressEntity toAddress;
+    private Integer receiverStatus = 0;
+
+
     private AddressEntity transferAddress;
 
 
@@ -62,6 +67,26 @@ public class TradeGameEntity {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    @Basic
+    @Column(name = "senderStatus", nullable = true)
+    public Integer getSenderStatus() {
+        return senderStatus;
+    }
+
+    public void setSenderStatus(Integer senderStatus) {
+        this.senderStatus = senderStatus;
+    }
+
+    @Basic
+    @Column(name = "receiverStatus", nullable = true)
+    public Integer getReceiverStatus() {
+        return receiverStatus;
+    }
+
+    public void setReceiverStatus(Integer receiverStatus) {
+        this.receiverStatus = receiverStatus;
     }
 
     @Override

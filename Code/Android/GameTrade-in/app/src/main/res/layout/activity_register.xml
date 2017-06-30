@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PublishActivity">
+    tools:context=".RegisterActivity">
     <android.support.v7.widget.Toolbar
-        android:id="@+id/publishToolBar"
+        android:id="@+id/registerToolBar"
         android:layout_height="?attr/actionBarSize"
         android:layout_width="match_parent"
         android:background="?attr/colorPrimary"
@@ -18,46 +18,46 @@
             android:src="@drawable/home">
         </ImageButton>
         <TextView
-            android:id = "@+id/publishTitle"
+            android:id = "@+id/registerTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:text="Publish">
+            android:text="Register">
         </TextView>
     </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
-        android:id = "@+id/publishUp"
+        android:id = "@+id/registerUp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/publishToolBar">
+        android:layout_below="@id/registerToolBar">
         <ImageView
-            android:id = "@+id/publishPhoto"
-            android:layout_width="wrap_content"
+            android:id = "@+id/registerPhoto"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/plus"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp">
+            android:src="@drawable/userlauncher"
+            android:layout_marginTop="30dp"
+            android:contentDescription="@string/app_name">
         </ImageView>
         <EditText
-            android:id = "@+id/publishName"
+            android:id = "@+id/registerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Name"
-            android:layout_below="@id/publishPhoto"
+            android:layout_below="@id/registerPhoto"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp">
         </EditText>
         <EditText
-            android:id = "@+id/publishInfo"
+            android:id = "@+id/registerAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Info"
-            android:layout_below="@id/publishName"
+            android:hint="Address"
+            android:layout_below="@id/registerName"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
@@ -65,11 +65,22 @@
             >
         </EditText>
         <EditText
-            android:id = "@+id/publishCredit"
+            android:id = "@+id/registerPhNum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Credit"
-            android:layout_below="@id/publishInfo"
+            android:hint="Phone"
+            android:layout_below="@id/registerAddress"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+        <EditText
+            android:id = "@+id/registerBasicInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Basic info"
+            android:layout_below="@id/registerPhNum"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
@@ -78,14 +89,14 @@
     </RelativeLayout>
 
     <Button
-        android:id = "@+id/publishButton"
+        android:id = "@+id/registerButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/publishUp"
+        android:layout_below="@id/registerUp"
         android:layout_centerHorizontal="true"
         android:textColor="@color/colorPrimary"
         android:textAllCaps="false"
-        android:text="Upload"
+        android:text="Next"
         android:layout_marginTop="40dp">
     </Button>
 

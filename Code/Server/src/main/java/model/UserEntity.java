@@ -1,5 +1,9 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -15,15 +19,20 @@ public class UserEntity {
     private String password;
     private Integer role;
 
+    @JsonIgnore
     private Collection<AddressEntity> addresses;
 
+    @JsonIgnore
     private Collection<WishEntity> wishes;
+    @JsonIgnore
     private Collection<OfferEntity> offers;
-
+    @JsonIgnore
     private Collection<PendingGameEntity> proposedGames;
+    @JsonIgnore
     private Collection<PendingGameEntity> reviewedGames;
-
+    @JsonIgnore
     private Collection<TradeGameEntity> sendingGames;
+    @JsonIgnore
     private Collection<TradeGameEntity> receivingGames;
 
     @Id
@@ -48,10 +57,12 @@ public class UserEntity {
 
     @Basic
     @Column(name = "password", nullable = true, length = 31)
+    @JsonIgnore     // ignore password during serialization
     public String getPassword() {
         return password;
     }
 
+    @JsonProperty   // do not ignore password during deserialization
     public void setPassword(String password) {
         this.password = password;
     }
@@ -147,11 +158,11 @@ public class UserEntity {
     }
 
     @OneToMany(mappedBy = "receiver")
-    public Collection<TradeGameEntity> getTradeInfoReceiveByUserId() {
+    public Collection<TradeGameEntity> getReceivingGames() {
         return receivingGames;
     }
 
-    public void setTradeInfoReceiveByUserId(Collection<TradeGameEntity> receivingGames) {
+    public void setReceivingGames(Collection<TradeGameEntity> receivingGames) {
         this.receivingGames = receivingGames;
     }
 }

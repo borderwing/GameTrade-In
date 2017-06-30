@@ -1,5 +1,9 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -16,7 +20,9 @@ public class WishEntity {
     private Integer status;
     private Timestamp createTime;
 
+
     @EmbeddedId
+    @JsonProperty("pair")
     public WishEntityPK getWishEntityPK() {
         return wishEntityPK;
     }
@@ -48,6 +54,7 @@ public class WishEntity {
 
     @Basic
     @Column(name = "createtime", nullable = true)
+    @CreationTimestamp
     public Timestamp getCreateTime() {
         return createTime;
     }
@@ -92,4 +99,7 @@ public class WishEntity {
     public void setUser(UserEntity user) {
         wishEntityPK.setUser(user);
     }
+
+
+
 }
