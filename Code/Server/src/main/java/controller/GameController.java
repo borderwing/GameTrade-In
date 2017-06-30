@@ -1,6 +1,7 @@
 package controller;
 
 import model.GameEntity;
+import model.PendingGameEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import repository.GameRepository;
+import repository.PendingGameRepository;
 
 import java.util.List;
 
@@ -22,6 +24,8 @@ public class GameController {
 
     @Autowired
     GameRepository gamerepository;
+    @Autowired
+    PendingGameRepository pendingrepository;
 
     //retrieve all games
 
@@ -49,56 +53,33 @@ public class GameController {
     }
 
     //create a game
-
+    /*
     @RequestMapping(value="/",method=RequestMethod.POST)
     public ResponseEntity<Void> createGame(@RequestBody GameEntity game, UriComponentsBuilder ucBuilder){
         System.out.println("Create game: "+game.getTitle());
+
         if(gamerepository.findByTitle(game.getTitle())!=null){
             System.out.println("the game "+game.getTitle()+" is already existed.");
             return new ResponseEntity<Void>(HttpStatus.CONFLICT);
         }
-        gamerepository.save(game);
+
+        if(pendingrepository.findByTitle(game.getTitle())!=null){
+            System.out.println("the game "+game.getTitle()+" is being audited");
+            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+        }
+
+
+        /*
+         * create a new PendingGameEntity
+         */
+     /*
+        PendingGameEntity pendGame=new PendingGameEntity();
+        pendGame.setGenre(game.getGenre());
+        pendGame.setLanguage(game.getLanguage());
+
+        gamerepository.saveAndFlush(game);
         HttpHeaders headers=new HttpHeaders();
-        headers.setLocation(ucBuilder.path("/game/{gameid}").buildAndExpand(game.getGameId()).toUri());
+        headers.setLocation(ucBuilder.path("api/game/{gameid}").buildAndExpand(game.getGameId()).toUri());
         return new ResponseEntity<Void>(headers,HttpStatus.CREATED);
-    }
-
-    //Update a game
-
-    @RequestMapping(value="/{gameid}",method=RequestMethod.PUT)
-    public ResponseEntity<GameEntity> updateGame(@PathVariable("gameid") int gameid,@RequestBody GameEntity game){
-        System.out.println("Update game "+gameid);
-        GameEntity currentGame=gamerepository.findOne(gameid);
-        if(currentGame==null){
-            System.out.println("Game with id "+gameid+"is not existed.");
-            return new ResponseEntity<GameEntity>(HttpStatus.NOT_FOUND);
-        }
-        currentGame.setEvaluatePoint(game.getEvaluatePoint());
-        currentGame.setGenre(game.getGenre());
-        currentGame.setLanguage(game.getLanguage());
-        currentGame.setOffers(game.getOffers());
-        currentGame.setPlatform(game.getPlatform());
-        currentGame.setTitle(game.getTitle());
-        currentGame.setTradeGames(game.getTradeGames());
-        currentGame.setWishes(game.getWishes());
-
-        gamerepository.updateGame(currentGame.getTitle(),currentGame.getPlatform(),currentGame.getLanguage(),currentGame.getGenre(),currentGame.getEvaluatePoint(),currentGame.getWishes(),currentGame.getOffers(),currentGame.getTradeGames(),currentGame.getGameId());
-        return new ResponseEntity<GameEntity>(currentGame,HttpStatus.OK);
-    }
-
-    //Delete a game
-
-    @RequestMapping(value="/{gameid}",method=RequestMethod.DELETE)
-    public ResponseEntity<GameEntity> deleteGame(@PathVariable ("gameid") int gameid){
-        System.out.println("Fetch and delete game with id "+gameid);
-
-        GameEntity game=gamerepository.findOne(gameid);
-        if(game==null){
-            System.out.println("Unable to delete.Game with id "+gameid+" not found");
-            return new ResponseEntity<GameEntity>(HttpStatus.NOT_FOUND);
-        }
-
-        gamerepository.delete(gameid);
-        return new ResponseEntity<GameEntity>(HttpStatus.NO_CONTENT);
-    }
+    }*/
 }
