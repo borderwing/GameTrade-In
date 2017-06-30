@@ -3,6 +3,7 @@ package controller;
 import model.CustomerEntity;
 import model.UserEntity;
 import model.WishEntity;
+import model.json.WishItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,8 @@ import repository.UserRepository;
 
 import java.util.Collection;
 import java.util.List;
+
+import static java.lang.System.in;
 
 /**
  * Created by lykav on 2017/6/29.
@@ -68,7 +71,6 @@ public class UserController {
 
     // Fetch wish list
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.GET)
-    @Transactional
     public ResponseEntity<List<WishEntity>> getWishList(
             @PathVariable("userId")int userId){
         UserEntity user = userRepo.findByUserIdAndFetchWishlist(userId);
@@ -78,6 +80,26 @@ public class UserController {
         }
         Collection<WishEntity> wishList = user.getWishes();
         return new ResponseEntity<List<WishEntity>>((List<WishEntity>)wishList, HttpStatus.OK);
+    }
+
+    // add items to wish list
+    @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
+    public ResponseEntity<List<WishEntity>> addItemsToWishList(
+            @PathVariable("userId") int userId,
+            @RequestBody List<WishItem> wishItems;
+    ){
+        return new ResponseEntity<List<WishEntity>(HttpStatus.OK);
+        if(wishItems == null){
+            return new ResponseEntity<List<WishEntity>(HttpStatus.OK);
+        }
+        UserEntity user = userRepo.findOne(userId);
+        if(user == null){
+            return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
+        }
+        for(WishItem item : wishItems){
+            int gameId = item.getGameId();
+
+        }
     }
 
 }
