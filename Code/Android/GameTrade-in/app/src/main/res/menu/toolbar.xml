@@ -7,17 +7,37 @@
     <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="50"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_myList"
         android:title="my list"
-        android:orderInCategory="99"
+        android:orderInCategory="100"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_publish"
         android:title="publish game"
-        android:orderInCategory="99"
+        android:orderInCategory="150"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_gameDetail"
+        android:title="game detail"
+        android:orderInCategory="200"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_register"
+        android:title="register"
+        android:orderInCategory="250"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_orderDetail"
+        android:title="order detail"
+        android:orderInCategory="300"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_HomeButton"
+        android:title="home"
+        android:orderInCategory="350"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_search"

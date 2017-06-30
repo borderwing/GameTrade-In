@@ -1,5 +1,7 @@
 package model;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
 
@@ -48,6 +50,7 @@ public class OfferEntity {
 
     @Basic
     @Column(name = "createtime", nullable = true)
+    @CreationTimestamp
     public Timestamp getCreateTime() {
         return createTime;
     }

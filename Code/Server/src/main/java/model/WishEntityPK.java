@@ -1,6 +1,10 @@
 package model;
 
+import com.fasterxml.jackson.annotation.*;
+import org.springframework.data.annotation.*;
+
 import javax.persistence.*;
+import javax.persistence.Transient;
 import java.io.Serializable;
 
 /**
@@ -11,7 +15,11 @@ public class WishEntityPK implements Serializable {
     private GameEntity game;
     private UserEntity user;
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "gameId")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("gameId")
     @ManyToOne
+    @JoinColumn(name = "gameID")
     public GameEntity getGame() {
         return game;
     }
@@ -20,7 +28,11 @@ public class WishEntityPK implements Serializable {
         this.game = game;
     }
 
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("userId")
     @ManyToOne
+    @JoinColumn(name = "userID")
     public UserEntity getUser() {
         return user;
     }

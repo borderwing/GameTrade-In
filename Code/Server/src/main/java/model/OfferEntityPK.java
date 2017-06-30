@@ -1,6 +1,9 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Embeddable;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
 
@@ -13,6 +16,7 @@ public class OfferEntityPK implements Serializable {
     private UserEntity user;
 
     @ManyToOne
+    @JoinColumn(name = "gameID")
     public GameEntity getGame() {
         return game;
     }
@@ -22,6 +26,8 @@ public class OfferEntityPK implements Serializable {
     }
 
     @ManyToOne
+    @JoinColumn(name = "userID")
+    @JsonIgnore
     public UserEntity getUser() {
         return user;
     }

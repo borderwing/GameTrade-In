@@ -10,16 +10,15 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-public class PublishActivity extends AppCompatActivity{
+public class OrderDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_publish);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.publishToolBar);
+        setContentView(R.layout.activity_orderdetail);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.orderDetailToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
-
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         ImageButton button = (ImageButton) findViewById(R.id.homeButton);
         button.setOnClickListener(listener);
@@ -29,15 +28,16 @@ public class PublishActivity extends AppCompatActivity{
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
-            intent.setClass(PublishActivity.this, MainActivity.class);
+            intent.setClass(OrderDetailActivity.this, MainActivity.class);
             startActivity(intent);
-            PublishActivity.this.finish();
+            OrderDetailActivity.this.finish();
         }
     };
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.toolbar, menu);
+
         return true;
     }
 
@@ -47,8 +47,13 @@ public class PublishActivity extends AppCompatActivity{
         public boolean onMenuItemClick(MenuItem menuItem)
         {
             String message = "";
-            Intent intent;
             switch (menuItem.getItemId()){
+                case R.id.action_myList:
+                    Intent intent = new Intent();
+                    intent.setClass(OrderDetailActivity.this, MyListActivity.class);
+                    startActivity(intent);
+                    OrderDetailActivity.this.finish();
+                    break;
                 case R.id.action_search:
                     message += "Click search";
                     break;
@@ -57,14 +62,14 @@ public class PublishActivity extends AppCompatActivity{
                     break;
                 case R.id.action_HomeButton:
                     intent = new Intent();
-                    intent.setClass(PublishActivity.this, MainActivity.class);
+                    intent.setClass(OrderDetailActivity.this, MainActivity.class);
                     startActivity(intent);
-                    PublishActivity.this.finish();
+                    OrderDetailActivity.this.finish();
                     break;
             }
             if(!message.equals(""))
             {
-                Toast.makeText(PublishActivity.this, message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(OrderDetailActivity.this, message, Toast.LENGTH_SHORT).show();
             }
             return true;
         }
