@@ -10,30 +10,30 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-public class PublishActivity extends AppCompatActivity{
+public class RegisterActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_publish);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.publishToolBar);
+        setContentView(R.layout.activity_register);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.registerToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
-
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         ImageButton button = (ImageButton) findViewById(R.id.homeButton);
         button.setOnClickListener(listener);
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
+        private View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
-            intent.setClass(PublishActivity.this, MainActivity.class);
+            intent.setClass(RegisterActivity.this, MainActivity.class);
             startActivity(intent);
-            PublishActivity.this.finish();
+            RegisterActivity.this.finish();
         }
     };
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -57,14 +57,14 @@ public class PublishActivity extends AppCompatActivity{
                     break;
                 case R.id.action_HomeButton:
                     intent = new Intent();
-                    intent.setClass(PublishActivity.this, MainActivity.class);
+                    intent.setClass(RegisterActivity.this, MainActivity.class);
                     startActivity(intent);
-                    PublishActivity.this.finish();
+                    RegisterActivity.this.finish();
                     break;
             }
             if(!message.equals(""))
             {
-                Toast.makeText(PublishActivity.this, message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
             }
             return true;
         }

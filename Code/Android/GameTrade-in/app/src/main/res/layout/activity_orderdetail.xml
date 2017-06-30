@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OrderDetailActivity">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/orderDetailToolBar"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:background="?attr/colorPrimary"
+        >
+        <ImageButton
+            android:id="@+id/homeButton"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/home">
+        </ImageButton>
+        <TextView
+            android:id = "@+id/orderDetailTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="My Order">
+        </TextView>
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:id = "@+id/orderDetailUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/orderDetailToolBar">
+        <ImageView
+            android:id = "@+id/orderDetailPhoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/plus"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp">
+        </ImageView>
+        <TextView
+            android:id = "@+id/orderDetailName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Game Name"
+            android:layout_below="@id/orderDetailPhoto"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            android:gravity="center">
+        </TextView>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

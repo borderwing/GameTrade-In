@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 public class GameDetailActivity extends AppCompatActivity {
@@ -13,13 +15,25 @@ public class GameDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mylist);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        setContentView(R.layout.activity_gamedetail);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setNavigationIcon(R.drawable.nav);
+
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
+        button.setOnClickListener(listener);
     }
+
+        private View.OnClickListener listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            intent.setClass(GameDetailActivity.this, MainActivity.class);
+            startActivity(intent);
+            GameDetailActivity.this.finish();
+        }
+    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -47,6 +61,12 @@ public class GameDetailActivity extends AppCompatActivity {
                     break;
                 case R.id.action_settings:
                     message += "Click setting";
+                    break;
+                case R.id.action_HomeButton:
+                    intent = new Intent();
+                    intent.setClass(GameDetailActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    GameDetailActivity.this.finish();
                     break;
             }
             if(!message.equals(""))
