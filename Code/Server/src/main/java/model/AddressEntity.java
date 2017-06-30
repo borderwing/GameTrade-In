@@ -1,5 +1,6 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -16,8 +17,8 @@ public class AddressEntity {
     private String phone;
     private String region;
     private String address;
-    // FK user in address table
 
+    // FK user in address table
     @JsonIgnore
     private UserEntity user;
 

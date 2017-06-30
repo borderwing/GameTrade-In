@@ -1,23 +1,17 @@
 package controller;
 
 import model.*;
-import model.json.WishItem;
+import model.json.WishJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-import repository.CustomerRepository;
-import repository.GameRepository;
-import repository.UserRepository;
-import repository.WishRepository;
+import repository.*;
 
 import java.util.*;
-
-import static java.lang.System.in;
 
 /**
  * Created by lykav on 2017/6/29.
@@ -36,6 +30,8 @@ public class UserController {
     GameRepository gameRepo;
     @Autowired
     WishRepository wishRepo;
+    @Autowired
+    AddressRepository addressRepo;
 
     // Retrieve Single User
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -57,17 +53,17 @@ public class UserController {
 
     // Create a User
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<Void> createUser(@RequestBody UserEntity user, UriComponentsBuilder ucBuilder){
+    public ResponseEntity<Void> createUser(@RequestBody CustomerEntity customer, UriComponentsBuilder ucBuilder){
         System.out.println("Creating User...");
 
-        if(userRepo.findByUsername(user.getUsername()) != null){
-            System.out.println("A User with username \"" + user.getUsername() + "\" already exist");
+        if(userRepo.findByUsername(customer.getUsername()) != null){
+            System.out.println("A User with username \"" + customer.getUsername() + "\" already exist");
             return new ResponseEntity<Void>(HttpStatus.CONFLICT);
         }
 
-        userRepo.saveAndFlush(user);
+        customerRepo.saveAndFlush(customer);
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path(apiPath + "/{id}").buildAndExpand(user.getUserId()).toUri());
+        headers.setLocation(ucBuilder.path(apiPath + "/{id}").buildAndExpand(customer.getUserId()).toUri());
 
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
@@ -89,9 +85,9 @@ public class UserController {
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
     public ResponseEntity<List<WishEntity>> addItemsToWishList(
             @PathVariable("userId") int userId,
-            @RequestBody List<WishItem> wishItems
+            @RequestBody List<WishJsonItem> wishJsonItems
     ){
-        if(wishItems == null){
+        if(wishJsonItems == null){
             return new ResponseEntity<List<WishEntity>>(HttpStatus.OK);
         }
         UserEntity user = userRepo.findOne(userId);
@@ -101,7 +97,7 @@ public class UserController {
 
         List<WishEntity> addedWishes = new Vector<WishEntity>();
 
-        for(WishItem requestItem : wishItems){
+        for(WishJsonItem requestItem : wishJsonItems){
             GameEntity game = gameRepo.findOne(requestItem.getGameId());
             if(game == null)  continue;
 
@@ -134,5 +130,20 @@ public class UserController {
 
         return new ResponseEntity<List<WishEntity>>((List<WishEntity>)addedWishes, HttpStatus.OK);
     }
+
+
+    // Fetch address
+    @RequestMapping(value = "/{userId}/address", method = RequestMethod.GET)
+    public ResponseEntity<List<AddressEntity>> getAddresses(
+            @PathVariable("userId")int userId){
+        UserEntity user = userRepo.findByUserIdAndFetchAddresses(userId);
+        if(user == null){
+            System.out.println("Cannot find User with id " + userId);
+            return new ResponseEntity<List<AddressEntity>>(HttpStatus.NOT_FOUND);
+        }
+        Collection<AddressEntity> addresses = user.getAddresses();
+        return new ResponseEntity<List<AddressEntity>>((List<AddressEntity>)addresses, HttpStatus.OK);
+    }
+
 
 }

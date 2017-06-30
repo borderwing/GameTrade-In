@@ -2,11 +2,11 @@
     {
         "gameId": 0,
         "points": 100,
-        "status": 0,
+        "status": 0
     },
     {
         "gameId": 1,
         "points": 200,
-        "status": 0,
+        "status": 0
     }
 ]

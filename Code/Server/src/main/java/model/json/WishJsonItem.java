@@ -3,7 +3,7 @@ package model.json;
 /**
  * Created by lykav on 2017/6/30.
  */
-public class WishItem {
+public class WishJsonItem {
     private int gameId;
     private int points;
     private int status;

@@ -1,6 +1,7 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -18,7 +19,9 @@ public class UserEntity {
     private String password;
     private Integer role;
 
+    @JsonIgnore
     private Collection<AddressEntity> addresses;
+
     @JsonIgnore
     private Collection<WishEntity> wishes;
     @JsonIgnore
