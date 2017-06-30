@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class MainController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index() {
-        ModelAndView mav=new ModelAndView("index");
+        ModelAndView mav = new ModelAndView("index");
         return mav;
     }
 }

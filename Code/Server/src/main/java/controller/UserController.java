@@ -1,8 +1,6 @@
 package controller;
 
-import model.CustomerEntity;
-import model.UserEntity;
-import model.WishEntity;
+import model.*;
 import model.json.WishItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,10 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import repository.CustomerRepository;
+import repository.GameRepository;
 import repository.UserRepository;
+import repository.WishRepository;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.System.in;
 
@@ -33,6 +32,10 @@ public class UserController {
     UserRepository userRepo;
     @Autowired
     CustomerRepository customerRepo;
+    @Autowired
+    GameRepository gameRepo;
+    @Autowired
+    WishRepository wishRepo;
 
     // Retrieve Single User
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -86,20 +89,50 @@ public class UserController {
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
     public ResponseEntity<List<WishEntity>> addItemsToWishList(
             @PathVariable("userId") int userId,
-            @RequestBody List<WishItem> wishItems;
+            @RequestBody List<WishItem> wishItems
     ){
-        return new ResponseEntity<List<WishEntity>(HttpStatus.OK);
         if(wishItems == null){
-            return new ResponseEntity<List<WishEntity>(HttpStatus.OK);
+            return new ResponseEntity<List<WishEntity>>(HttpStatus.OK);
         }
         UserEntity user = userRepo.findOne(userId);
         if(user == null){
             return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
         }
-        for(WishItem item : wishItems){
-            int gameId = item.getGameId();
 
+        List<WishEntity> addedWishes = new Vector<WishEntity>();
+
+        for(WishItem requestItem : wishItems){
+            GameEntity game = gameRepo.findOne(requestItem.getGameId());
+            if(game == null)  continue;
+
+            WishEntityPK wishEntityPK = new WishEntityPK();
+            wishEntityPK.setUser(user);
+            wishEntityPK.setGame(game);
+
+            WishEntity wish = wishRepo.findOne(wishEntityPK);
+
+            if(wish != null){
+                // user have already added this game to her wish list
+                System.out.println("user " + user.getUserId() + " has already added game " +
+                                    game.getGameId() + " in her wish list.");
+                continue;
+            }
+
+            wish = new WishEntity();
+            wish.setPoints(requestItem.getPoints());
+            wish.setStatus(requestItem.getStatus());
+            wish.getWishEntityPK().setUser(user);
+            wish.getWishEntityPK().setGame(game);
+
+
+            wish = wishRepo.saveAndFlush(wish);
+            addedWishes.add(wish);
+
+            System.out.println("added game " + game.getGameId() + " to user " +
+                               user.getUserId() + "\'s wish list.");
         }
+
+        return new ResponseEntity<List<WishEntity>>((List<WishEntity>)addedWishes, HttpStatus.OK);
     }
 
 }

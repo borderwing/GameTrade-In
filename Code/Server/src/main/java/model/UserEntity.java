@@ -1,6 +1,7 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -53,10 +54,12 @@ public class UserEntity {
 
     @Basic
     @Column(name = "password", nullable = true, length = 31)
+    @JsonIgnore     // ignore password during serialization
     public String getPassword() {
         return password;
     }
 
+    @JsonProperty   // do not ignore password during deserialization
     public void setPassword(String password) {
         this.password = password;
     }
