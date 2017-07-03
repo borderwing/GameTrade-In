@@ -71,6 +71,14 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
                     MainActivity.this.finish();
                     break;
+
+                case R.id.action_login:
+                    intent = new Intent();
+                    intent.setClass(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    MainActivity.this.finish();
+                    break;
+
                 case R.id.action_search:
                     message += "Click search";
                     break;

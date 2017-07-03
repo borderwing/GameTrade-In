@@ -3,13 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PublishActivity">
+    tools:context=".PublishActivity"
+    android:id = "@+id/layoutPublish">
+
     <android.support.v7.widget.Toolbar
         android:id="@+id/publishToolBar"
         android:layout_height="?attr/actionBarSize"
         android:layout_width="match_parent"
-        android:background="?attr/colorPrimary"
-        >
+        android:background="?attr/colorPrimary">
         <ImageButton
             android:id="@+id/homeButton"
             android:layout_width="40dp"
@@ -28,65 +29,14 @@
         </TextView>
     </android.support.v7.widget.Toolbar>
 
-    <RelativeLayout
-        android:id = "@+id/publishUp"
+    <fragment
+        android:id = "@+id/publishFragment"
+        android:name = "com.example.ye.gametrade_in.FragmentPublish"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/publishToolBar">
-        <ImageView
-            android:id = "@+id/publishPhoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/plus"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="40dp">
-        </ImageView>
-        <EditText
-            android:id = "@+id/publishName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Name"
-            android:layout_below="@id/publishPhoto"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp">
-        </EditText>
-        <EditText
-            android:id = "@+id/publishInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Info"
-            android:layout_below="@id/publishName"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp"
-            >
-        </EditText>
-        <EditText
-            android:id = "@+id/publishCredit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Credit"
-            android:layout_below="@id/publishInfo"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="40dp"
-            android:layout_marginRight="40dp">
-        </EditText>
-    </RelativeLayout>
+        android:layout_height="match_parent"
+        android:layout_below="@id/publishToolBar"
+        tools:layout="@layout/fragment_publish">
+    </fragment>
 
-    <Button
-        android:id = "@+id/publishButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/publishUp"
-        android:layout_centerHorizontal="true"
-        android:textColor="@color/colorPrimary"
-        android:textAllCaps="false"
-        android:text="Upload"
-        android:layout_marginTop="40dp">
-    </Button>
 
 </RelativeLayout>

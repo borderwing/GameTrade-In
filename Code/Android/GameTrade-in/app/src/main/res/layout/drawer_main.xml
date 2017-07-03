@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id = "@+id/drawer_main"
+    android:background="#ccc"
+    >
+
+    <fragment
+        android:id = "@+id/menuHeaderFragment"
+        android:name = "com.example.ye.gametrade_in.FragmentMenuHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_menuheader">
+    </fragment>
+
+    <RelativeLayout
+        android:id="@+id/mainMenuDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/menuHeaderFragment"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/menuMyList"
+            android:layout_marginTop="20dp">
+            <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src = "@drawable/gameicon"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="My List"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuMyShare"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/menuMyList"
+            android:layout_marginTop="30dp">
+            <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src = "@drawable/gameicon"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="My Share"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuMyOrder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/menuMyShare"
+            android:layout_marginTop="30dp">
+            <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src = "@drawable/gameicon"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="My Order"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuSettings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/menuMyOrder"
+            android:layout_marginTop="30dp">
+            <ImageView
+                android:layout_height="30dp"
+                android:layout_width="30dp"
+                android:src = "@drawable/gameicon"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center_vertical"
+                android:layout_marginLeft="20dp"
+                android:text="Setting"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</RelativeLayout>
