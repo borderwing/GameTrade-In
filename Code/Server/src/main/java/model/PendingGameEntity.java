@@ -20,6 +20,7 @@ public class PendingGameEntity {
     private UserEntity reviewer;
 
     @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
     @Column(name = "PendingGamesID", nullable = false)
     public int getPendingGamesId() {
         return pendingGamesId;

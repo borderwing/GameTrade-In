@@ -3,33 +3,31 @@
 /* Created on:     2017/6/27 16:32:08                           */
 /*==============================================================*/
 
-
-drop table if exists Addresses;
-
 drop table if exists CustomerInfo;
-
-drop table if exists Games;
 
 drop table if exists Offers;
 
 drop table if exists PendingGames;
 
-drop table if exists TradeGames;
-
 drop table if exists TradeInfo;
-
-drop table if exists TradeOrders;
-
-drop table if exists Users;
 
 drop table if exists Wishes;
 
+drop table if exists TradeGames;
+
+drop table if exists TradeOrders;
+
+drop table if exists Games;
+
+drop table if exists Addresses;
+
+drop table if exists Users;
 /*==============================================================*/
 /* Table: Addresses                                             */
 /*==============================================================*/
 create table Addresses
 (
-   addressID            int not null,
+   addressID            int not null auto_increment,
    userID               int,
    receiver             varchar(255),
    phone                varchar(127),
@@ -55,7 +53,7 @@ create table CustomerInfo
 /*==============================================================*/
 create table Games
 (
-   gameID               int not null,
+   gameID               int not null auto_increment,
    title                varchar(1024),
    platform             varchar(1024),
    language             varchar(1024),
@@ -82,7 +80,7 @@ create table Offers
 /*==============================================================*/
 create table PendingGames
 (
-   PendingGamesID       int not null,
+   PendingGamesID       int not null auto_increment,
    proposerID           int,
    reviewerID           int,
    title                varchar(1024),
@@ -98,7 +96,7 @@ create table PendingGames
 /*==============================================================*/
 create table TradeGames
 (
-   tradeGameID          int not null,
+   tradeGameID          int not null auto_increment,
    tradeOrderID         int,
    gameID               int not null,
    trackingNumber       varchar(1024),
@@ -126,7 +124,7 @@ create table TradeInfo
 /*==============================================================*/
 create table TradeOrders
 (
-   tradeOrderID         int not null,
+   tradeOrderID         int not null auto_increment,
    createtime           timestamp,
    status               int,
    primary key (tradeOrderID)
@@ -137,7 +135,7 @@ create table TradeOrders
 /*==============================================================*/
 create table Users
 (
-   userID               int not null,
+   userID               int not null auto_increment,
    username             varchar(31),
    password             varchar(31),
    role                 int,

@@ -1,6 +1,9 @@
 package controller;
 
 import model.*;
+import model.json.CreateGameJsonItem;
+import model.json.LoginJsonItem;
+import model.json.RegisterJsonItem;
 import model.json.WishJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import repository.*;
 
+import javax.validation.constraints.Null;
+import javax.ws.rs.Path;
 import java.util.*;
 
 /**
@@ -32,53 +37,38 @@ public class UserController {
     WishRepository wishRepo;
     @Autowired
     AddressRepository addressRepo;
+    @Autowired
+    PendingGameRepository pendingGameRepo;
 
     // Retrieve Single User
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<UserEntity> getUser(@PathVariable("id") int id){
+    public ResponseEntity<UserEntity> getUser(@PathVariable("id") int id) {
         System.out.println("Fetching User with id " + id);
         UserEntity user = userRepo.findOne(id);
-        if(user == null){
+        if (user == null) {
             System.out.println("Cannot find User with id " + id);
             return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
         }
 
         CustomerEntity customer = customerRepo.findOne(user.getUserId());
-        if(customer != null){
+        if (customer != null) {
             return new ResponseEntity<UserEntity>(customer, HttpStatus.OK);
         }
 
         return new ResponseEntity<UserEntity>(user, HttpStatus.OK);
     }
 
-    // Create a User
-    @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<Void> createUser(@RequestBody CustomerEntity customer, UriComponentsBuilder ucBuilder){
-        System.out.println("Creating User...");
-
-        if(userRepo.findByUsername(customer.getUsername()) != null){
-            System.out.println("A User with username \"" + customer.getUsername() + "\" already exist");
-            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-        }
-
-        customerRepo.saveAndFlush(customer);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(ucBuilder.path(apiPath + "/{id}").buildAndExpand(customer.getUserId()).toUri());
-
-        return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
-    }
-
     // Fetch wish list
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.GET)
     public ResponseEntity<List<WishEntity>> getWishList(
-            @PathVariable("userId")int userId){
+            @PathVariable("userId") int userId) {
         UserEntity user = userRepo.findByUserIdAndFetchWishlist(userId);
-        if(user == null){
+        if (user == null) {
             System.out.println("Cannot find User with id " + userId);
             return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
         }
         Collection<WishEntity> wishList = user.getWishes();
-        return new ResponseEntity<List<WishEntity>>((List<WishEntity>)wishList, HttpStatus.OK);
+        return new ResponseEntity<List<WishEntity>>((List<WishEntity>) wishList, HttpStatus.OK);
     }
 
     // add items to wish list
@@ -86,17 +76,17 @@ public class UserController {
     public ResponseEntity<WishEntity> addItemsToWishList(
             @PathVariable("userId") int userId,
             @RequestBody WishJsonItem wishJsonItem
-    ){
-        if(wishJsonItem == null){
+    ) {
+        if (wishJsonItem == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.OK);
         }
         UserEntity user = userRepo.findOne(userId);
-        if(user == null){
+        if (user == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
         GameEntity game = gameRepo.findOne(wishJsonItem.getGameId());
-        if(game == null)  return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        if (game == null) return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
 
         WishEntityPK wishEntityPK = new WishEntityPK();
         wishEntityPK.setUser(user);
@@ -104,10 +94,10 @@ public class UserController {
 
         WishEntity wish = wishRepo.findOne(wishEntityPK);
 
-        if(wish != null){
+        if (wish != null) {
             // user have already added this game to her wish list
             System.out.println("user " + user.getUserId() + " has already added game " +
-                                game.getGameId() + " in her wish list.");
+                    game.getGameId() + " in her wish list.");
             return new ResponseEntity<WishEntity>(HttpStatus.CONFLICT);
         }
 
@@ -121,25 +111,55 @@ public class UserController {
         wish = wishRepo.saveAndFlush(wish);
 
         System.out.println("added game " + game.getGameId() + " to user " +
-                           user.getUserId() + "\'s wish list.");
+                user.getUserId() + "\'s wish list.");
 
 
         return new ResponseEntity<WishEntity>(wish, HttpStatus.OK);
     }
 
-
     // Fetch address
     @RequestMapping(value = "/{userId}/address", method = RequestMethod.GET)
     public ResponseEntity<List<AddressEntity>> getAddresses(
-            @PathVariable("userId")int userId){
+            @PathVariable("userId") int userId) {
         UserEntity user = userRepo.findByUserIdAndFetchAddresses(userId);
-        if(user == null){
+        if (user == null) {
             System.out.println("Cannot find User with id " + userId);
             return new ResponseEntity<List<AddressEntity>>(HttpStatus.NOT_FOUND);
         }
         Collection<AddressEntity> addresses = user.getAddresses();
-        return new ResponseEntity<List<AddressEntity>>((List<AddressEntity>)addresses, HttpStatus.OK);
+        return new ResponseEntity<List<AddressEntity>>((List<AddressEntity>) addresses, HttpStatus.OK);
     }
 
 
+    //Create Game to pending game
+    @RequestMapping(value = "/{userId}/createGame", method = RequestMethod.POST)
+    public ResponseEntity<Void> createGame(@RequestBody CreateGameJsonItem gameItem, @PathVariable("userId") int userId) {
+        //check the game whether duplicated
+        System.out.println("check the game title...");
+        List<GameEntity> currentGame=gameRepo.findByTitle(gameItem.getTitle());
+        System.out.println(currentGame.size());
+        if(currentGame.size()!=0){
+            System.out.println("the game is already in library");
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+
+        //create game
+        System.out.println("the game is not in the library and now creating the game");
+        UserEntity user=userRepo.findOne(userId);
+        if(user==null){
+            System.out.println("user cant found");
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        PendingGameEntity pendingGame=new PendingGameEntity();
+        pendingGame.setLanguage(gameItem.getLanguage());
+        pendingGame.setGenre(gameItem.getGenre());
+        pendingGame.setPlatform(gameItem.getPlatform());
+        pendingGame.setTitle(gameItem.getTitle());
+        pendingGame.setStatus(0);
+        pendingGame.setProposer(user);
+
+        pendingGameRepo.saveAndFlush(pendingGame);
+
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

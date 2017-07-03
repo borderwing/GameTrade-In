@@ -14,7 +14,7 @@ import java.util.Collection;
 @Inheritance(strategy=InheritanceType.JOINED)
 @Table(name = "users", catalog = "")
 public class UserEntity {
-    private int userId;
+    private int userId=0;
     private String username;
     private String password;
     private Integer role;

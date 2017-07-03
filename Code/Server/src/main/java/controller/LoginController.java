@@ -26,8 +26,8 @@ public class LoginController {
     public ResponseEntity<Void> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
         UserEntity user=userrepository.findByUsername(loginItem.getUsername());
-        System.out.println(user.getPassword());
         if(user==null){
+            //cant find the user
             System.out.println("not find user");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
@@ -36,6 +36,7 @@ public class LoginController {
         }
 
         else {
+            //wrong password
             System.out.println("password wrong");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
