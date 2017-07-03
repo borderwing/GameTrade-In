@@ -1,6 +1,8 @@
 package model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
 import java.util.Collection;
@@ -17,7 +19,9 @@ public class UserEntity {
     private String password;
     private Integer role;
 
+    @JsonIgnore
     private Collection<AddressEntity> addresses;
+
     @JsonIgnore
     private Collection<WishEntity> wishes;
     @JsonIgnore
@@ -53,10 +57,12 @@ public class UserEntity {
 
     @Basic
     @Column(name = "password", nullable = true, length = 31)
+    @JsonIgnore     // ignore password during serialization
     public String getPassword() {
         return password;
     }
 
+    @JsonProperty   // do not ignore password during deserialization
     public void setPassword(String password) {
         this.password = password;
     }
