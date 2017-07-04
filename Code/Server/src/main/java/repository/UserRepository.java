@@ -19,6 +19,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT p FROM UserEntity p JOIN FETCH p.wishes WHERE p.userId = (:id)")
     UserEntity findByUserIdAndFetchWishlist(@Param("id") int userId);
 
+    @Query("select p from UserEntity p join fetch p.offers where p.userId=:id")
+    UserEntity findByUserIdAndFetchOfferlist(@Param("id")int userId);
+
     @Query("SELECT p FROM UserEntity p JOIN FETCH p.addresses WHERE p.userId = (:id)")
     UserEntity findByUserIdAndFetchAddresses(@Param("id") int userId);
 

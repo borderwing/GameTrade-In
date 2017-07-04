@@ -1,5 +1,6 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
@@ -16,10 +17,10 @@ public class OfferEntity {
 
     private Integer points;
     private Integer status;
-    private Timestamp createTime;
 
 
     @EmbeddedId
+    @JsonProperty("pair")
     public OfferEntityPK getOfferEntityPK(){
         return offerEntityPK;
     }
@@ -48,17 +49,6 @@ public class OfferEntity {
         this.status = status;
     }
 
-    @Basic
-    @Column(name = "createtime", nullable = true)
-    @CreationTimestamp
-    public Timestamp getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Timestamp createTime) {
-        this.createTime = createTime;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -66,17 +56,18 @@ public class OfferEntity {
 
         OfferEntity that = (OfferEntity) o;
 
-        if (offerEntityPK != that.offerEntityPK) return false;
+        if (offerEntityPK != null ? !offerEntityPK.equals(that.offerEntityPK) : that.offerEntityPK != null)
+            return false;
         if (points != null ? !points.equals(that.points) : that.points != null) return false;
-        if (status != null ? !status.equals(that.status) : that.status != null) return false;
-        if (createTime != null ? !createTime.equals(that.createTime) : that.createTime != null) return false;
-
-        return true;
+        return status != null ? status.equals(that.status) : that.status == null;
     }
 
     @Override
     public int hashCode() {
-        return (getOfferEntityPK() != null ? getOfferEntityPK().hashCode() : 0);
+        int result = offerEntityPK != null ? offerEntityPK.hashCode() : 0;
+        result = 31 * result + (points != null ? points.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        return result;
     }
 
     @Transient

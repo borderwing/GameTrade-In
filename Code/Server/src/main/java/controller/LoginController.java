@@ -23,22 +23,22 @@ public class LoginController {
     UserRepository userrepository;
 
     @RequestMapping(value="/",method= RequestMethod.POST)
-    public ResponseEntity<Void> checkLogin(@RequestBody LoginJsonItem loginItem){
+    public ResponseEntity<UserEntity> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
         UserEntity user=userrepository.findByUsername(loginItem.getUsername());
         if(user==null){
             //cant find the user
             System.out.println("not find user");
-            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
         }
         if(user.getPassword().equals(loginItem.getPassword())){
-            return new ResponseEntity<Void>(HttpStatus.OK);
+            return new ResponseEntity<UserEntity>(user,HttpStatus.OK);
         }
 
         else {
             //wrong password
             System.out.println("password wrong");
-            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
         }
     }
 }

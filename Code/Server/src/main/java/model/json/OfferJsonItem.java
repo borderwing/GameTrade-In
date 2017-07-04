@@ -1,9 +1,9 @@
 package model.json;
 
 /**
- * Created by lykav on 2017/6/30.
+ * Created by homepppp on 2017/7/4.
  */
-public class WishJsonItem {
+public class OfferJsonItem {
     private int gameId;
     private int points;
 
@@ -22,5 +22,4 @@ public class WishJsonItem {
     public void setPoints(int points) {
         this.points = points;
     }
-
 }
