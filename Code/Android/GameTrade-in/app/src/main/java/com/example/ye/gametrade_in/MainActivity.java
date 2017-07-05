@@ -7,7 +7,14 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.GridView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -21,6 +28,34 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
+        GridView gameGridView = (GridView) findViewById(R.id.gameGridView);
+        ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
+        for(int i = 0; i < 10; i++){
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("gameItemImage", R.drawable.gameicon);
+            map.put("gameItemText", "NO."+String.valueOf(i));
+            ListImageItem.add(map);
+        }
+
+        SimpleAdapter homeGameItems =  new SimpleAdapter
+                (this, ListImageItem, R.layout.item, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.gameItemImage, R.id.gameItemText});
+
+        gameGridView.setAdapter(homeGameItems);
+
+        gameGridView.setOnItemClickListener(new gameItemClickListener());
+    }
+
+    private class gameItemClickListener implements AdapterView.OnItemClickListener {
+        public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
+            Intent intent;
+            intent = new Intent();
+            intent.putExtra("gameId", String.valueOf(arg2));
+            intent.setClass(MainActivity.this, GameDetailActivity.class);
+            startActivity(intent);
+            MainActivity.this.finish();
+            //HashMap<String, Object> item = (HashMap<String, Object>) arg0.getItemAtPosition(arg2);
+            //setTitle((String)item.get("gameItemText"));
+        }
     }
 
     @Override

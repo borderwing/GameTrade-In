@@ -60,6 +60,7 @@ public class FragmentRegister extends Fragment{
 
         @Override
         protected  void onPreExecute(){
+            status = "username is available ";
         }
 
         @Override

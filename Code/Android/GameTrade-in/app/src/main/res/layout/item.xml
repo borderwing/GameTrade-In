@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:padding="10dp">
+    android:paddingBottom="4dip"
+    android:layout_width="fill_parent">
 
     <ImageView
-        android:src = "@drawable/gameicon"
-        android:id = "@+id/gameIcon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        />
-    <TextView
-        android:id="@+id/gameIconText"
-        android:layout_marginTop="5dp"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#ffffff"
-        android:text = "gameIconText"
-        />
+        android:id="@+id/gameItemImage"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true">
+    </ImageView>
 
-</LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/gameItemImage"
+        android:layout_height="wrap_content"
+        android:text="Game01"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/gameItemText">
+    </TextView>
+</RelativeLayout>

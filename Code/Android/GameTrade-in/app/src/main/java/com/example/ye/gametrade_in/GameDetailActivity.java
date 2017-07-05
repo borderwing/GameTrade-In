@@ -20,6 +20,15 @@ public class GameDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gamedetail);
+
+        Intent intent = getIntent();
+        String gameId = intent.getStringExtra("gameId");
+
+        FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
+        Bundle bundle = new Bundle();
+        bundle.putString("gameId", gameId);
+        fragmentGameDetail.setArguments(bundle);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
