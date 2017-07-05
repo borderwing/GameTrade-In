@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,11 +24,20 @@ public class GameDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String gameId = intent.getStringExtra("gameId");
+        Log.d ("String", gameId);
 
         FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
+
+        android.app.FragmentManager manager = getFragmentManager();
+        android.app.FragmentTransaction transaction =manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
         fragmentGameDetail.setArguments(bundle);
+        transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
+        transaction.commit();
+        //FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
+        //fragmentGameDetail.setArguments(bundle);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);

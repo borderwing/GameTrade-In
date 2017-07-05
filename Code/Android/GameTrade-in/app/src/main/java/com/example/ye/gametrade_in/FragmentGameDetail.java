@@ -30,7 +30,8 @@ public class FragmentGameDetail extends Fragment{
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
-        gameDetailId=getArguments().getString("gameId");
+        Bundle bundle = getArguments();
+        gameDetailId = bundle.getString("gameId");
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
     }
 
@@ -82,7 +83,7 @@ public class FragmentGameDetail extends Fragment{
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/game/"+params[0];
+                urlStr = "http://192.168.1.27:8080/api/game/"+gameDetailId;
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestMethod("GET");
