@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         for(int i = 0; i < 10; i++){
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("gameItemImage", R.drawable.gameicon);
-            map.put("gameItemText", "NO."+String.valueOf(i));
+            map.put("gameItemText", "NO."+String.valueOf(i+1));
             ListImageItem.add(map);
         }
 
@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
             Intent intent;
             intent = new Intent();
-            intent.putExtra("gameId", String.valueOf(arg2));
+            intent.putExtra("gameId", String.valueOf(arg2+1));
             intent.setClass(MainActivity.this, GameDetailActivity.class);
             startActivity(intent);
             MainActivity.this.finish();

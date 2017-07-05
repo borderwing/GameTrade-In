@@ -25,13 +25,13 @@
             android:id="@+id/gameDetailToolbarTitle" />
     </android.support.v7.widget.Toolbar>
 
-    <fragment
+    <!--<fragment
         android:id = "@+id/gameDetailFragment"
         android:name = "com.example.ye.gametrade_in.FragmentGameDetail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/gameDetailToolBar"
         tools:layout="@layout/fragment_gamedetail">
-    </fragment>
+    </fragment>-->
 
 </RelativeLayout>
