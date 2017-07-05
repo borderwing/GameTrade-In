@@ -1,11 +1,12 @@
 package model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * Created by homepppp on 2017/6/28.
@@ -14,7 +15,19 @@ import java.io.Serializable;
 public class OfferEntityPK implements Serializable {
     private GameEntity game;
     private UserEntity user;
+    private Timestamp createTime;
 
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "createTime")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("createTime")
+    public Timestamp getCreateTime() {return createTime;}
+
+    public void setCreateTime(Timestamp createTime) {this.createTime = createTime;}
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "gameId")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("gameId")
     @ManyToOne
     @JoinColumn(name = "gameID")
     public GameEntity getGame() {
@@ -25,9 +38,12 @@ public class OfferEntityPK implements Serializable {
         this.game = game;
     }
 
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("userId")
     @ManyToOne
     @JoinColumn(name = "userID")
-    @JsonIgnore
     public UserEntity getUser() {
         return user;
     }
@@ -45,15 +61,14 @@ public class OfferEntityPK implements Serializable {
 
         if (game != null ? !game.equals(that.game) : that.game != null) return false;
         if (user != null ? !user.equals(that.user) : that.user != null) return false;
-
-        return true;
+        return createTime != null ? createTime.equals(that.createTime) : that.createTime == null;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = (game != null ? game.hashCode() : 0);
+        int result = game != null ? game.hashCode() : 0;
         result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
         return result;
     }
 }

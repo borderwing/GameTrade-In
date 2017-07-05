@@ -18,7 +18,7 @@ public class WishEntity {
 
     private Integer points;
     private Integer status;
-    private Timestamp createTime;
+    //private Timestamp createTime;
 
 
     @EmbeddedId
@@ -52,7 +52,7 @@ public class WishEntity {
         this.status = status;
     }
 
-    @Basic
+    /*@Basic
     @Column(name = "createtime", nullable = true)
     @CreationTimestamp
     public Timestamp getCreateTime() {
@@ -62,7 +62,7 @@ public class WishEntity {
     public void setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
     }
-
+*/
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

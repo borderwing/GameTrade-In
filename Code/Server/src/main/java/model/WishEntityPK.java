@@ -6,6 +6,7 @@ import org.springframework.data.annotation.*;
 import javax.persistence.*;
 import javax.persistence.Transient;
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 /**
  * Created by homepppp on 2017/6/28.
@@ -14,6 +15,15 @@ import java.io.Serializable;
 public class WishEntityPK implements Serializable {
     private GameEntity game;
     private UserEntity user;
+    private Timestamp createTime;
+
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "createTime")
+    @JsonIdentityReference(alwaysAsId = true)
+    @JsonProperty("createTime")
+    public Timestamp getCreateTime() {return createTime;}
+
+    public void setCreateTime(Timestamp createTime) {this.createTime = createTime;}
+
 
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "gameId")
     @JsonIdentityReference(alwaysAsId = true)
@@ -50,15 +60,14 @@ public class WishEntityPK implements Serializable {
 
         if (game != null ? !game.equals(that.game) : that.game != null) return false;
         if (user != null ? !user.equals(that.user) : that.user != null) return false;
-
-        return true;
+        return createTime != null ? createTime.equals(that.createTime) : that.createTime == null;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = (game != null ? game.hashCode() : 0);
+        int result = game != null ? game.hashCode() : 0;
         result = 31 * result + (user != null ? user.hashCode() : 0);
+        result = 31 * result + (createTime != null ? createTime.hashCode() : 0);
         return result;
     }
 }
