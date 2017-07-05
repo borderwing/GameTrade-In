@@ -2,44 +2,57 @@ package com.example.ye.gametrade_in;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 public class GameDetailActivity extends AppCompatActivity {
 
+    private ImageButton homebutton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gamedetail);
+
+        Intent intent = getIntent();
+        String gameId = intent.getStringExtra("gameId");
+
+        FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
+        Bundle bundle = new Bundle();
+        bundle.putString("gameId", gameId);
+        fragmentGameDetail.setArguments(bundle);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
 
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+        homebutton = (ImageButton) findViewById(R.id.homeButton);
+        homebutton.setOnClickListener(onHomeButtonListener);
     }
 
-        private View.OnClickListener listener = new View.OnClickListener() {
+        private View.OnClickListener onHomeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
             intent.setClass(GameDetailActivity.this, MainActivity.class);
             startActivity(intent);
             GameDetailActivity.this.finish();
-        }
-    };
+            }
+        };
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.toolbar, menu);
-
         return true;
     }
 

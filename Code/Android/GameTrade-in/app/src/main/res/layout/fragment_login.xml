@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id = "@+id/loginUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp">
+
+        <ImageView
+            android:id = "@+id/loginPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/userlauncher"
+            android:layout_marginTop="30dp"
+            android:contentDescription="@string/app_name">
+        </ImageView>
+
+        <EditText
+            android:id = "@+id/loginUserName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Username"
+            android:layout_below="@id/loginPhoto"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+
+        <EditText
+            android:id = "@+id/loginPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:layout_below="@id/loginUserName"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+    </RelativeLayout>
+
+    <Button
+        android:id = "@+id/loginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginUp"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorPrimary"
+        android:textAllCaps="false"
+        android:text="Login"
+        android:layout_marginTop="80dp">
+    </Button>
+    <TextView
+        android:id="@+id/loginMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/loginButton"
+        android:layout_centerHorizontal="true">
+
+    </TextView>
+
+</RelativeLayout>

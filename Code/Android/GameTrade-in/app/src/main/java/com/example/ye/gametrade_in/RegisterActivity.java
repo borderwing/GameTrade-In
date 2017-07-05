@@ -1,6 +1,7 @@
 package com.example.ye.gametrade_in;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import org.json.JSONObject;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class RegisterActivity extends AppCompatActivity{
 
@@ -69,4 +76,8 @@ public class RegisterActivity extends AppCompatActivity{
             return true;
         }
     };
+
+
+
+
 }
