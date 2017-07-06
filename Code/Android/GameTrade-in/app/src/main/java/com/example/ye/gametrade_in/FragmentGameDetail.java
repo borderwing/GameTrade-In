@@ -14,24 +14,32 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class FragmentGameDetail extends Fragment{
 
     TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView;
+    EditText addToListEdit;
     String gameTitle, gameText;
-    Integer points;
+    Integer addToListPoints;
     ImageButton addToList;
     String gameDetailId;
+    String userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
         Bundle bundle = getArguments();
         gameDetailId = bundle.getString("gameId");
+        userId = bundle.getString("userId");
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
     }
 
@@ -41,6 +49,7 @@ public class FragmentGameDetail extends Fragment{
         gameTitleView = (TextView) getView().findViewById(R.id.gameTitle);
         gameTextView = (TextView) getView().findViewById(R.id.gameText);
         gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
+        addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
 
         gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
         gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
@@ -55,10 +64,18 @@ public class FragmentGameDetail extends Fragment{
     private View.OnClickListener onAddToListListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            //new GameDetailTask().execute(1);
-            /*//
-            GameDetailTask gameDetailTask = new GameDetailTask();
-            gameDetailTask.execute(1);*/
+            boolean canAdd ;
+            try{
+                addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
+                canAdd = true;
+            }
+            catch (Exception ece){
+                showDialog("Wrong input");
+                canAdd = false;
+            }
+            if (canAdd ) {
+                AddToList(Integer.valueOf(gameDetailId), addToListPoints);
+            }
         }
     };
 
@@ -78,7 +95,6 @@ public class FragmentGameDetail extends Fragment{
         @Override
         protected  void onPreExecute(){
         }
-
         @Override
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
@@ -102,23 +118,112 @@ public class FragmentGameDetail extends Fragment{
             }
             return null;
         }
+        @Override
+        protected void onProgressUpdate(Integer... progresses)
+        {
+            super.onProgressUpdate(progresses);
+        }
+        @Override
+        protected  void onPostExecute(String result)
+        {
+            setGameDetail(game.title,game.platform, game.language, game.genre, String.valueOf(game.evaluatePoint));
+            super.onPostExecute(result);
+        }
+    }
+
+
+    private JSONObject formatJSON(Integer gameId, Integer wishPoints){
+        final JSONObject root = new JSONObject();
+        try {
+            // JSON
+            // {
+            //     "gameId": gameId,
+            //     "points": wishPoints
+            // }
+            root.put("gameId", gameId);
+            root.put("points", wishPoints);
+            return root;
+        }
+        catch(JSONException exc){
+            exc.printStackTrace();
+        }
+        return root;
+    }
+
+
+    private void AddToList(Integer gameId, Integer wishPoints){
+        final JSONObject postJson = formatJSON(gameId, wishPoints);
+        new FragmentGameDetail.AddToListTask().execute(postJson);
+    }
+
+    private class AddToListTask extends AsyncTask<JSONObject, Integer, String> {
+        private String status,urlStr;
+        private JSONObject postJson;
+        private int responseCode = -1;
+
+        @Override
+        protected  void onPreExecute(){
+            // showDialog("start");
+        }
+
+        @Override
+        protected  String doInBackground(JSONObject... params){
+            postJson = params[0];
+            HttpURLConnection urlConn;
+            try {
+                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/wishlist/";
+                URL url = new URL(urlStr);
+                urlConn = (HttpURLConnection) url.openConnection();
+
+                // start connection
+                urlConn.setDoOutput(true);
+                urlConn.setDoInput(true);
+                urlConn.setUseCaches(false);
+                urlConn.setRequestMethod("POST");
+                urlConn.setRequestProperty("Content-Type","application/json");
+                urlConn.connect();
+                OutputStream out = urlConn.getOutputStream();
+                out.write(postJson.toString().getBytes());
+                out.flush();
+                out.close();
+                // upload json
+
+                responseCode = urlConn.getResponseCode();
+                if(responseCode == 200){
+                    status = "Game has been successfully added to your wish list";
+                }
+                else if(responseCode == 409){
+                    status = "Your wish list includes this game";
+                }
+                else if(responseCode == 404){
+                    status = "Connection problem";
+                }
+                // status="connected: " +postJson.toString()+ " " + responseCode;
+            }
+            catch (Exception exc){
+                exc.printStackTrace();
+                status = "Disconnected: " + responseCode;
+            }
+            return null;
+        }
 
         @Override
         protected void onProgressUpdate(Integer... progresses)
         {
             super.onProgressUpdate(progresses);
-            // showDialog("......");
+            showDialog("......");
         }
 
         @Override
         protected  void onPostExecute(String result)
         {
-            setGameDetail(game.title,game.platform, game.language, game.genre, String.valueOf(game.evaluatePoint));
-            // showDialog(status);
+            //showDialog("finish");
+            showDialog(status);
             //showDialog(postJson);
             super.onPostExecute(result);
         }
     }
+
 
 
     private void showDialog(String msg){

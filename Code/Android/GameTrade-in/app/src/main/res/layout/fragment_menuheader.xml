@@ -24,6 +24,10 @@
             android:layout_height="40dp"
             android:layout_below="@id/menuUserPic"
             android:layout_marginTop="30dp">
+            <RelativeLayout
+                android:id="@+id/menuUserDetailedHeader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
             <TextView
                 android:id="@+id/menuUserName"
                 android:layout_width="wrap_content"
@@ -37,7 +41,7 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:text="100"
+                android:text="0"
                 android:gravity="center"
                 android:textSize="15dp"/>
             <TextView
@@ -50,6 +54,23 @@
                 android:layout_alignRight="@id/menuCredits"
                 android:gravity="center"
                 android:textSize="15dp"/>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/menuDefaultHeader"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            <Button
+                android:id = "@+id/menuRegisterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="register"/>
+            <Button
+                android:id = "@+id/menuLoginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="login"
+                android:layout_alignParentRight="true"/>
+            </RelativeLayout>
         </RelativeLayout>
     </RelativeLayout>
 

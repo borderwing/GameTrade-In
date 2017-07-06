@@ -27,7 +27,6 @@
             />
     </android.support.v7.widget.Toolbar>
 
-
     <GridView
         android:id="@+id/gameGridView"
         android:layout_width="match_parent"

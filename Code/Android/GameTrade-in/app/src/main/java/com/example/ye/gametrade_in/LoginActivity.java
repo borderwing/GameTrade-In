@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +28,9 @@ import java.net.URL;
 public class LoginActivity extends AppCompatActivity {
 
     private Button login;
+    private String nameString, password;
     private EditText userName, userPassword;
+    public Integer userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,20 +41,22 @@ public class LoginActivity extends AppCompatActivity {
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
-
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
-
     }
 
-    private void showDialog(String msg){
+    private void showDialog(String msg, final Boolean canJump){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int id){
+                if(canJump) {
+                    BackToMainWithId(userId);
+                }
+                else if(!canJump){
+                }
             }
         });
         AlertDialog alert = builder.create();
@@ -117,12 +123,14 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
+
     private View.OnClickListener onLoginClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-                String nameString = userName.getText().toString();
-                String password = userPassword.getText().toString();
+                nameString = userName.getText().toString();
+                password = userPassword.getText().toString();
                 login(nameString, password);
+
         }
     };
 
@@ -146,14 +154,24 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String username, String password){
-        String urlStr = "http://192.168.1.27:8080/api/login";
+        // String urlStr = "http://192.168.1.27:8080/api/login";
         final JSONObject postJson = formatJSON(username, password);
         new LoginTask().execute(postJson);
+    }
+
+    public void BackToMainWithId(Integer userId){
+        Intent intent = new Intent();
+        intent.putExtra("userId", userId);
+        intent.setClass(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        LoginActivity.this.finish();
     }
 
     private class LoginTask extends AsyncTask<JSONObject, Integer, String>{
         private String status,urlStr;
         private JSONObject postJson;
+        public UserBean user;
+        public boolean canJump;
         private int responseCode = -1;
 
         @Override
@@ -177,18 +195,33 @@ public class LoginActivity extends AppCompatActivity {
                 urlConn.setRequestMethod("POST");
                 urlConn.setRequestProperty("Content-Type","application/json");
                 urlConn.connect();
+
                 OutputStream out = urlConn.getOutputStream();
+
                 out.write(postJson.toString().getBytes());
                 out.flush();
+                InputStream in = urlConn.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                JSONProcessor jsonProcessor = new JSONProcessor();
+                user = jsonProcessor.GetUserBean(reader.readLine());
                 out.close();
                 // upload json
-
+                userId = user.userId;
                 responseCode = urlConn.getResponseCode();
-                status="connected: " +postJson.toString()+ " " + responseCode;
+
+                if(responseCode == 200){
+                    status = "Welcome back: " + nameString;
+                }
+                else if(responseCode == 404){
+                    status = "Please input right username and password";
+                }
+                canJump = true;
+                //status="connected: " + user.toString() + postJson.toString()+ " " + responseCode;
             }
             catch (Exception exc){
                 exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
+                status = "Please input right username and password";
+                canJump = false;
             }
             return null;
         }
@@ -197,14 +230,14 @@ public class LoginActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer... progresses)
         {
             super.onProgressUpdate(progresses);
-            // showDialog("......");
         }
 
         @Override
         protected  void onPostExecute(String result)
         {
             //showDialog("finish");
-            showDialog(status);
+            showDialog(status, canJump);
+            /*BackToMainWithId(userId);*/
             //showDialog(postJson);
             super.onPostExecute(result);
         }

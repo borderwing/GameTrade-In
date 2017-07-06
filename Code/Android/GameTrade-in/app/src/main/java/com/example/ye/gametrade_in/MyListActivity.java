@@ -10,8 +10,14 @@ import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
 
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MyListActivity extends AppCompatActivity{
 
@@ -24,8 +30,34 @@ public class MyListActivity extends AppCompatActivity{
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
+
+        GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
+        ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
+        for(int i = 0; i < 10; i++){
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("gameItemImage", R.drawable.gameicon);
+            map.put("gameItemText", "NO."+String.valueOf(i+1));
+            ListImageItem.add(map);
+        }
+        SimpleAdapter homeGameItems =  new SimpleAdapter
+                (this, ListImageItem, R.layout.item, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.gameItemImage, R.id.gameItemText});
+        myListGridView.setAdapter(homeGameItems);
+        myListGridView.setOnItemClickListener(new gameItemClickListener());
+
+
         ImageButton button = (ImageButton) findViewById(R.id.homeButton);
         button.setOnClickListener(listener);
+    }
+
+    private class gameItemClickListener implements AdapterView.OnItemClickListener {
+        public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
+            Intent intent;
+            intent = new Intent();
+            intent.putExtra("gameId", String.valueOf(arg2+1));
+            intent.setClass(MyListActivity.this, GameDetailActivity.class);
+            startActivity(intent);
+            MyListActivity.this.finish();
+        }
     }
 
     private View.OnClickListener listener = new View.OnClickListener() {
