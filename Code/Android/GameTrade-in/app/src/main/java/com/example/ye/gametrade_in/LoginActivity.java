@@ -28,6 +28,7 @@ import java.net.URL;
 public class LoginActivity extends AppCompatActivity {
 
     private Button login;
+    private String nameString, password;
     private EditText userName, userPassword;
     public Integer userId;
 
@@ -40,13 +41,10 @@ public class LoginActivity extends AppCompatActivity {
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
-
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
-
     }
 
     private void showDialog(String msg, final Boolean canJump){
@@ -125,11 +123,12 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
+
     private View.OnClickListener onLoginClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-                String nameString = userName.getText().toString();
-                String password = userPassword.getText().toString();
+                nameString = userName.getText().toString();
+                password = userPassword.getText().toString();
                 login(nameString, password);
 
         }
@@ -155,7 +154,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void login(String username, String password){
-        String urlStr = "http://192.168.1.27:8080/api/login";
+        // String urlStr = "http://192.168.1.27:8080/api/login";
         final JSONObject postJson = formatJSON(username, password);
         new LoginTask().execute(postJson);
     }
@@ -211,7 +210,7 @@ public class LoginActivity extends AppCompatActivity {
                 responseCode = urlConn.getResponseCode();
 
                 if(responseCode == 200){
-                    status = "Welcome back: "+ userId;
+                    status = "Welcome back: " + nameString;
                 }
                 else if(responseCode == 404){
                     status = "Please input right username and password";

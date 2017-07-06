@@ -33,12 +33,13 @@ public class FragmentGameDetail extends Fragment{
     Integer addToListPoints;
     ImageButton addToList;
     String gameDetailId;
-    Integer userId = 5;
+    String userId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
         Bundle bundle = getArguments();
         gameDetailId = bundle.getString("gameId");
+        userId = bundle.getString("userId");
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
     }
 
@@ -170,8 +171,7 @@ public class FragmentGameDetail extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/wishlist/";
+                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/wishlist/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 

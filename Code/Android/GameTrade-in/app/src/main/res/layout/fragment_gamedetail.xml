@@ -87,7 +87,7 @@
             android:id="@+id/gameText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!Goo!"
+            android:text="GameInfo Goo Goo Goo"
             android:layout_below="@id/gameDetailCategory"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
@@ -109,7 +109,7 @@
                 android:id ="@+id/creditAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text = "3000000"
+                android:text = ""
                 android:gravity="center"
                 android:layout_toRightOf="@id/creditIcon"
                 />

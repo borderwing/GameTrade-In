@@ -16,6 +16,7 @@ import android.widget.Toast;
 public class GameDetailActivity extends AppCompatActivity {
 
     private ImageButton homebutton;
+    private String gameId,userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,19 +24,20 @@ public class GameDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_gamedetail);
 
         Intent intent = getIntent();
-        String gameId = intent.getStringExtra("gameId");
+        gameId = intent.getStringExtra("gameId");
+        userId = intent.getStringExtra("userId");
+
+        // Build a new fragment and set variable to its bundle
 
         FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
         android.app.FragmentManager manager = getFragmentManager();
         android.app.FragmentTransaction transaction =manager.beginTransaction();
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
+        bundle.putString("userId", userId);
         fragmentGameDetail.setArguments(bundle);
         transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
         transaction.commit();
-        //FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
-        //fragmentGameDetail.setArguments(bundle);
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);
@@ -50,6 +52,7 @@ public class GameDetailActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
+            intent.putExtra("userId", Integer.valueOf(userId));
             intent.setClass(GameDetailActivity.this, MainActivity.class);
             startActivity(intent);
             GameDetailActivity.this.finish();
