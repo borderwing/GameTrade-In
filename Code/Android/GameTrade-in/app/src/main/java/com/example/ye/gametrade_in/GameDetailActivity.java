@@ -24,10 +24,8 @@ public class GameDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String gameId = intent.getStringExtra("gameId");
-        Log.d ("String", gameId);
 
         FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
-
         android.app.FragmentManager manager = getFragmentManager();
         android.app.FragmentTransaction transaction =manager.beginTransaction();
         Bundle bundle = new Bundle();
