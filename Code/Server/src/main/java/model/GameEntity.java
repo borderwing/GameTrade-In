@@ -1,5 +1,7 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.Collection;
 
@@ -14,10 +16,15 @@ public class GameEntity {
     private String platform;
     private String language;
     private String genre;
-    private Integer evaluatePoint;
 
+    //default value need to be changed later
+    private Integer evaluatePoint=100;
+
+    @JsonIgnore
     private Collection<WishEntity> wishes;
+    @JsonIgnore
     private Collection<OfferEntity> offers;
+    @JsonIgnore
     private Collection<TradeGameEntity> tradeGames;
 
     @Id

@@ -2,6 +2,7 @@ package controller;
 
 import model.json.LoginJsonItem;
 import model.UserEntity;
+import model.json.ReturnLoginJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
@@ -23,22 +24,24 @@ public class LoginController {
     UserRepository userrepository;
 
     @RequestMapping(value="/",method= RequestMethod.POST)
-    public ResponseEntity<UserEntity> checkLogin(@RequestBody LoginJsonItem loginItem){
+    public ResponseEntity<ReturnLoginJsonItem> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
         UserEntity user=userrepository.findByUsername(loginItem.getUsername());
         if(user==null){
             //cant find the user
             System.out.println("not find user");
-            return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ReturnLoginJsonItem>(HttpStatus.NOT_FOUND);
         }
         if(user.getPassword().equals(loginItem.getPassword())){
-            return new ResponseEntity<UserEntity>(user,HttpStatus.OK);
+            ReturnLoginJsonItem returnLogin=new ReturnLoginJsonItem();
+            returnLogin.setUserId(user.getUserId());
+            return new ResponseEntity<ReturnLoginJsonItem>(returnLogin,HttpStatus.OK);
         }
 
         else {
             //wrong password
             System.out.println("password wrong");
-            return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<ReturnLoginJsonItem>(HttpStatus.NOT_FOUND);
         }
     }
 }

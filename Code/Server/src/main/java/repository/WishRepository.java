@@ -28,8 +28,13 @@ public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> 
     @Query("select p from WishEntity p where p.wishEntityPK.user.userId=:userid and p.wishEntityPK.game.gameId=:gameid")
     List<WishEntity> findByUserIDAndGameID(@Param("userid")int userid,@Param("gameid")int gameid);
 
-    @Query("select wish.wishEntityPK.game.gameId from WishEntity wish join fetch OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId")
-    List<Integer> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid);
+    @Query("select p from WishEntity p where p.points=:points and p.status=1 and p.wishEntityPK.game.gameId=:gameid order by p.wishEntityPK.user.userId")
+    List<WishEntity> getWishGame(@Param("points")int points,@Param("gameid")int gameid);
+
+    @Query("select wish.wishEntityPK.game.gameId from WishEntity wish, OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid" +
+            " and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId" +
+            " and offer.status=1 and wish.status=1 and offer.points=:points and wish.points=:points")
+    List<Integer> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
 
     @Modifying
     @Transactional

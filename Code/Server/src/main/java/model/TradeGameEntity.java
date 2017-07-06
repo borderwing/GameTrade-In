@@ -153,7 +153,7 @@ public class TradeGameEntity {
     }
 
     @ManyToOne
-    @JoinColumn(name = "fromAddressID", referencedColumnName = "addressID", nullable = false)
+    @JoinColumn(name = "fromAddressID", referencedColumnName = "addressID", nullable = true)
     public AddressEntity getFromAddress() {
         return fromAddress;
     }
@@ -163,7 +163,7 @@ public class TradeGameEntity {
 
 
     @ManyToOne
-    @JoinColumn(name = "toAddressID", referencedColumnName = "addressID", nullable = false)
+    @JoinColumn(name = "toAddressID", referencedColumnName = "addressID", nullable = true)
     public AddressEntity getToAddress() {
         return toAddress;
     }
