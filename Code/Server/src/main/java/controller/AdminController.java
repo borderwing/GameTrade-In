@@ -40,7 +40,7 @@ public class AdminController {
         System.out.println("Fetch All Users...");
         List<UserEntity> user=userRepo.findNormalUsers();
         if(user==null){
-            System.out.println("cant find any user");
+            System.out.println("can't find any user");
             return new ResponseEntity<List<UserEntity>>(user,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<List<UserEntity>>(user,HttpStatus.OK);
@@ -53,7 +53,7 @@ public class AdminController {
         System.out.println("Fetch All Games...");
         List<GameEntity> game=gameRepo.findAll();
         if(game==null){
-            System.out.println("cant find any game");
+            System.out.println("can't find any game");
             return new ResponseEntity<List<GameEntity>>(game,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<List<GameEntity>>(game,HttpStatus.OK);
@@ -65,7 +65,7 @@ public class AdminController {
         System.out.println("Fetch All PendingGame...");
         List<PendingGameEntity> pendingGame=pendingGameRepo.findNoReviewerPendingGame();
         if(pendingGame==null){
-            System.out.println("cant find pendingGame");
+            System.out.println("can't find pendingGame");
             return new ResponseEntity<List<PendingGameEntity>>(pendingGame,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<List<PendingGameEntity>>(pendingGame,HttpStatus.OK);
@@ -78,7 +78,7 @@ public class AdminController {
         System.out.println("Fetch pending game...");
         PendingGameEntity game=pendingGameRepo.findOne(pendingGameId);
         if(game==null){
-            System.out.println("cant find the game");
+            System.out.println("can't find the game");
             return new ResponseEntity<PendingGameEntity>(game,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
@@ -93,11 +93,11 @@ public class AdminController {
         PendingGameEntity game=pendingGameRepo.findOne(pendingGameId);
         UserEntity admin=userRepo.findOne(adminId);
         if(game==null){
-            System.out.println("cant find the game.");
+            System.out.println("can't find the game.");
             return new ResponseEntity<PendingGameEntity>(game,HttpStatus.NOT_FOUND);
         }
         if(admin==null) {
-            System.out.println("cant find the admin.");
+            System.out.println("can't find the admin.");
             return new ResponseEntity<PendingGameEntity>(HttpStatus.NOT_FOUND);
         }
         //set the status to 2 and set the reviewer
@@ -115,11 +115,11 @@ public class AdminController {
         PendingGameEntity game=pendingGameRepo.findOne(pendingGameId);
         UserEntity admin=userRepo.findOne(adminId);
         if(game==null){
-            System.out.println("cant find the game.");
+            System.out.println("can't find the game.");
             return new ResponseEntity<PendingGameEntity>(game,HttpStatus.NOT_FOUND);
         }
         if(admin==null){
-            System.out.println("cant find the admin.");
+            System.out.println("can't find the admin.");
             return new ResponseEntity<PendingGameEntity>(HttpStatus.NOT_FOUND);
         }
         //set the status to 1 and set the reviewer
@@ -145,17 +145,18 @@ public class AdminController {
 
         UserEntity user=userRepo.findOne(adminid);
         if(user==null){
-            System.out.println("cant find admin...");
+            System.out.println("can't find admin...");
             return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
         List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
 
         if(tradeOrderList.isEmpty()){
-            System.out.println("cant find any order...");
+            System.out.println("can't find any order...");
             return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
+        //set the general detail
         List<ShowOrderItem> ShowResult=new ArrayList<>();
         Iterator<TradeOrderEntity> iter=tradeOrderList.iterator();
         while(iter.hasNext()){
@@ -167,55 +168,31 @@ public class AdminController {
             ShowResult.add(showItem);
         }
 
-        System.out.println("---------------------------------------------------------------");
-        System.out.println("here0");
-        System.out.println("---------------------------------------------------------------");
+
+        //set the information needed
         List<TradeGameEntity> tradeGameList=tradeGameRepo.findAllTradeGame();
-        System.out.println("---------------------------------------------------------------");
-        System.out.println("here1");
-        System.out.println("---------------------------------------------------------------");
         Iterator<TradeGameEntity> iterGame=tradeGameList.iterator();
         while(iterGame.hasNext()){
             TradeGameEntity tradeGame=iterGame.next();
             int orderid=tradeGame.getTradeOrder().getTradeOrderId();
             for(int i =0;i<ShowResult.size();i++){
-                System.out.println("---------------------------------------------------------------");
-                System.out.println(ShowResult.size()+"       "+orderid);
-                System.out.println("here"+i);
-                System.out.println("---------------------------------------------------------------");
                 if(ShowResult.get(i).getTradeOrderId()==orderid){
-                    System.out.println("here0");
                     ShowOrderGamesItem ShowGameItem=new ShowOrderGamesItem();
-                    System.out.println("here1");
                     ShowGameItem.setFromAddress(tradeGame.getFromAddress());
-                    System.out.println("here2");
                     ShowGameItem.setGameId(tradeGame.getGame().getGameId());
-                    System.out.println("here3");
                     ShowGameItem.setReceiver(tradeGame.getReceiver());
-                    System.out.println("here4");
                     ShowGameItem.setReceiverStatus(tradeGame.getReceiverStatus());
-                    System.out.println("here5");
                     ShowGameItem.setSender(tradeGame.getSender());
-                    System.out.println("here6");
                     ShowGameItem.setSenderStatus(tradeGame.getSenderStatus());
-                    System.out.println("here7");
                     ShowGameItem.setStatus(tradeGame.getStatus());
-                    System.out.println("here8");
                     ShowGameItem.setToAddress(tradeGame.getToAddress());
-                    System.out.println("here9");
                     ShowGameItem.setTrackingNumber(tradeGame.getTrackingNumber());
-                    System.out.println("here10");
                     ShowGameItem.setTradeGameId(tradeGame.getTradeGameId());
-                    System.out.println("here16");
 
                     List<ShowOrderGamesItem> temp=ShowResult.get(i).getGameDetail();
-                    System.out.println("here11");
                     System.out.println(temp.size());
-                    System.out.println("here11");
                     temp.add(0,ShowGameItem);
-                    System.out.println("here13");
                     ShowResult.get(i).setGameDetail(temp);
-                    System.out.println("here14");
                 }
             }
         }

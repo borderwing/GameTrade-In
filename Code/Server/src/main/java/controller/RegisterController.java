@@ -44,6 +44,8 @@ public class RegisterController {
         customer.setEmail(registerItem.getEmail());
         customer.setPhone(registerItem.getPhone());
         customer.setUsername(registerItem.getUsername());
+        //set the default password 00000000
+        customer.setPassword("00000000");
         customer.setRating(0);
         customer.setRole(0);
         customerRepo.saveAndFlush(customer);

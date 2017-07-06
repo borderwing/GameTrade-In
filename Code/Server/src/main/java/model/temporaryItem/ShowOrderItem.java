@@ -1,5 +1,7 @@
 package model.temporaryItem;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +13,18 @@ public class ShowOrderItem {
     private int TradeOrderId;
     private Timestamp time;
     private int status;
+
+
+    @JsonIgnore
+    private int userStatus=0;
+
+    public int getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(int userStatus) {
+        this.userStatus = userStatus;
+    }
 
     List<ShowOrderGamesItem> gameDetail=new ArrayList<>();
 
