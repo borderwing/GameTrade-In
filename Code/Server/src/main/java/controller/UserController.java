@@ -3,6 +3,7 @@ package controller;
 import model.*;
 import model.json.*;
 import model.temporaryItem.ReceiverOrderItem;
+import model.temporaryItem.SenderOrderItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import repository.*;
+import sun.misc.Request;
 
 import javax.validation.constraints.Null;
 import javax.ws.rs.Path;
@@ -42,6 +44,10 @@ public class UserController {
     PendingGameRepository pendingGameRepo;
     @Autowired
     OfferRepository offerRepo;
+    @Autowired
+    TradeOrderRepository tradeOrderRepo;
+    @Autowired
+    TradeGameRepository tradeGameRepo;
 
     // Retrieve Single User
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
@@ -427,22 +433,29 @@ public class UserController {
 
 
     //match game in wish list
-    @RequestMapping(value="/{userId}/offer/{gameId}/match",method=RequestMethod.GET)
-    public ResponseEntity<ReceiverOrderItem> matchOfferList(@PathVariable("userId")int userid,
+    @RequestMapping(value="/{userId}/wishlist/{gameId}/match",method=RequestMethod.GET)
+    public ResponseEntity<List<ReceiverOrderItem>> matchWistList(@PathVariable("userId")int userid,
                                                             @PathVariable("gameId")int gameid){
         System.out.println("match game...");
 
-        ReceiverOrderItem receiveOrederItemlist=new ReceiverOrderItem();
-
         UserEntity user=userRepo.findOne(userid);
+        if(user==null){
+            System.out.println("cant find user...");
+            return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
+        }
 
         GameEntity game=gameRepo.findOne(gameid);
+        if(game==null){
+            System.out.println("cant find game...");
+            return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
+        }
 
 
         //get the wanted points
         int wantPoint=0;
         List<WishEntity> wishList=wishRepo.findByUserAndGame(user,game);
         Iterator<WishEntity> iter=wishList.iterator();
+        System.out.println("2");
         while(iter.hasNext()){
             WishEntity wish=iter.next();
             if(wish.getStatus()==1){
@@ -450,27 +463,175 @@ public class UserController {
                 break;
             }
         }
-
+        System.out.println(wantPoint);
         //get the list of userid
         List<OfferEntity> offerList=offerRepo.getOfferGame(wantPoint,gameid);
+        System.out.println("-----------------------------------------------------------------------");
+        System.out.println("the number of the user owning the game is "+offerList.size());
+        System.out.println("-----------------------------------------------------------------------");
 
-        int offerUserId=0;
-        Iterator<OfferEntity> offerIter=offerList.iterator();
-        List<Integer> offerUserid=null;
-        while(iter.hasNext()){
-            OfferEntity offer=offerIter.next();
-            if(offer.getOfferEntityPK().getUser().getUserId()==offerUserId){
-                continue;
-            }
-            else{
-                offerUserid.add(offer.getOfferEntityPK().getUser().getUserId());
-            }
+        Iterator<OfferEntity> iterOfferList=offerList.iterator();
+        List<Integer> offerUserid=new ArrayList<>();
+        while(iterOfferList.hasNext()){
+            OfferEntity offerentity=iterOfferList.next();
+            offerUserid.add(offerentity.getOfferEntityPK().getUser().getUserId());
         }
 
+        System.out.println("the size of the list is "+offerUserid.size());
         //匹配成立情况  用户的offer 和能提供用户的wishlist 笛卡尔集
+        List<Integer> sendingGame;
+        List<ReceiverOrderItem> resultOrder=new ArrayList<>();
         for(int i =0;i<offerUserid.size();i++){
-            List<>
+            sendingGame=wishRepo.getSameGame(offerUserid.get(i),userid,wantPoint);
+            for(int j =0;j<sendingGame.size();j++){
+                ReceiverOrderItem orderItem=new ReceiverOrderItem();
+                orderItem.setGetGameId(sendingGame.get(j));
+                orderItem.setOfferGameId(gameid);
+                orderItem.setSenderId(offerUserid.get(i));
+                resultOrder.add(orderItem);
+            }
+        }
+        return new ResponseEntity<List<ReceiverOrderItem>>(resultOrder,HttpStatus.OK);
+    }
+
+
+    //confirm the match
+    @RequestMapping(value="/{userid}/wishlist/{gameId}/match/confirm",method=RequestMethod.POST)
+    public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody CreateOrderJsonItem orderItem,
+                                                         @PathVariable("gameId")int gameid,
+                                                         @PathVariable("userid")int userid){
+
+        UserEntity user=userRepo.findOne(userid);
+        if(user==null){
+            System.out.println("cant find user...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
+        UserEntity targetUser=userRepo.findOne(orderItem.getTargetUserId());
+        if(targetUser==null){
+            System.out.println("cant find user...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        GameEntity sendGame=gameRepo.findOne(orderItem.getSenderGameId());
+        if(sendGame==null){
+            System.out.println("cant find game...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        GameEntity receiveGame=gameRepo.findOne(gameid);
+        if(receiveGame==null){
+            System.out.println("cant find game...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        //create TradeOrder
+        TradeOrderEntity tradeOrder=new TradeOrderEntity();
+        Timestamp time=new Timestamp(System.currentTimeMillis());
+        tradeOrder.setCreatetime(time);
+        tradeOrder.setStatus(2);
+        int orderId=tradeOrderRepo.getMaxId()+1;
+        tradeOrder.setTradeOrderId(orderId);
+        tradeOrderRepo.saveAndFlush(tradeOrder);
+
+        //create TradeGame
+        AddressEntity address=addressRepo.findOne(orderItem.getAddressId());
+
+        //create the send game order
+        int tradeGameId=tradeGameRepo.getMaxId()+1;
+
+        TradeGameEntity tradeGameOne=new TradeGameEntity();
+        tradeGameOne.setTradeOrder(tradeOrder);
+        tradeGameOne.setTradeGameId(tradeGameId);
+        tradeGameOne.setFromAddress(address);
+        tradeGameOne.setSender(user);
+        tradeGameOne.setGame(sendGame);
+        tradeGameOne.setReceiver(targetUser);
+        tradeGameOne.setSenderStatus(0);
+        tradeGameOne.setReceiverStatus(1);
+        tradeGameOne.setStatus(1);
+        tradeGameOne.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGameRepo.saveAndFlush(tradeGameOne);
+
+        //create the receive game order
+        TradeGameEntity tradeGameTwo=new TradeGameEntity();
+        tradeGameTwo.setTradeOrder(tradeOrder);
+        tradeGameTwo.setTradeGameId(tradeGameId+1);
+        tradeGameTwo.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGameTwo.setStatus(1);
+        tradeGameTwo.setReceiverStatus(0);
+        tradeGameTwo.setSenderStatus(1);
+        tradeGameTwo.setReceiver(user);
+        tradeGameTwo.setSender(targetUser);
+        tradeGameTwo.setGame(receiveGame);
+        tradeGameTwo.setToAddress(address);
+        tradeGameRepo.saveAndFlush(tradeGameTwo);
+
+        //add trade Game to TradeOrder
+        List<TradeGameEntity> trade=new ArrayList<>();
+        trade.add(tradeGameOne);
+        trade.add(tradeGameTwo);
+        tradeOrder.setTradeGames(trade);
+
+        return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
     }
+
+
+
+
+
+    //match game in offer list
+    /*@RequestMapping(value="{userId}/offer/{gameId}/match",method= RequestMethod.GET)
+    public ResponseEntity<List<SenderOrderItem>> matchOfferList(@PathVariable("userId")int userid,
+                                                                @PathVariable("gameId")int gameid){
+        System.out.println("match game...");
+
+        UserEntity user=userRepo.getOne(userid);
+        if(user==null){
+            System.out.println("cant find user...");
+            return new ResponseEntity<List<SenderOrderItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        GameEntity game=gameRepo.getOne(gameid);
+        if(game==null){
+            System.out.println("cant find game...");
+            return new ResponseEntity<List<SenderOrderItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        int wantPoint=0;
+        List<OfferEntity> offerlist=offerRepo.findByUserAndGame(user,game);
+        Iterator<OfferEntity> iter=offerlist.iterator();
+        while(iter.hasNext()){
+            OfferEntity offer=iter.next();
+            if(offer.getStatus()==1){
+                wantPoint=offer.getPoints();
+                break;
+            }
+        }
+
+        List<WishEntity> wishlist=wishRepo.getWishGame(wantPoint,gameid);
+
+        List<Integer> wishUserId=new ArrayList<>();
+        Iterator<WishEntity> iterWishList=wishlist.listIterator();
+        while(iterWishList.hasNext()){
+            WishEntity wishentitiy=iterWishList.next();
+            wishUserId.add(wishentitiy.getWishEntityPK().getUser().getUserId());
+        }
+
+        List<SenderOrderItem> resultOrder=new ArrayList<>();
+        List<Integer> offerGame;
+
+        for(int i=0;i<wishUserId.size();i++){
+            offerGame=offerRepo.getSameGame(userid,wishUserId.get(i),wantPoint);
+            for(int j =0;j<offerGame.size();j++){
+                SenderOrderItem orderItem=new SenderOrderItem();
+                orderItem.setGetGameId(offerGame.get(j));
+                orderItem.setOfferGameId(gameid);
+                orderItem.setReceiverId(wishUserId.get(i));
+                resultOrder.add(orderItem);
+            }
+        }
+
+        return new ResponseEntity<List<SenderOrderItem>>(resultOrder,HttpStatus.OK);
+    }*/
 }

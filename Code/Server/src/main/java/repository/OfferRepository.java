@@ -24,6 +24,11 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     @Query("select p from OfferEntity p where p.points=:points and p.status=1 and p.offerEntityPK.game.gameId=:gameId order by p.offerEntityPK.user.userId")
     List<OfferEntity> getOfferGame(@Param("points")int points,@Param("gameId")int gameId);
 
+    @Query("select wish.wishEntityPK.game.gameId from WishEntity wish, OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid" +
+            " and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId" +
+            " and offer.status=1 and wish.status=1 and offer.points=:points and wish.points=:points")
+    List<Integer> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
+
     @Modifying
     @Transactional
     @Query("update OfferEntity p set p.status=0 where p.offerEntityPK.game=:game and p.offerEntityPK.user=:user and p.offerEntityPK.createTime=:createTime")
