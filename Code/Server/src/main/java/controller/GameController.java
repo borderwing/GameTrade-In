@@ -2,6 +2,7 @@ package controller;
 
 import model.GameEntity;
 import model.PendingGameEntity;
+import model.json.SearchGameJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -52,34 +53,29 @@ public class GameController {
         return new ResponseEntity<GameEntity>(game,HttpStatus.OK);
     }
 
-    //create a game
-    /*
+
+    //find game by key words
     @RequestMapping(value="/",method=RequestMethod.POST)
-    public ResponseEntity<Void> createGame(@RequestBody GameEntity game, UriComponentsBuilder ucBuilder){
-        System.out.println("Create game: "+game.getTitle());
+    public ResponseEntity<List<GameEntity>> searchGame(@RequestBody SearchGameJsonItem GameInfo){
+        System.out.println("search game...");
 
-        if(gamerepository.findByTitle(game.getTitle())!=null){
-            System.out.println("the game "+game.getTitle()+" is already existed.");
-            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+        String title,language,genre,platform;
+
+        title=GameInfo.getTitle().equals("...")?"%":"%"+GameInfo.getTitle()+"%";
+        language=GameInfo.getLanguage().equals("...")?"%":GameInfo.getLanguage();
+        genre=GameInfo.getGenre().equals("...")?"%":GameInfo.getGenre();
+        platform=GameInfo.getPlatform().equals("...")?"%":GameInfo.getPlatform();
+        System.out.println("title="+title+"language="+language+"genre="+genre+"platform="+platform);
+
+        List<GameEntity> gameList=gamerepository.Search(title,language,genre,platform);
+
+
+        if(gameList.isEmpty()){
+            System.out.println("can't find game...");
+            return new ResponseEntity<List<GameEntity>>(HttpStatus.NOT_FOUND);
         }
 
-        if(pendingrepository.findByTitle(game.getTitle())!=null){
-            System.out.println("the game "+game.getTitle()+" is being audited");
-            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
-        }
+        return new ResponseEntity<List<GameEntity>>(gameList,HttpStatus.OK);
+    }
 
-
-        /*
-         * create a new PendingGameEntity
-         */
-     /*
-        PendingGameEntity pendGame=new PendingGameEntity();
-        pendGame.setGenre(game.getGenre());
-        pendGame.setLanguage(game.getLanguage());
-
-        gamerepository.saveAndFlush(game);
-        HttpHeaders headers=new HttpHeaders();
-        headers.setLocation(ucBuilder.path("api/game/{gameid}").buildAndExpand(game.getGameId()).toUri());
-        return new ResponseEntity<Void>(headers,HttpStatus.CREATED);
-    }*/
 }

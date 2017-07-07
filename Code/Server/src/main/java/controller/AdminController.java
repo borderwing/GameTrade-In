@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import repository.*;
+import script.pythonGetEvaluatePoint;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -132,6 +133,7 @@ public class AdminController {
         newGame.setPlatform(game.getPlatform());
         newGame.setLanguage(game.getLanguage());
         newGame.setGenre(game.getGenre());
+        newGame.setEvaluatePoint(Integer.parseInt(pythonGetEvaluatePoint.getPoints(game.getTitle())));
 
         gameRepo.saveAndFlush(newGame);
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
