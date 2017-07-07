@@ -60,7 +60,7 @@ public class FragmentRegister extends Fragment{
 
         @Override
         protected  void onPreExecute(){
-            status = "username is available ";
+            status = "Username is available. Please go back to main menu and login. ";
         }
 
         @Override
@@ -87,11 +87,11 @@ public class FragmentRegister extends Fragment{
                 if(responseCode == 409){
                     status = "Username exists, please pick another username. ";
                 }
-                status += "Connected: " + postJson.toString() + " " + responseCode;
+                // status += "Connected: " + postJson.toString() + " " + responseCode;
             }
             catch (Exception exc){
                 exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
+                status = "Disconnected: check connection status." ;
             }
             return null;
         }

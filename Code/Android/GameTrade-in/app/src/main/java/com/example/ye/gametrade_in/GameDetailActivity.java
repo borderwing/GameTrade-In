@@ -17,18 +17,22 @@ public class GameDetailActivity extends AppCompatActivity {
 
     private ImageButton homebutton;
     private String gameId,userId;
+    GameTradeInApplication gameTradeInApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gamedetail);
-
+        gameTradeInApplication =(GameTradeInApplication) getApplication();
         Intent intent = getIntent();
         gameId = intent.getStringExtra("gameId");
-        userId = intent.getStringExtra("userId");
+        gameTradeInApplication.GetLoginUser();
+
+        userId = String.valueOf(gameTradeInApplication.GetLoginUser().getUserId());
+        //userId = intent.getStringExtra("userId");
 
         // Build a new fragment and set variable to its bundle
-
         FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
         android.app.FragmentManager manager = getFragmentManager();
         android.app.FragmentTransaction transaction =manager.beginTransaction();
@@ -73,13 +77,8 @@ public class GameDetailActivity extends AppCompatActivity {
         public boolean onMenuItemClick(MenuItem menuItem)
         {
             String message = "";
+            Intent intent;
             switch (menuItem.getItemId()){
-                case R.id.action_myList:
-                    Intent intent = new Intent();
-                    intent.setClass(GameDetailActivity.this, MyListActivity.class);
-                    startActivity(intent);
-                    GameDetailActivity.this.finish();
-                    break;
                 case R.id.action_search:
                     message += "Click search";
                     break;

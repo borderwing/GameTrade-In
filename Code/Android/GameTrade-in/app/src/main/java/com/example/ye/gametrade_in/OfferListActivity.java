@@ -4,15 +4,13 @@ package com.example.ye.gametrade_in;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.support.v7.app.ActionBar;
+import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -27,30 +25,30 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-public class MyListActivity extends AppCompatActivity{
-    TextView myListTitle;
+public class OfferListActivity extends AppCompatActivity{
+
+    TextView offerListTitle;
     GameTradeInApplication gameTradeInApplication;
     Integer userId;
-    MyListBean[] myList;
+    OfferListBean[] offerList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mylist);
+        offerListTitle =(TextView) findViewById(R.id.myListTitle);
+        offerListTitle.setText("My Offer List");
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
         setSupportActionBar(toolbar);
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        myListTitle =(TextView) findViewById(R.id.myListTitle);
-        myListTitle.setText("My Wish List");
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
         ImageButton button = (ImageButton) findViewById(R.id.homeButton);
         button.setOnClickListener(listener);
-        MyListDetailTask myListDetailTask = new MyListDetailTask();
-        myListDetailTask.execute(userId.toString());
+        MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
+        myOfferListDetailTask.execute(userId.toString());
 
     }
     public void showList(Integer showNum){
@@ -68,9 +66,10 @@ public class MyListActivity extends AppCompatActivity{
         myListGridView.setOnItemClickListener(new gameItemClickListener());
     }
 
-    private class MyListDetailTask extends AsyncTask<String, Integer, String> {
+    private class MyOfferListDetailTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
+        // public MyListBean[] myList;
         public Boolean finish = false;
 
         @Override
@@ -80,7 +79,7 @@ public class MyListActivity extends AppCompatActivity{
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/wishlist";
+                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/offer";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestMethod("GET");
@@ -92,7 +91,7 @@ public class MyListActivity extends AppCompatActivity{
 
                 status = reader.readLine();
 
-                myList = jsonProcessor.GetMyListBean(status);
+                offerList = jsonProcessor.GetMyOfferListBean(status);
                 finish = true;
 
             }
@@ -110,7 +109,7 @@ public class MyListActivity extends AppCompatActivity{
         @Override
         protected  void onPostExecute(String result)
         {
-            showList(myList.length);
+            showList(offerList.length);
             super.onPostExecute(result);
         }
     }
@@ -132,10 +131,10 @@ public class MyListActivity extends AppCompatActivity{
             Intent intent;
             intent = new Intent();
 
-            intent.putExtra("gameId", String.valueOf(myList[arg2].getPair().gameId));
-            intent.setClass(MyListActivity.this, GameDetailActivity.class);
+            intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
+            intent.setClass(OfferListActivity.this, GameDetailActivity.class);
             startActivity(intent);
-            MyListActivity.this.finish();
+            OfferListActivity.this.finish();
         }
     }
 
@@ -143,9 +142,9 @@ public class MyListActivity extends AppCompatActivity{
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
-            intent.setClass(MyListActivity.this, MainActivity.class);
+            intent.setClass(OfferListActivity.this, MainActivity.class);
             startActivity(intent);
-            MyListActivity.this.finish();
+            OfferListActivity.this.finish();
         }
     };
 
@@ -173,14 +172,14 @@ public class MyListActivity extends AppCompatActivity{
                     break;
                 case R.id.action_HomeButton:
                     intent = new Intent();
-                    intent.setClass(MyListActivity.this, MainActivity.class);
+                    intent.setClass(OfferListActivity.this, MainActivity.class);
                     startActivity(intent);
-                    MyListActivity.this.finish();
+                    OfferListActivity.this.finish();
                     break;
             }
             if(!message.equals(""))
             {
-                Toast.makeText(MyListActivity.this, message, Toast.LENGTH_SHORT).show();
+                Toast.makeText(OfferListActivity.this, message, Toast.LENGTH_SHORT).show();
             }
             return true;
         }

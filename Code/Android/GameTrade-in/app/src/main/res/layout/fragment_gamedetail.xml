@@ -131,15 +131,26 @@
         </RelativeLayout>
     </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/gameDetail"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp">
     <ImageButton
         android:id = "@+id/addToListButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/gameDetail"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp"
+        android:layout_alignParentLeft="true"
         android:background="@android:color/background_light"
-        android:src="@drawable/add"
-        android:contentDescription="@string/app_name">
+        android:src="@drawable/add">
     </ImageButton>
+    <Button
+        android:id = "@+id/addToWishListButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="Offer"
+        android:layout_centerVertical="true"/>
+    </RelativeLayout>
 </RelativeLayout>

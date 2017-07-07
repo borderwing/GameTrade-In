@@ -10,29 +10,9 @@
         android:orderInCategory="50"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/action_login"
-        android:title="Login"
-        android:orderInCategory="60"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/action_myList"
-        android:title="my list"
-        android:orderInCategory="100"
-        app:showAsAction="never"/>
-    <item
         android:id="@+id/action_publish"
         android:title="publish game"
         android:orderInCategory="150"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_gameDetail"
-        android:title="game detail"
-        android:orderInCategory="200"
-        app:showAsAction="never"/>
-    <item
-        android:id="@+id/action_register"
-        android:title="register"
-        android:orderInCategory="250"
         app:showAsAction="never"/>
     <item
         android:id="@+id/action_orderDetail"

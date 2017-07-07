@@ -1,5 +1,6 @@
 package com.example.ye.gametrade_in;
 import android.app.Activity;
+import android.app.Application;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -34,7 +35,8 @@ public class MainActivity extends AppCompatActivity {
     public Integer userId ;
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
     public TextView menuUserName;
-    public Button menuRegisterButton, menuLoginButton, menuMyListButton;
+    public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton;
+    public GameTradeInApplication gameTradeInApplication;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        gameTradeInApplication  = (GameTradeInApplication) getApplication();
 
         GridView gameGridView = (GridView) findViewById(R.id.gameGridView);
         ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
@@ -65,25 +68,34 @@ public class MainActivity extends AppCompatActivity {
         menuUserName= (TextView) findViewById(R.id.menuUserName);
         menuRegisterButton = (Button) findViewById(R.id.menuRegisterButton);
         menuLoginButton = (Button) findViewById(R.id.menuLoginButton);
+        menuLogoutButton = (Button) findViewById(R.id.menuLogoutButton);
         menuMyListButton = (Button) findViewById(R.id.menuMyListButton);
+        menuMyOfferListButton = (Button) findViewById(R.id.menuMyOfferListButton);
 
         menuRegisterButton.setOnClickListener(menuRegisterOnClickListener);
         menuLoginButton.setOnClickListener(menuLoginOnClickListener);
+        menuLogoutButton.setOnClickListener(menuLogoutOnClickListener);
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
+        menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
 
         try{
-            // get userId from LoginActivity. Default userId is 0
+            userId = gameTradeInApplication.GetLoginUser().getUserId();
 
-            Intent ToMainIntent = getIntent();
-            userId = ToMainIntent.getIntExtra("userId" , 0);
+            if(userId == null){
+                UserBean userDefault = new UserBean();
+                userDefault.setUserId(0);
+                gameTradeInApplication.SetUserLogin(userDefault);
+                userId = 0;
+            }
+
             if(userId != 0){
                 SetMenuHeaderUserDetailed();
                 UserDetailTask userDetailTask = new UserDetailTask();
                 userDetailTask.execute(userId.toString());
-                //showDialog(userId.toString());
+
             }
             else if(userId == 0){
-                //showDialog(userId.toString());
+
                 SetMenuHeaderDefault();
             }
         }
@@ -99,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent;
             intent = new Intent();
             intent.putExtra("gameId", String.valueOf(arg2+1));
-            intent.putExtra("userId", String.valueOf(userId));
+
             intent.setClass(MainActivity.this, GameDetailActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -128,12 +140,32 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener menuLogoutOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            gameTradeInApplication.SetUserLogout();
+            intent.setClass(MainActivity.this, MainActivity.class);
+            startActivity(intent);
+            MainActivity.this.finish();
+        }
+    };
+
     private View.OnClickListener menuMyListButtonOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
-            intent.putExtra("userId", userId);
             intent.setClass(MainActivity.this, MyListActivity.class);
+            startActivity(intent);
+            MainActivity.this.finish();
+        }
+    };
+
+    private View.OnClickListener menuMyOfferListButtonOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, OfferListActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
         }
@@ -201,12 +233,6 @@ public class MainActivity extends AppCompatActivity {
             String message = "";
             Intent intent;
             switch (menuItem.getItemId()){
-                case R.id.action_myList:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, MyListActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
                 case R.id.action_publish:
                     intent = new Intent();
                     intent.setClass(MainActivity.this, PublishActivity.class);
@@ -214,30 +240,9 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.finish();
                     break;
 
-                case R.id.action_gameDetail:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, GameDetailActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
-
-                case R.id.action_register:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, RegisterActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
-
                 case R.id.action_orderDetail:
                     intent = new Intent();
                     intent.setClass(MainActivity.this, OrderDetailActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
-
-                case R.id.action_login:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, LoginActivity.class);
                     startActivity(intent);
                     MainActivity.this.finish();
                     break;

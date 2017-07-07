@@ -31,7 +31,8 @@ public class FragmentGameDetail extends Fragment{
     EditText addToListEdit;
     String gameTitle, gameText;
     Integer addToListPoints;
-    ImageButton addToList;
+    ImageButton addToWishList;
+    Button addToOfferList;
     String gameDetailId;
     String userId;
 
@@ -55,26 +56,47 @@ public class FragmentGameDetail extends Fragment{
         gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
         gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);
 
-        addToList = (ImageButton) getView().findViewById(R.id.addToListButton);
-        addToList.setOnClickListener(onAddToListListener);
+        addToWishList = (ImageButton) getView().findViewById(R.id.addToListButton);
+        addToWishList.setOnClickListener(onAddToWishListListener);
+
+        addToOfferList = (Button) getView().findViewById(R.id.addToWishListButton);
+        addToOfferList.setOnClickListener(onAddToOfferListListener);
 
         new GameDetailTask().execute(gameDetailId);
     }
 
-    private View.OnClickListener onAddToListListener = new View.OnClickListener() {
+    private View.OnClickListener onAddToWishListListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            boolean canAdd ;
+            boolean canAddToWish ;
             try{
                 addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
-                canAdd = true;
+                canAddToWish = true;
             }
             catch (Exception ece){
                 showDialog("Wrong input");
-                canAdd = false;
+                canAddToWish = false;
             }
-            if (canAdd ) {
+            if (canAddToWish ) {
                 AddToList(Integer.valueOf(gameDetailId), addToListPoints);
+            }
+        }
+    };
+
+    private View.OnClickListener onAddToOfferListListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            boolean canAddToOffer ;
+            try{
+                addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
+                canAddToOffer = true;
+            }
+            catch (Exception ece){
+                showDialog("Wrong input");
+                canAddToOffer = false;
+            }
+            if (canAddToOffer ) {
+                AddToOfferList(Integer.valueOf(gameDetailId), addToListPoints);
             }
         }
     };
@@ -110,11 +132,11 @@ public class FragmentGameDetail extends Fragment{
                 JSONProcessor jsonProcessor = new JSONProcessor();
                 game = jsonProcessor.GetGameBean(reader.readLine());
                 finish = true;
-                // status = "connected: "  + game.platform + " " + responseCode;
+
             }
             catch (Exception exc){
                 exc.printStackTrace();
-                // status = "Disconnected: " + responseCode;
+
             }
             return null;
         }
@@ -156,6 +178,11 @@ public class FragmentGameDetail extends Fragment{
         new FragmentGameDetail.AddToListTask().execute(postJson);
     }
 
+    private void AddToOfferList(Integer gameId, Integer wishPoints){
+        final JSONObject postJson = formatJSON(gameId, wishPoints);
+        new FragmentGameDetail.AddToOfferListTask().execute(postJson);
+    }
+
     private class AddToListTask extends AsyncTask<JSONObject, Integer, String> {
         private String status,urlStr;
         private JSONObject postJson;
@@ -163,7 +190,6 @@ public class FragmentGameDetail extends Fragment{
 
         @Override
         protected  void onPreExecute(){
-            // showDialog("start");
         }
 
         @Override
@@ -196,9 +222,8 @@ public class FragmentGameDetail extends Fragment{
                     status = "Your wish list includes this game";
                 }
                 else if(responseCode == 404){
-                    status = "Connection problem";
+                    status = "Connection problem, check connect and login";
                 }
-                // status="connected: " +postJson.toString()+ " " + responseCode;
             }
             catch (Exception exc){
                 exc.printStackTrace();
@@ -225,6 +250,71 @@ public class FragmentGameDetail extends Fragment{
     }
 
 
+    private class AddToOfferListTask extends AsyncTask<JSONObject, Integer, String> {
+        private String status,urlStr;
+        private JSONObject postJson;
+        private int responseCode = -1;
+
+        @Override
+        protected  void onPreExecute(){
+        }
+
+        @Override
+        protected  String doInBackground(JSONObject... params){
+            postJson = params[0];
+            HttpURLConnection urlConn;
+            try {
+                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/offer/";
+                URL url = new URL(urlStr);
+                urlConn = (HttpURLConnection) url.openConnection();
+
+                // start connection
+                urlConn.setDoOutput(true);
+                urlConn.setDoInput(true);
+                urlConn.setUseCaches(false);
+                urlConn.setRequestMethod("POST");
+                urlConn.setRequestProperty("Content-Type","application/json");
+                urlConn.connect();
+                OutputStream out = urlConn.getOutputStream();
+                out.write(postJson.toString().getBytes());
+                out.flush();
+                out.close();
+                // upload json
+
+                responseCode = urlConn.getResponseCode();
+                if(responseCode == 200){
+                    status = "Game has been successfully added to your offer list";
+                }
+                else if(responseCode == 409){
+                    status = "Your offer list includes this game";
+                }
+                else if(responseCode == 404){
+                    status = "Connection problem, check connect and login";
+                }
+            }
+            catch (Exception exc){
+                exc.printStackTrace();
+                status = "Disconnected: " + responseCode;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progresses)
+        {
+            super.onProgressUpdate(progresses);
+            showDialog("......");
+        }
+
+        @Override
+        protected  void onPostExecute(String result)
+        {
+            //showDialog("finish");
+            showDialog(status);
+            //showDialog(postJson);
+            super.onPostExecute(result);
+        }
+    }
 
     private void showDialog(String msg){
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

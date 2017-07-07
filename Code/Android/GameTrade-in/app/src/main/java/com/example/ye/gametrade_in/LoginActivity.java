@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText userName, userPassword;
     public Integer userId;
 
+    public GameTradeInApplication gameTradeInApplication;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,11 +44,24 @@ public class LoginActivity extends AppCompatActivity {
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
+        button.setOnClickListener(listener);
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
+        gameTradeInApplication = (GameTradeInApplication) getApplication();
     }
+
+    private View.OnClickListener listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            intent.setClass(LoginActivity.this, MainActivity.class);
+            startActivity(intent);
+            LoginActivity.this.finish();
+        }
+    };
 
     private void showDialog(String msg, final Boolean canJump){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -53,9 +69,10 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int id){
                 if(canJump) {
-                    BackToMainWithId(userId);
+                    BackToMain();   // If username and password is valid, just go back to main
                 }
                 else if(!canJump){
+                                    // If username and password is invalid, nothing change
                 }
             }
         });
@@ -70,6 +87,7 @@ public class LoginActivity extends AppCompatActivity {
         return true;
     }
 
+    // Helper menu
     private Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
     {
         @Override
@@ -78,27 +96,9 @@ public class LoginActivity extends AppCompatActivity {
             String message = "";
             Intent intent;
             switch (menuItem.getItemId()){
-                case R.id.action_myList:
-                    intent = new Intent();
-                    intent.setClass(LoginActivity.this, MyListActivity.class);
-                    startActivity(intent);
-                    LoginActivity.this.finish();
-                    break;
                 case R.id.action_publish:
                     intent = new Intent();
                     intent.setClass(LoginActivity.this, PublishActivity.class);
-                    startActivity(intent);
-                    LoginActivity.this.finish();
-                    break;
-                case R.id.action_gameDetail:
-                    intent = new Intent();
-                    intent.setClass(LoginActivity.this, GameDetailActivity.class);
-                    startActivity(intent);
-                    LoginActivity.this.finish();
-                    break;
-                case R.id.action_register:
-                    intent = new Intent();
-                    intent.setClass(LoginActivity.this, RegisterActivity.class);
                     startActivity(intent);
                     LoginActivity.this.finish();
                     break;
@@ -123,18 +123,17 @@ public class LoginActivity extends AppCompatActivity {
         }
     };
 
-
+    // Click login button
     private View.OnClickListener onLoginClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
                 nameString = userName.getText().toString();
                 password = userPassword.getText().toString();
                 login(nameString, password);
-
         }
     };
 
-
+    // Format String to JSON
     private JSONObject formatJSON(String username, String password){
         final JSONObject root = new JSONObject();
         try {
@@ -145,20 +144,21 @@ public class LoginActivity extends AppCompatActivity {
             // }
             root.put("username", username);
             root.put("password", password);
-            return root;//.toString();
+            return root;
         }
         catch(JSONException exc){
             exc.printStackTrace();
         }
-        return root;//.toString();
+        return root;
     }
 
+    // Login function
     private void login(String username, String password){
-        // String urlStr = "http://192.168.1.27:8080/api/login";
         final JSONObject postJson = formatJSON(username, password);
         new LoginTask().execute(postJson);
     }
 
+    // Go back to main menu with userId
     public void BackToMainWithId(Integer userId){
         Intent intent = new Intent();
         intent.putExtra("userId", userId);
@@ -167,10 +167,21 @@ public class LoginActivity extends AppCompatActivity {
         LoginActivity.this.finish();
     }
 
+    // Simply go bake to main menu
+    public void BackToMain(){
+        Intent intent = new Intent();
+        intent.setClass(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        LoginActivity.this.finish();
+    }
+
+
+
+    // For login Internet connection
     private class LoginTask extends AsyncTask<JSONObject, Integer, String>{
         private String status,urlStr;
         private JSONObject postJson;
-        public UserBean user;
+        public UserBean userBean;
         public boolean canJump;
         private int responseCode = -1;
 
@@ -197,16 +208,19 @@ public class LoginActivity extends AppCompatActivity {
                 urlConn.connect();
 
                 OutputStream out = urlConn.getOutputStream();
-
                 out.write(postJson.toString().getBytes());
                 out.flush();
                 InputStream in = urlConn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 JSONProcessor jsonProcessor = new JSONProcessor();
-                user = jsonProcessor.GetUserBean(reader.readLine());
+
+                // Translate JSON to Bean
+                userBean = jsonProcessor.GetUserBean(reader.readLine());
                 out.close();
-                // upload json
-                userId = user.userId;
+
+                // Set login user bean
+                gameTradeInApplication.SetUserLogin(userBean);
+                userId = gameTradeInApplication.GetLoginUser().getUserId();
                 responseCode = urlConn.getResponseCode();
 
                 if(responseCode == 200){
@@ -216,7 +230,6 @@ public class LoginActivity extends AppCompatActivity {
                     status = "Please input right username and password";
                 }
                 canJump = true;
-                //status="connected: " + user.toString() + postJson.toString()+ " " + responseCode;
             }
             catch (Exception exc){
                 exc.printStackTrace();
@@ -235,10 +248,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected  void onPostExecute(String result)
         {
-            //showDialog("finish");
             showDialog(status, canJump);
-            /*BackToMainWithId(userId);*/
-            //showDialog(postJson);
             super.onPostExecute(result);
         }
     }

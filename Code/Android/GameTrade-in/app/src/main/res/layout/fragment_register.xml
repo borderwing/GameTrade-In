@@ -62,7 +62,7 @@
         android:layout_centerHorizontal="true"
         android:textColor="@color/colorPrimary"
         android:textAllCaps="false"
-        android:text="Next"
+        android:text="Register"
         android:layout_marginTop="40dp">
     </Button>
 
