@@ -47,13 +47,9 @@ public class OrderDetailActivity extends AppCompatActivity {
         public boolean onMenuItemClick(MenuItem menuItem)
         {
             String message = "";
+            Intent intent;
             switch (menuItem.getItemId()){
-                case R.id.action_myList:
-                    Intent intent = new Intent();
-                    intent.setClass(OrderDetailActivity.this, MyListActivity.class);
-                    startActivity(intent);
-                    OrderDetailActivity.this.finish();
-                    break;
+
                 case R.id.action_search:
                     message += "Click search";
                     break;

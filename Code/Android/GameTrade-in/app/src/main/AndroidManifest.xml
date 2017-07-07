@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name = "com.example.ye.gametrade_in.GameTradeInApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
 
@@ -42,6 +43,9 @@
             </intent-filter>-->
         </activity>
 
+        <activity android:name=".OfferListActivity"
+            android:label="">
+        </activity>
 
     </application>
 

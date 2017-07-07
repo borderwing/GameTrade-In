@@ -29,7 +29,7 @@
                 android:layout_gravity="center"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:text="My List">
+                android:text="">
             </TextView>
 
 
