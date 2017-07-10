@@ -102,6 +102,43 @@ public class UserController {
     }
 
 
+    //fetch single game in wish list
+    @RequestMapping(value="/{userId}/wishlist/{gameId}",method=RequestMethod.GET)
+    public ResponseEntity<WishEntity> getOneWish(@PathVariable("userId")int userid,
+                                                 @PathVariable("gameId")int gameid){
+        System.out.println("fetch single game...");
+
+        UserEntity user=userRepo.findOne(userid);
+        if(user==null){
+            return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        GameEntity game=gameRepo.findOne(gameid);
+        if(game==null){
+            return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        List<WishEntity> wishlist=wishRepo.findByUserAndGame(user,game);
+
+        boolean isAvailable=false;
+        Iterator<WishEntity> iter=wishlist.iterator();
+        WishEntity wish=new WishEntity();
+        while(iter.hasNext()){
+            wish =iter.next();
+            if(wish.getStatus()==1){
+                isAvailable=true;
+                break;
+            }
+        }
+
+        if(!isAvailable){
+            return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        }
+        else{
+            return new ResponseEntity<WishEntity>(wish,HttpStatus.OK);
+        }
+    }
+
 
     // add items to wish list
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
@@ -272,6 +309,43 @@ public class UserController {
         return new ResponseEntity<List<OfferEntity>>((List<OfferEntity>)offerlist,HttpStatus.OK);
     }
 
+
+    //fetch single offer
+    @RequestMapping(value="/{userId}/offer/{gameId}",method=RequestMethod.GET)
+    public ResponseEntity<OfferEntity> getOneOffer(@PathVariable("userId")int userid,
+                                                   @PathVariable("gameId")int gameid){
+        System.out.println("fetch single game...");
+
+        UserEntity user=userRepo.findOne(userid);
+        if(user==null){
+            return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        GameEntity game=gameRepo.findOne(gameid);
+        if(game==null){
+            return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        List<OfferEntity> offerlist=offerRepo.findByUserAndGame(user,game);
+
+        boolean isAvailable=false;
+        Iterator<OfferEntity> iter=offerlist.iterator();
+        OfferEntity offer=new OfferEntity();
+        while(iter.hasNext()){
+            offer =iter.next();
+            if(offer.getStatus()==1){
+                isAvailable=true;
+                break;
+            }
+        }
+
+        if(!isAvailable){
+            return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
+        }
+        else{
+            return new ResponseEntity<OfferEntity>(offer,HttpStatus.OK);
+        }
+    }
 
 
     //add offer game
@@ -562,8 +636,8 @@ public class UserController {
             sendingGame=wishRepo.getSameGame(offerUserid.get(i),userid,wantPoint);
             for(int j =0;j<sendingGame.size();j++){
                 ReceiverOrderItem orderItem=new ReceiverOrderItem();
-                orderItem.setGetGameId(sendingGame.get(j));
-                orderItem.setOfferGameId(gameid);
+                orderItem.setGetGameId(gameid);
+                orderItem.setOfferGameId(sendingGame.get(j));
                 orderItem.setSenderId(offerUserid.get(i));
                 resultOrder.add(orderItem);
             }

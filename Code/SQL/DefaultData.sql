@@ -22,7 +22,7 @@ delete from Games;
 
 
 insert into Users( userID, username, password, role)
-    values( 0,  'Alpha', '00000000', 0);
+    values( 0,  'a', '00', 0);
 
 insert into Users( userID, username, password, role)
     values( 0,  'Beta', '11111111', 0);
@@ -55,26 +55,16 @@ insert into Offers( userID, gameID, points, status, createtime)
     values( 1, 1, 10, 1, '2011-05-09 11:49:45');
 
 insert into Offers( userID, gameID, points, status, createtime)
-    values( 2, 2, 10, 2, '2011-05-10 11:49:45');
+    values( 2, 2, 10, 0, '2011-05-10 11:49:45');
 
 insert into PendingGames( PendingGamesID, proposerID, reviewerID, title, platform, language, genre, status)
     values( 0, 1, 1, 'WAR3', 'pc', 'English', 'STG', 0);
-    
-
-insert into TradeOrders( tradeOrderID, createtime, status)
-    values( 0, '2011-05-11 11:49:45', 1 );
-
-insert into TradeGames( tradeGameID, tradeOrderID, gameID, trackingNumber, points, status)
-    values( 0, 1, 1, '1111', 100, 0);
-
-insert into TradeGames( tradeGameID, tradeOrderID, gameID, trackingNumber, points, status)
-    values( 0, 1, 2, '1234', 100, 0);
 
 insert into tradeinfo( tradeGameId, senderID, receiverId, fromAddressID, toAddressID, transferAddressID)
-	values( 2, 3, 1, 2, 1, 2,null);
+	values( 2, 3, 1, 2, 1, 2);
 
 insert into tradeinfo(tradeGameID, senderID, receiverID, fromAddressID, toAddressID, transferAddressID)
-	values( 1, 2, 1, 2, 1, 2, null);
+	values( 1, 2, 1, 2, 1, 2);
     
 insert into Wishes( userID, gameID, points, status, createtime)
     values( 1, 1, 100, 0, '2011-05-12 11:49:45');

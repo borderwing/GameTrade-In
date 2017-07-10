@@ -1,8 +1,11 @@
 package controller;
 
+import jnr.ffi.annotations.In;
 import model.*;
 import model.temporaryItem.ShowOrderGamesItem;
 import model.temporaryItem.ShowOrderItem;
+import org.python.core.PyFunction;
+import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -133,7 +136,12 @@ public class AdminController {
         newGame.setPlatform(game.getPlatform());
         newGame.setLanguage(game.getLanguage());
         newGame.setGenre(game.getGenre());
-        newGame.setEvaluatePoint(Integer.parseInt(pythonGetEvaluatePoint.getPoints(game.getTitle())));
+
+        //set the evaluate point
+        String point=pythonGetEvaluatePoint.getPoints(game.getTitle(),game.getPlatform());
+        System.out.println(point);
+        float floatPoint=Float.parseFloat(point)*100;
+        newGame.setEvaluatePoint((int)floatPoint);
 
         gameRepo.saveAndFlush(newGame);
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
@@ -202,4 +210,12 @@ public class AdminController {
         return new ResponseEntity<List<ShowOrderItem>>(ShowResult,HttpStatus.OK);
     }
 
+
+    //get all the available orders
+    @RequestMapping(value="{adminid}/change",method = RequestMethod.GET)
+    public ResponseEntity<List<ShowOrderItem>> getAllChanges(){
+        System.out.println("get all changes...");
+
+        return null;
+    }
 }
