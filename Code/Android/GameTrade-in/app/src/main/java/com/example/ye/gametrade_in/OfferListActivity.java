@@ -48,8 +48,16 @@ public class OfferListActivity extends AppCompatActivity{
         ImageButton button = (ImageButton) findViewById(R.id.homeButton);
         button.setOnClickListener(listener);
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
-        myOfferListDetailTask.execute(userId.toString());
 
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        myOfferListDetailTask.execute(userId.toString());
     }
     public void showList(Integer showNum){
         GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
@@ -131,10 +139,13 @@ public class OfferListActivity extends AppCompatActivity{
             Intent intent;
             intent = new Intent();
 
+            intent.putExtra("operation","offerList");
+            intent.putExtra("offerPoints",String.valueOf(offerList[arg2].getPoints()));
+
             intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
             intent.setClass(OfferListActivity.this, GameDetailActivity.class);
             startActivity(intent);
-            OfferListActivity.this.finish();
+            // OfferListActivity.this.finish();
         }
     }
 
@@ -144,7 +155,7 @@ public class OfferListActivity extends AppCompatActivity{
             Intent intent = new Intent();
             intent.setClass(OfferListActivity.this, MainActivity.class);
             startActivity(intent);
-            OfferListActivity.this.finish();
+            // OfferListActivity.this.finish();
         }
     };
 

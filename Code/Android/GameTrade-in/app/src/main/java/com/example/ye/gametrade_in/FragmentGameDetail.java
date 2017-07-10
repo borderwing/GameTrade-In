@@ -29,7 +29,7 @@ public class FragmentGameDetail extends Fragment{
 
     TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView;
     EditText addToListEdit;
-    String gameTitle, gameText;
+    String gameTitle, gameText, operation, credits, offerPoints, wishPoints;
     Integer addToListPoints;
     ImageButton addToWishList;
     Button addToOfferList;
@@ -41,6 +41,11 @@ public class FragmentGameDetail extends Fragment{
         Bundle bundle = getArguments();
         gameDetailId = bundle.getString("gameId");
         userId = bundle.getString("userId");
+        operation = bundle.getString("operation");
+
+        wishPoints = getArguments().getString("wishPoints");
+        offerPoints = getArguments().getString("offerPoints");
+
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
     }
 
@@ -52,6 +57,7 @@ public class FragmentGameDetail extends Fragment{
         gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
         addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
 
+
         gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
         gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
         gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);
@@ -62,8 +68,20 @@ public class FragmentGameDetail extends Fragment{
         addToOfferList = (Button) getView().findViewById(R.id.addToWishListButton);
         addToOfferList.setOnClickListener(onAddToOfferListListener);
 
+        switch (operation){
+            case "wishList":
+                addToWishList.setVisibility(View.GONE);
+                break;
+            case "offerList":
+                addToOfferList.setVisibility(View.GONE);
+                break;
+            default:
+                break;
+        }
+
         new GameDetailTask().execute(gameDetailId);
     }
+
 
     private View.OnClickListener onAddToWishListListener = new View.OnClickListener() {
         @Override
@@ -131,6 +149,22 @@ public class FragmentGameDetail extends Fragment{
                 responseCode = urlConn.getResponseCode();
                 JSONProcessor jsonProcessor = new JSONProcessor();
                 game = jsonProcessor.GetGameBean(reader.readLine());
+                // credits = String.valueOf(game.evaluatePoint);
+
+                switch (operation){
+                    case "wishList":
+                        credits = wishPoints;
+                        break;
+                    case "offerList":
+                        credits = offerPoints;
+                        break;
+                    case "browse":
+                        credits = String.valueOf(game.evaluatePoint);
+                        break;
+                    default:
+                        break;
+                }
+
                 finish = true;
 
             }
@@ -148,7 +182,7 @@ public class FragmentGameDetail extends Fragment{
         @Override
         protected  void onPostExecute(String result)
         {
-            setGameDetail(game.title,game.platform, game.language, game.genre, String.valueOf(game.evaluatePoint));
+            setGameDetail(game.title,game.platform, game.language, game.genre, credits);
             super.onPostExecute(result);
         }
     }

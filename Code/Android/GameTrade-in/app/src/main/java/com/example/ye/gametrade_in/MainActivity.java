@@ -111,12 +111,11 @@ public class MainActivity extends AppCompatActivity {
             Intent intent;
             intent = new Intent();
             intent.putExtra("gameId", String.valueOf(arg2+1));
+            intent.putExtra("operation", "browse");
 
             intent.setClass(MainActivity.this, GameDetailActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
-            //HashMap<String, Object> item = (HashMap<String, Object>) arg0.getItemAtPosition(arg2);
-            //setTitle((String)item.get("gameItemText"));
+            // MainActivity.this.finish();
         }
     }
 
@@ -126,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
+            // MainActivity.this.finish();
         }
     };
 
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, RegisterActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
+            // MainActivity.this.finish();
         }
     };
 
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
             gameTradeInApplication.SetUserLogout();
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
+            // MainActivity.this.finish();
         }
     };
 
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, MyListActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
+            // MainActivity.this.finish();
         }
     };
 
@@ -167,7 +166,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, OfferListActivity.class);
             startActivity(intent);
-            MainActivity.this.finish();
+            // MainActivity.this.finish();
         }
     };
 

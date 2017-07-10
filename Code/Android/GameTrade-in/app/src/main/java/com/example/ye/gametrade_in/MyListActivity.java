@@ -52,6 +52,13 @@ public class MyListActivity extends AppCompatActivity{
         MyListDetailTask myListDetailTask = new MyListDetailTask();
         myListDetailTask.execute(userId.toString());
 
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
     public void showList(Integer showNum){
         GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
@@ -126,16 +133,19 @@ public class MyListActivity extends AppCompatActivity{
         alert.show();
     }
 
-
+    // for game grid view
     private class gameItemClickListener implements AdapterView.OnItemClickListener {
         public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
             Intent intent;
             intent = new Intent();
 
+            intent.putExtra("operation","wishList");
+            intent.putExtra("wishPoints",String.valueOf(myList[arg2].getPoints()));
+
             intent.putExtra("gameId", String.valueOf(myList[arg2].getPair().gameId));
             intent.setClass(MyListActivity.this, GameDetailActivity.class);
             startActivity(intent);
-            MyListActivity.this.finish();
+            // MyListActivity.this.finish();
         }
     }
 
@@ -145,7 +155,7 @@ public class MyListActivity extends AppCompatActivity{
             Intent intent = new Intent();
             intent.setClass(MyListActivity.this, MainActivity.class);
             startActivity(intent);
-            MyListActivity.this.finish();
+            // MyListActivity.this.finish();
         }
     };
 

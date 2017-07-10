@@ -39,18 +39,28 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setNavigationIcon(R.drawable.nav);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+
+        //ImageButton button = (ImageButton) findViewById(R.id.homeButton);
+        //button.setOnClickListener(listener);
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
         gameTradeInApplication = (GameTradeInApplication) getApplication();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.inflateMenu(R.menu.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
     }
 
     private View.OnClickListener listener = new View.OnClickListener() {
@@ -59,7 +69,7 @@ public class LoginActivity extends AppCompatActivity {
             Intent intent = new Intent();
             intent.setClass(LoginActivity.this, MainActivity.class);
             startActivity(intent);
-            LoginActivity.this.finish();
+            // LoginActivity.this.finish();
         }
     };
 

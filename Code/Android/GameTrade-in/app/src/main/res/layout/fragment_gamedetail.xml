@@ -126,7 +126,7 @@
                 android:layout_height="50dp"
                 android:gravity="center"
                 android:layout_toLeftOf="@id/addToListPoints"
-                android:text = "Wish points:"
+                android:text = "Points:"
                 />
         </RelativeLayout>
     </RelativeLayout>
