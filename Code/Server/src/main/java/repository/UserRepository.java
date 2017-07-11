@@ -25,7 +25,9 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("SELECT p FROM UserEntity p JOIN FETCH p.addresses WHERE p.userId = (:id)")
     UserEntity findByUserIdAndFetchAddresses(@Param("id") int userId);
 
-    @Query("SELECT p FROM UserEntity p where p.role=0")
+    @Query("SELECT user FROM UserEntity user " +
+            "JOIN user.roles role " +
+            "WHERE role.name = '" + RoleRepository.customerRoleName + "'")
     List<UserEntity> findNormalUsers();
 
     @Query("select max(p.userId) from UserEntity p")

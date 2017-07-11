@@ -17,7 +17,6 @@ public class UserEntity {
     private int userId=0;
     private String username;
     private String password;
-    private Integer role;
 
     @JsonIgnore
     private Collection<RoleEntity> roles;
@@ -69,15 +68,6 @@ public class UserEntity {
         this.password = password;
     }
 
-    @Basic
-    @Column(name = "role", nullable = true)
-    public Integer getRole() {
-        return role;
-    }
-
-    public void setRole(Integer role) {
-        this.role = role;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -89,7 +79,6 @@ public class UserEntity {
         if (userId != that.userId) return false;
         if (username != null ? !username.equals(that.username) : that.username != null) return false;
         if (password != null ? !password.equals(that.password) : that.password != null) return false;
-        if (role != null ? !role.equals(that.role) : that.role != null) return false;
 
         return true;
     }
@@ -99,7 +88,6 @@ public class UserEntity {
         int result = userId;
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
-        result = 31 * result + (role != null ? role.hashCode() : 0);
         return result;
     }
 
@@ -112,8 +100,9 @@ public class UserEntity {
         addresses = _addresses;
     }
 
-    @ManyToMany
-    @JoinTable(name = "UserRole", joinColumns = @JoinColumn(name = "userId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "UserRole", joinColumns = @JoinColumn(name = "userId"),
+               inverseJoinColumns = @JoinColumn(name = "roleId"))
     public Collection<RoleEntity> getRoles() {
         return roles;
     }
