@@ -286,7 +286,7 @@ public class UserController {
 
 
     //fetch all the offer
-    @RequestMapping(value="/{userId}/offer",method=RequestMethod.GET)
+    @RequestMapping(value="/{userId}/offerlist",method=RequestMethod.GET)
     public ResponseEntity<List<OfferEntity>> getAllOffer(@PathVariable("userId")int userId){
         System.out.println("fetch all the offering games...");
 
@@ -311,7 +311,7 @@ public class UserController {
 
 
     //fetch single offer
-    @RequestMapping(value="/{userId}/offer/{gameId}",method=RequestMethod.GET)
+    @RequestMapping(value="/{userId}/offerlist/{gameId}",method=RequestMethod.GET)
     public ResponseEntity<OfferEntity> getOneOffer(@PathVariable("userId")int userid,
                                                    @PathVariable("gameId")int gameid){
         System.out.println("fetch single game...");
@@ -349,7 +349,7 @@ public class UserController {
 
 
     //add offer game
-    @RequestMapping(value="/{userId}/offer",method=RequestMethod.POST)
+    @RequestMapping(value="/{userId}/offerlist",method=RequestMethod.POST)
     public ResponseEntity<OfferEntity> addItemsToOfferList(@PathVariable("userId")int userid,
         @RequestBody OfferJsonItem offerGame){
         System.out.println("add game...");
@@ -398,7 +398,7 @@ public class UserController {
 
 
     //delete a game from offer list
-    @RequestMapping(value="/{userId}/offer/{gameId}/delete",method=RequestMethod.PUT)
+    @RequestMapping(value="/{userId}/offerlist/{gameId}/delete",method=RequestMethod.PUT)
     public ResponseEntity<Void> deleteItemFromOfferList(@PathVariable("userId")int userid,
                                                                @PathVariable("gameId")int gameid){
         System.out.println("delete game...");
@@ -437,7 +437,7 @@ public class UserController {
 
 
     //modify a game from offer list
-    @RequestMapping(value="/{userId}/offer/{gameId}/modify",method=RequestMethod.PUT)
+    @RequestMapping(value="/{userId}/offerlist/{gameId}/modify",method=RequestMethod.PUT)
     public ResponseEntity<Void> modifyItemFromOfferList(@PathVariable("userId")int userid,
                                                         @PathVariable("gameId")int gameid,
                                                         @RequestBody ModifyOfferJsonItem modifyPoints){
@@ -739,7 +739,7 @@ public class UserController {
 
 
     //match game in offer list
-    @RequestMapping(value="/{userid}/offer/{gameid}/match",method=RequestMethod.GET)
+    @RequestMapping(value="/{userid}/offerlist/{gameid}/match",method=RequestMethod.GET)
     public ResponseEntity<List<SenderOrderItem>> matchOfferList(@PathVariable("userid")int userid,
                                                                 @PathVariable("gameid")int gameid){
         System.out.println("match the game in offer list...");
@@ -796,7 +796,7 @@ public class UserController {
 
 
     //confirm the match in offer list
-    @RequestMapping(value="/{userid}/offer/{gameid}/match/confirm",method=RequestMethod.POST)
+    @RequestMapping(value="/{userid}/offerlist/{gameid}/match/confirm",method=RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmOfferMatch(@RequestBody CreateOrderJsonItem orderItem,
                                                               @PathVariable("gameid")int gameid,
                                                               @PathVariable("userid")int userid){

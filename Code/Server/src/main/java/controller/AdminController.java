@@ -1,11 +1,9 @@
 package controller;
 
-import jnr.ffi.annotations.In;
 import model.*;
+import model.temporaryItem.PotentialChangesItem;
 import model.temporaryItem.ShowOrderGamesItem;
 import model.temporaryItem.ShowOrderItem;
-import org.python.core.PyFunction;
-import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import repository.*;
 import script.pythonGetEvaluatePoint;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by homepppp on 2017/7/3.
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/")
 public class AdminController {
     @Autowired
     UserRepository userRepo;
@@ -36,6 +32,8 @@ public class AdminController {
     TradeOrderRepository tradeOrderRepo;
     @Autowired
     TradeGameRepository tradeGameRepo;
+    @Autowired
+    WishRepository wishRepo;
 
 
     //Fetch All Users
@@ -109,6 +107,7 @@ public class AdminController {
         pendingGameRepo.pendingFailure(pendingGameId);
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
     }
+
 
     //success in pending
     @RequestMapping(value="{adminid}/pendingGame/{pendingGameid}/success",method=RequestMethod.PUT)
@@ -213,9 +212,33 @@ public class AdminController {
 
     //get all the available orders
     @RequestMapping(value="{adminid}/change",method = RequestMethod.GET)
-    public ResponseEntity<List<ShowOrderItem>> getAllChanges(){
+    public ResponseEntity<List<PotentialChangesItem>> getAllChanges(@PathVariable("adminid")int adminid){
         System.out.println("get all changes...");
 
-        return null;
+        UserEntity user=userRepo.findOne(adminid);
+        if(user==null){
+            System.out.println("can't find the user...");
+            return new ResponseEntity<List<PotentialChangesItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        List<PotentialChangesItem> PotentialChangesList=new ArrayList<>();
+        List<Object[]> map=wishRepo.getPotientialChanges();
+
+        if(map.isEmpty()){
+            System.out.println("can't find any order...");
+            return new ResponseEntity<List<PotentialChangesItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        //get the information to be shown
+        for(Object[] row:map){
+            PotentialChangesItem orderItem=new PotentialChangesItem();
+            Object[] cells=(Object[]) row;
+            orderItem.setUserAId((int)cells[0]);
+            orderItem.setUserBId((int)cells[2]);
+            orderItem.setUserASendGameId((int)cells[1]);
+            orderItem.setUserBSendGameId((int)cells[3]);
+            PotentialChangesList.add(orderItem);
+        }
+        return new ResponseEntity<List<PotentialChangesItem>>(PotentialChangesList,HttpStatus.OK);
     }
 }
