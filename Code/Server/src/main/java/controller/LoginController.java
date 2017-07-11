@@ -27,6 +27,7 @@ public class LoginController {
     public ResponseEntity<ReturnLoginJsonItem> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
         UserEntity user=userrepository.findByUsername(loginItem.getUsername());
+        System.out.println(userrepository.getMaxId());
         if(user==null){
             //cant find the user
             System.out.println("not find user");

@@ -26,4 +26,10 @@ public interface GameRepository extends JpaRepository<GameEntity,Integer>{
     @Query("update GameEntity us set us.title=:qtitle,us.platform=:qplatform,us.evaluatePoint=:qevaluatePoint,us.language=:qlanguage,us.genre=:qgenre,us.wishes=:qwishes,us.offers=:qoffers,us.tradeGames=:qtradeGames where us.gameId=:qgameid")
     void updateGame(@Param("qtitle") String title, @Param("qplatform") String platform, @Param("qlanguage") String language, @Param("qgenre") String genre, @Param("qevaluatePoint") Integer evaluatePoint, @Param("qwishes") Collection<WishEntity> wishes, @Param("qoffers") Collection<OfferEntity> offers, @Param("qtradeGames")Collection<TradeGameEntity> tradeGames,@Param("qgameid") Integer gameId);
 
+
+    @Query("select p from GameEntity p where p.title like :title and p.platform like :platform and p.genre like :genre and p.language like :language")
+    List<GameEntity> Search(@Param("title")String title,@Param("language")String language,@Param("genre")String genre,@Param("platform")String platform);
+
+    @Query("select p from GameEntity p where p.title like :title")
+    List<GameEntity> SearchByTitle(@Param("title")String title);
 }
