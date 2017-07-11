@@ -1,6 +1,7 @@
 package controller;
 
 import model.*;
+import model.temporaryItem.PotentialChangesItem;
 import model.temporaryItem.ShowOrderGamesItem;
 import model.temporaryItem.ShowOrderItem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import repository.*;
+import script.pythonGetEvaluatePoint;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by homepppp on 2017/7/3.
@@ -32,6 +32,8 @@ public class AdminController {
     TradeOrderRepository tradeOrderRepo;
     @Autowired
     TradeGameRepository tradeGameRepo;
+    @Autowired
+    WishRepository wishRepo;
 
 
     //Fetch All Users
@@ -106,6 +108,7 @@ public class AdminController {
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
     }
 
+
     //success in pending
     @RequestMapping(value="{adminid}/pendingGame/{pendingGameid}/success",method=RequestMethod.PUT)
     public ResponseEntity<PendingGameEntity> successPendingGame(
@@ -132,6 +135,12 @@ public class AdminController {
         newGame.setPlatform(game.getPlatform());
         newGame.setLanguage(game.getLanguage());
         newGame.setGenre(game.getGenre());
+
+        //set the evaluate point
+        String point=pythonGetEvaluatePoint.getPoints(game.getTitle(),game.getPlatform());
+        System.out.println(point);
+        float floatPoint=Float.parseFloat(point)*100;
+        newGame.setEvaluatePoint((int)floatPoint);
 
         gameRepo.saveAndFlush(newGame);
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
@@ -200,4 +209,36 @@ public class AdminController {
         return new ResponseEntity<List<ShowOrderItem>>(ShowResult,HttpStatus.OK);
     }
 
+
+    //get all the available orders
+    @RequestMapping(value="{adminid}/change",method = RequestMethod.GET)
+    public ResponseEntity<List<PotentialChangesItem>> getAllChanges(@PathVariable("adminid")int adminid){
+        System.out.println("get all changes...");
+
+        UserEntity user=userRepo.findOne(adminid);
+        if(user==null){
+            System.out.println("can't find the user...");
+            return new ResponseEntity<List<PotentialChangesItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        List<PotentialChangesItem> PotentialChangesList=new ArrayList<>();
+        List<Object[]> map=wishRepo.getPotientialChanges();
+
+        if(map.isEmpty()){
+            System.out.println("can't find any order...");
+            return new ResponseEntity<List<PotentialChangesItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        //get the information to be shown
+        for(Object[] row:map){
+            PotentialChangesItem orderItem=new PotentialChangesItem();
+            Object[] cells=(Object[]) row;
+            orderItem.setUserAId((int)cells[0]);
+            orderItem.setUserBId((int)cells[2]);
+            orderItem.setUserASendGameId((int)cells[1]);
+            orderItem.setUserBSendGameId((int)cells[3]);
+            PotentialChangesList.add(orderItem);
+        }
+        return new ResponseEntity<List<PotentialChangesItem>>(PotentialChangesList,HttpStatus.OK);
+    }
 }
