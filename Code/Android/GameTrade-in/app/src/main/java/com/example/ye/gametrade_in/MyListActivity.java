@@ -39,20 +39,20 @@ public class MyListActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mylist);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         myListTitle =(TextView) findViewById(R.id.myListTitle);
         myListTitle.setText("My Wish List");
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+
         MyListDetailTask myListDetailTask = new MyListDetailTask();
         myListDetailTask.execute(userId.toString());
 
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,12 +96,9 @@ public class MyListActivity extends AppCompatActivity{
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 responseCode = urlConn.getResponseCode();
                 JSONProcessor jsonProcessor = new JSONProcessor();
-
                 status = reader.readLine();
-
                 myList = jsonProcessor.GetMyListBean(status);
                 finish = true;
-
             }
             catch (Exception exc){
                 exc.printStackTrace();
@@ -140,7 +137,7 @@ public class MyListActivity extends AppCompatActivity{
             intent = new Intent();
 
             intent.putExtra("operation","wishList");
-            intent.putExtra("wishPoints",String.valueOf(myList[arg2].getPoints()));
+            //intent.putExtra("wishPoints",String.valueOf(myList[arg2].getPoints()));
 
             intent.putExtra("gameId", String.valueOf(myList[arg2].getPair().gameId));
             intent.setClass(MyListActivity.this, GameDetailActivity.class);

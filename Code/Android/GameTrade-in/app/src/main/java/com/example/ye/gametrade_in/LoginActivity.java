@@ -6,10 +6,14 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -32,6 +36,7 @@ public class LoginActivity extends AppCompatActivity {
     private String nameString, password;
     private EditText userName, userPassword;
     public Integer userId;
+    public CheckBox loginPasswordCheckBox;
 
     public GameTradeInApplication gameTradeInApplication;
 
@@ -40,10 +45,22 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        //button.setOnClickListener(listener);
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
+        loginPasswordCheckBox = (CheckBox) this.findViewById(R.id.loginPasswordCheckBox);
+        loginPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    userPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else{
+                    userPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+                }
+            }
+        });
+
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
         gameTradeInApplication = (GameTradeInApplication) getApplication();
@@ -51,7 +68,6 @@ public class LoginActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -182,7 +198,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(LoginActivity.this, MainActivity.class);
         startActivity(intent);
-        LoginActivity.this.finish();
+        finish();
     }
 
 

@@ -137,14 +137,36 @@
         android:layout_below="@id/gameDetail"
         android:layout_marginLeft="30dp"
         android:layout_marginRight="30dp">
-    <ImageButton
+    <!--<ImageButton
         android:id = "@+id/addToListButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:background="@android:color/background_light"
         android:src="@drawable/add">
-    </ImageButton>
+    </ImageButton>-->
+        <Button
+            android:id = "@+id/modifyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:text = "Modify"
+            android:visibility="gone"/>
+        <Button
+            android:id = "@+id/addToListButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:text = "Wish">
+        </Button>
+        <Button
+            android:id = "@+id/matchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:visibility="gone"
+            android:text="match"/>
     <Button
         android:id = "@+id/addToWishListButton"
         android:layout_width="wrap_content"

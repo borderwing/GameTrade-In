@@ -37,10 +37,20 @@ public class RegisterActivity extends AppCompatActivity{
                 finish();
             }
         });
-
-        // ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        // button.setOnClickListener(listener);
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        getMenuInflater().inflate(R.menu.toolbar, menu);
+        return true;
+    }
+
+
+    /*****************************************************************************************/
+    /* Button settings */
+
 
     private View.OnClickListener listener = new View.OnClickListener() {
         @Override
@@ -52,12 +62,6 @@ public class RegisterActivity extends AppCompatActivity{
         }
     };
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        getMenuInflater().inflate(R.menu.toolbar, menu);
-        return true;
-    }
 
     private Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
     {
@@ -89,6 +93,5 @@ public class RegisterActivity extends AppCompatActivity{
     };
 
 
-
-
+    /*****************************************************************************************/
 }

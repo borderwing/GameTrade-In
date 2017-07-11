@@ -23,14 +23,28 @@ public class JSONProcessor {
         return user;
     }
 
-    // Get my list detail Bean
+    // Get my list detail list Bean
     public MyListBean[] GetMyListBean(String myListDetailString){
         Gson gson = new Gson();
         MyListBean[] myList = gson.fromJson(myListDetailString, MyListBean[].class);
         return myList;
     }
 
-    // Get my offer list detail Bean
+    // Get my list detail single Bean
+    public MyListBean GetMyListSingleBean(String myListDetailString){
+        Gson gson = new Gson();
+        MyListBean myList = gson.fromJson(myListDetailString, MyListBean.class);
+        return myList;
+    }
+
+    // Get match list Bean
+    public MatchBean[] GetMatchBean(String matchDetailedString){
+        Gson gson = new Gson();
+        MatchBean[] match = gson.fromJson(matchDetailedString, MatchBean[].class);
+        return match;
+    }
+
+    // Get my offer list detail list Bean
     public OfferListBean[] GetMyOfferListBean(String myListDetailString){
         Gson gson = new Gson();
         OfferListBean[] myOfferList = gson.fromJson(myListDetailString, OfferListBean[].class);

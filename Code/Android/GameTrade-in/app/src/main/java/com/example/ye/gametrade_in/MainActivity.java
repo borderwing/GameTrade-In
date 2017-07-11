@@ -1,6 +1,9 @@
 package com.example.ye.gametrade_in;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -10,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.Menu;
@@ -38,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton;
     public GameTradeInApplication gameTradeInApplication;
 
+    private Notification notification;
+    private NotificationManager notificationManager;
+    private int i = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,9 +57,24 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         gameTradeInApplication  = (GameTradeInApplication) getApplication();
 
+        // this part is for notification
+        notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                this, 0, new Intent(this, RegisterActivity.class), 0);
+        NotificationCompat.Builder builder =
+                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.nav)
+                .setContentTitle("Test")
+                .setContentText("Please register!")
+                .setContentIntent(contentIntent)
+                .setAutoCancel(true);
+        notification = builder.build();
+        notificationManager.notify(i, notification);
+
+        // Grid View
         GridView gameGridView = (GridView) findViewById(R.id.gameGridView);
         ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < 14; i++){
             HashMap<String, Object> map = new HashMap<String, Object>();
             map.put("gameItemImage", R.drawable.gameicon);
             map.put("gameItemText", "NO."+String.valueOf(i+1));
@@ -62,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         gameGridView.setAdapter(homeGameItems);
         gameGridView.setOnItemClickListener(new gameItemClickListener());
 
+        // Declaration
         menuUserDetailedHeader = (RelativeLayout) findViewById(R.id.menuUserDetailedHeader);
         menuDefaultHeader = (RelativeLayout) findViewById(R.id.menuDefaultHeader);
         mainMenuDetail = (RelativeLayout) findViewById(R.id.mainMenuDetail);
@@ -78,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
 
+        // set userId
         try{
             userId = gameTradeInApplication.GetLoginUser().getUserId();
 
@@ -146,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             gameTradeInApplication.SetUserLogout();
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
-            // MainActivity.this.finish();
+            MainActivity.this.finish();
         }
     };
 

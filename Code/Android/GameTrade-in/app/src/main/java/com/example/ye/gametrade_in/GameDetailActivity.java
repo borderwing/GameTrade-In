@@ -28,8 +28,8 @@ public class GameDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         gameId = intent.getStringExtra("gameId");
         operation = intent.getStringExtra("operation");
-        wishPoints = intent.getStringExtra("wishPoints");
-        offerPoints = intent.getStringExtra("offerPoints");
+        // wishPoints = intent.getStringExtra("wishPoints");
+        // offerPoints = intent.getStringExtra("offerPoints");
         gameTradeInApplication.GetLoginUser();
 
         userId = String.valueOf(gameTradeInApplication.GetLoginUser().getUserId());
@@ -42,8 +42,8 @@ public class GameDetailActivity extends AppCompatActivity {
         bundle.putString("gameId", gameId);
         bundle.putString("userId", userId);
         bundle.putString("operation", operation);
-        bundle.putString("wishPoints", wishPoints);
-        bundle.putString("offerPoints", offerPoints);
+        //bundle.putString("wishPoints", wishPoints);
+        //bundle.putString("offerPoints", offerPoints);
         fragmentGameDetail.setArguments(bundle);
         transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
         transaction.commit();
@@ -111,14 +111,4 @@ public class GameDetailActivity extends AppCompatActivity {
             return true;
         }
     };
-
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item){
-        if(item.getItemId() == android.R.id.home){
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
-
 }

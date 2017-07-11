@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.method.HideReturnsTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ public class FragmentLogin extends Fragment{
 
         userName = (EditText) getView().findViewById(R.id.loginUserName);
         userPassword = (EditText) getView().findViewById(R.id.loginPassword);
+
+        userPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
 
         login = (Button) getView().findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);

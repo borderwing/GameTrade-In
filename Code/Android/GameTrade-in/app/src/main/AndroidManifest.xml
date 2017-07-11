@@ -47,6 +47,10 @@
             android:label="">
         </activity>
 
+        <activity android:name=".MatchActivity"
+            android:label="">
+        </activity>
+
     </application>
 
 </manifest>

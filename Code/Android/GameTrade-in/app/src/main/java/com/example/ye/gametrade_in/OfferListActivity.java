@@ -39,17 +39,17 @@ public class OfferListActivity extends AppCompatActivity{
         setContentView(R.layout.activity_mylist);
         offerListTitle =(TextView) findViewById(R.id.myListTitle);
         offerListTitle.setText("My Offer List");
-        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
-        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,7 +77,6 @@ public class OfferListActivity extends AppCompatActivity{
     private class MyOfferListDetailTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
-        // public MyListBean[] myList;
         public Boolean finish = false;
 
         @Override
@@ -87,7 +86,7 @@ public class OfferListActivity extends AppCompatActivity{
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/offer";
+                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/offerlist";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestMethod("GET");
@@ -101,11 +100,9 @@ public class OfferListActivity extends AppCompatActivity{
 
                 offerList = jsonProcessor.GetMyOfferListBean(status);
                 finish = true;
-
             }
             catch (Exception exc){
                 exc.printStackTrace();
-
             }
             return null;
         }
@@ -140,7 +137,7 @@ public class OfferListActivity extends AppCompatActivity{
             intent = new Intent();
 
             intent.putExtra("operation","offerList");
-            intent.putExtra("offerPoints",String.valueOf(offerList[arg2].getPoints()));
+            // intent.putExtra("offerPoints",String.valueOf(offerList[arg2].getPoints()));
 
             intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
             intent.setClass(OfferListActivity.this, GameDetailActivity.class);
