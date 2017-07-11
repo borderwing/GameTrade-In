@@ -20,6 +20,8 @@ public class UserEntity {
     private Integer role;
 
     @JsonIgnore
+    private Collection<RoleEntity> roles;
+    @JsonIgnore
     private Collection<AddressEntity> addresses;
 
     @JsonIgnore
@@ -108,6 +110,16 @@ public class UserEntity {
 
     public void setAddresses(Collection<AddressEntity> _addresses) {
         addresses = _addresses;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "UserRole", joinColumns = @JoinColumn(name = "userId"), inverseJoinColumns = @JoinColumn(name = "roleId"))
+    public Collection<RoleEntity> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<RoleEntity> roles) {
+        this.roles = roles;
     }
 
 

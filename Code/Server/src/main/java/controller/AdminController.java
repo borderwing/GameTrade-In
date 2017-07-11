@@ -20,7 +20,7 @@ import java.util.List;
  * Created by homepppp on 2017/7/3.
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/admin/")
 public class AdminController {
     @Autowired
     UserRepository userRepo;

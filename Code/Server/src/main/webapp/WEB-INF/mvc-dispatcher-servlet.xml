@@ -13,6 +13,10 @@
 
 
     <context:component-scan base-package="controller"/>
+    <context:component-scan base-package="config"/>
+    <context:component-scan base-package="utility"/>
+    <context:component-scan base-package="service"/>
+
     <mvc:default-servlet-handler/>
     <mvc:annotation-driven>
         <mvc:message-converters>
