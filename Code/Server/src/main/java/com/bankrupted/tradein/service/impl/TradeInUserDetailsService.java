@@ -1,7 +1,7 @@
 package com.bankrupted.tradein.service.impl;
 
-import com.bankrupted.tradein.service.model.RoleEntity;
-import com.bankrupted.tradein.service.model.UserEntity;
+import com.bankrupted.tradein.model.RoleEntity;
+import com.bankrupted.tradein.model.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
-import com.bankrupted.tradein.service.repository.UserRepository;
+import com.bankrupted.tradein.repository.UserRepository;
 
 import java.util.HashSet;
 import java.util.Set;
