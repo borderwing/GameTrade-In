@@ -101,7 +101,7 @@ public class UserEntity {
     }
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "UserRole", joinColumns = @JoinColumn(name = "userId"),
+    @JoinTable(name = "userroles", joinColumns = @JoinColumn(name = "userId"),
                inverseJoinColumns = @JoinColumn(name = "roleId"))
     public Collection<RoleEntity> getRoles() {
         return roles;
