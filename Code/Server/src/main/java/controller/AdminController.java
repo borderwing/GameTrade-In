@@ -5,12 +5,14 @@ import model.temporaryItem.PotentialChangesItem;
 import model.temporaryItem.ShowOrderGamesItem;
 import model.temporaryItem.ShowOrderItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import repository.*;
 import script.pythonGetEvaluatePoint;
 
@@ -37,40 +39,53 @@ public class AdminController {
 
 
     //Fetch All Users
-    @RequestMapping(value="{adminid}/user",method= RequestMethod.GET)
-    public ResponseEntity<List<UserEntity>> ListAllUser(){
+    @RequestMapping(value="{adminid}/user/params",method= RequestMethod.GET)
+    public ResponseEntity<Page<UserEntity>> ListAllUser(@RequestParam(value="page",defaultValue="0")Integer page,
+                                                        @RequestParam(value="size",defaultValue="5")Integer size){
         System.out.println("Fetch All Users...");
-        List<UserEntity> user=userRepo.findNormalUsers();
+
+        Pageable pageable=new PageRequest(page,size);
+
+        Page<UserEntity> user=userRepo.findAll(pageable);
         if(user==null){
             System.out.println("can't find any user");
-            return new ResponseEntity<List<UserEntity>>(user,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Page<UserEntity>>(user,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<List<UserEntity>>(user,HttpStatus.OK);
+        return new ResponseEntity<Page<UserEntity>>(user,HttpStatus.OK);
     }
 
 
     //Fetch All Games
-    @RequestMapping(value="{adminid}/game",method=RequestMethod.GET)
-    public ResponseEntity<List<GameEntity>> ListAllGame(){
+    @RequestMapping(value="{adminid}/game/params",method=RequestMethod.GET)
+    public ResponseEntity<Page<GameEntity>> ListAllGame(@RequestParam(value="page",defaultValue = "0")Integer page,
+                                                        @RequestParam(value="size",defaultValue = "5")Integer size){
         System.out.println("Fetch All Games...");
-        List<GameEntity> game=gameRepo.findAll();
+
+        Pageable pageable=new PageRequest(page,size);
+
+        Page<GameEntity> game=gameRepo.findAll(pageable);
         if(game==null){
             System.out.println("can't find any game");
-            return new ResponseEntity<List<GameEntity>>(game,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Page<GameEntity>>(game,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<List<GameEntity>>(game,HttpStatus.OK);
+        return new ResponseEntity<Page<GameEntity>>(game,HttpStatus.OK);
     }
 
+
     //Fetch All PendingGames
-    @RequestMapping(value="{adminid}/pendingGame",method=RequestMethod.GET)
-    public ResponseEntity<List<PendingGameEntity>> ListAllPendingGame(){
+    @RequestMapping(value="{adminid}/pendingGame/params",method=RequestMethod.GET)
+    public ResponseEntity<Page<PendingGameEntity>> ListAllPendingGame(@RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                                      @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("Fetch All PendingGame...");
-        List<PendingGameEntity> pendingGame=pendingGameRepo.findNoReviewerPendingGame();
+
+        Pageable pageable=new PageRequest(page,size);
+
+        Page<PendingGameEntity> pendingGame=pendingGameRepo.findNoReviewerPendingGame(pageable);
         if(pendingGame==null){
             System.out.println("can't find pendingGame");
-            return new ResponseEntity<List<PendingGameEntity>>(pendingGame,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Page<PendingGameEntity>>(pendingGame,HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<List<PendingGameEntity>>(pendingGame,HttpStatus.OK);
+        return new ResponseEntity<Page<PendingGameEntity>>(pendingGame,HttpStatus.OK);
     }
 
 
@@ -85,6 +100,7 @@ public class AdminController {
         }
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
     }
+
 
     //failed in pending
     @RequestMapping(value="{adminid}/pendingGame/{pendingGameid}/failure",method=RequestMethod.PUT)
@@ -148,8 +164,10 @@ public class AdminController {
 
 
     //fetch all the orders
-    @RequestMapping(value="{adminid}/order",method=RequestMethod.GET)
-    public ResponseEntity<List<ShowOrderItem>> getAllOrder(@PathVariable("adminid")int adminid){
+    @RequestMapping(value="{adminid}/order/params",method=RequestMethod.GET)
+    public ResponseEntity<List<ShowOrderItem>> getAllOrder(@PathVariable("adminid")int adminid,
+                                                           @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                           @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("fetch all orders...");
 
         UserEntity user=userRepo.findOne(adminid);
@@ -206,13 +224,20 @@ public class AdminController {
             }
         }
 
-        return new ResponseEntity<List<ShowOrderItem>>(ShowResult,HttpStatus.OK);
+        //Page<ShowOrderItem> Page=new PageImpl(ShowResult,new PageRequest(page,size),ShowResult.size());
+        PagedListHolder<ShowOrderItem> PageList=new PagedListHolder<>(ShowResult);
+        PageList.setPageSize(size);
+        PageList.setPage(page);
+        return new ResponseEntity<List<ShowOrderItem>>(PageList.getPageList(),HttpStatus.OK);
+        //return new ResponseEntity<Page<ShowOrderItem>>(Page,HttpStatus.OK);
     }
 
 
     //get all the available orders
-    @RequestMapping(value="{adminid}/change",method = RequestMethod.GET)
-    public ResponseEntity<List<PotentialChangesItem>> getAllChanges(@PathVariable("adminid")int adminid){
+    @RequestMapping(value="{adminid}/change/params",method = RequestMethod.GET)
+    public ResponseEntity<List<PotentialChangesItem>> getAllChanges(@PathVariable("adminid")int adminid,
+                                                                    @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                                    @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("get all changes...");
 
         UserEntity user=userRepo.findOne(adminid);
@@ -239,6 +264,11 @@ public class AdminController {
             orderItem.setUserBSendGameId((int)cells[3]);
             PotentialChangesList.add(orderItem);
         }
-        return new ResponseEntity<List<PotentialChangesItem>>(PotentialChangesList,HttpStatus.OK);
+
+
+        PagedListHolder<PotentialChangesItem> PageList=new PagedListHolder<>(PotentialChangesList);
+        PageList.setPage(page);
+        PageList.setPageSize(size);
+        return new ResponseEntity<List<PotentialChangesItem>>(PageList.getPageList(),HttpStatus.OK);
     }
 }

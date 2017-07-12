@@ -4,8 +4,11 @@ import model.GameEntity;
 import model.OfferEntity;
 import model.TradeGameEntity;
 import model.WishEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -27,8 +30,9 @@ public interface GameRepository extends JpaRepository<GameEntity,Integer>{
     void updateGame(@Param("qtitle") String title, @Param("qplatform") String platform, @Param("qlanguage") String language, @Param("qgenre") String genre, @Param("qevaluatePoint") Integer evaluatePoint, @Param("qwishes") Collection<WishEntity> wishes, @Param("qoffers") Collection<OfferEntity> offers, @Param("qtradeGames")Collection<TradeGameEntity> tradeGames,@Param("qgameid") Integer gameId);
 
 
+
     @Query("select p from GameEntity p where p.title like :title and p.platform like :platform and p.genre like :genre and p.language like :language")
-    List<GameEntity> Search(@Param("title")String title,@Param("language")String language,@Param("genre")String genre,@Param("platform")String platform);
+    Page<GameEntity> Search(Pageable pageable,@Param("title")String title,@Param("language")String language,@Param("genre")String genre,@Param("platform")String platform);
 
     @Query("select p from GameEntity p where p.title like :title")
     List<GameEntity> SearchByTitle(@Param("title")String title);

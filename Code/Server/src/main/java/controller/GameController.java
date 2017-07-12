@@ -4,6 +4,10 @@ import model.GameEntity;
 import model.PendingGameEntity;
 import model.json.SearchGameJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -29,15 +33,12 @@ public class GameController {
     PendingGameRepository pendingrepository;
 
     //retrieve all games
-
-    @RequestMapping(value="/",method= RequestMethod.GET)
-    public ResponseEntity<List<GameEntity>> listAllGames(){
-        System.out.println("fetch all the games....");
-        List<GameEntity> games=gamerepository.findAll();
-        if(games.isEmpty()){
-            return new ResponseEntity<List<GameEntity>>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<List<GameEntity>>(games,HttpStatus.OK);
+    @RequestMapping(value="/params",method=RequestMethod.GET)
+    public ResponseEntity<Page<GameEntity>> listAllGames(@RequestParam(value="page",defaultValue="0")Integer page,
+                                                         @RequestParam(value="size",defaultValue="5")Integer size){
+        Pageable pageable=new PageRequest(page,size);
+        Page<GameEntity> allGame=gamerepository.findAll(pageable);
+        return new ResponseEntity<Page<GameEntity>>(allGame,HttpStatus.OK);
     }
 
     //retrieve single game
@@ -55,8 +56,10 @@ public class GameController {
 
 
     //find game by key words
-    @RequestMapping(value="/",method=RequestMethod.POST)
-    public ResponseEntity<List<GameEntity>> searchGame(@RequestBody SearchGameJsonItem GameInfo){
+    @RequestMapping(value="/params",method=RequestMethod.POST)
+    public ResponseEntity<Page<GameEntity>> searchGame(@RequestBody SearchGameJsonItem GameInfo,
+                                                       @RequestParam(value="page",defaultValue = "0")Integer page,
+                                                       @RequestParam(value="size",defaultValue = "5")Integer size){
         System.out.println("search game...");
 
         String title,language,genre,platform;
@@ -67,15 +70,21 @@ public class GameController {
         platform=GameInfo.getPlatform().equals("...")?"%":GameInfo.getPlatform();
         System.out.println("title="+title+"language="+language+"genre="+genre+"platform="+platform);
 
-        List<GameEntity> gameList=gamerepository.Search(title,language,genre,platform);
+        Pageable pageable=new PageRequest(page,size);
+        Page<GameEntity> gameList=gamerepository.Search(pageable,title,language,genre,platform);
 
 
-        if(gameList.isEmpty()){
+        if(gameList==null){
             System.out.println("can't find game...");
-            return new ResponseEntity<List<GameEntity>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<Page<GameEntity>>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<List<GameEntity>>(gameList,HttpStatus.OK);
+        if(gameList.getTotalPages()<(page+1)){
+            System.out.println("can't find game in the page...");
+            return new ResponseEntity<Page<GameEntity>>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<Page<GameEntity>>(gameList,HttpStatus.OK);
     }
 
 }
