@@ -13,9 +13,6 @@
 
 
     <context:component-scan base-package="controller"/>
-    <context:component-scan base-package="config"/>
-
-
 
     <mvc:default-servlet-handler/>
     <mvc:annotation-driven>
@@ -30,17 +27,6 @@
 
 
     <jpa:repositories base-package="repository"/>
-
-
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-        <property name="persistenceUnitName" value="defaultPersistenceUnit"/>
-    </bean>
-
-    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
-
-    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
