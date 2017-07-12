@@ -2,6 +2,8 @@ package com.bankrupted.tradein.service.repository;
 
 import com.bankrupted.tradein.service.model.PendingGameEntity;
 import com.bankrupted.tradein.service.model.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -17,7 +19,7 @@ import java.util.List;
 @Repository
 public interface PendingGameRepository extends JpaRepository<PendingGameEntity,Integer>{
     @Query("select p from PendingGameEntity p where p.reviewer=null and p.status=0")
-    List<PendingGameEntity> findNoReviewerPendingGame();
+    Page<PendingGameEntity> findNoReviewerPendingGame(Pageable pageable);
 
     @Modifying
     @Transactional
