@@ -62,6 +62,8 @@ public class RegisterController {
         RoleEntity customerRole = roleRepo.findByName(RoleRepository.customerRoleName);
         if(customerRole != null)  roles.add(customerRole);
 
+        customer.setRoles(roles);
+
         customer = customerRepo.saveAndFlush(customer);
 
         HttpHeaders headers = new HttpHeaders();

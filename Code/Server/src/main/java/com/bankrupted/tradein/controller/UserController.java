@@ -1,12 +1,12 @@
 package com.bankrupted.tradein.controller;
 
+import com.bankrupted.tradein.assist.matchAssist;
+import com.bankrupted.tradein.assist.matchAssist.*;
 import com.bankrupted.tradein.model.*;
 import com.bankrupted.tradein.model.json.*;
-import com.bankrupted.tradein.model.temporaryItem.ReceiverOrderItem;
-import com.bankrupted.tradein.model.temporaryItem.SenderOrderItem;
-import com.bankrupted.tradein.model.temporaryItem.ShowOrderGamesItem;
-import com.bankrupted.tradein.model.temporaryItem.ShowOrderItem;
+import com.bankrupted.tradein.model.temporaryItem.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +15,8 @@ import com.bankrupted.tradein.repository.*;
 
 import java.util.*;
 import java.sql.Timestamp;
+
+import static org.python.icu.text.PluralRules.Operand.v;
 
 /**
  * Created by lykav on 2017/6/29.
@@ -89,6 +91,34 @@ public class UserController {
             }
         }
         return new ResponseEntity<List<WishEntity>>((List<WishEntity>) wishList, HttpStatus.OK);
+    }
+
+    // Fetch wish list(paged)
+    @RequestMapping(value = "/{userId}/wishlist/params", method = RequestMethod.GET)
+    public ResponseEntity<List<WishEntity>> getWishListPaged(
+            @PathVariable("userId") int userId,
+            @RequestParam(value = "page",defaultValue = "0")Integer page,
+            @RequestParam(value = "size",defaultValue = "5")Integer size) {
+        UserEntity user = userRepo.findByUserIdAndFetchWishlist(userId);
+        if (user == null) {
+            System.out.println("Cannot find User with id " + userId);
+            return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
+        }
+        Collection<WishEntity> wishList = user.getWishes();
+
+        //get the available game
+        Iterator<WishEntity> iter=wishList.iterator();
+        while(iter.hasNext()){
+            WishEntity wish=iter.next();
+            if(wish.getStatus()==0){
+                iter.remove();
+            }
+        }
+
+        PagedListHolder<WishEntity> pagedWishList= new PagedListHolder<>((List<WishEntity>)wishList);
+        pagedWishList.setPage(page);
+        pagedWishList.setPageSize(size);
+        return new ResponseEntity<List<WishEntity>>(pagedWishList.getPageList(), HttpStatus.OK);
     }
 
 
@@ -268,12 +298,68 @@ public class UserController {
     }
 
 
+    //senior mathch in wishlist
+    @RequestMapping(value="{userid}/wishlist/match/params",method=RequestMethod.POST)
+    public ResponseEntity<List<WishListMatchResultItem>> GetWishListManyToManyMatch(@RequestBody ManyToManyTradeJsonItem YouWantGames,
+                                                                                    @PathVariable("userid")int userid,
+                                                                                    @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                                                    @RequestParam(value = "size",defaultValue = "5")Integer size){
+        System.out.println("match the games in wishlist");
+        matchAssist assist=new matchAssist();
+
+        System.out.println(YouWantGames.getAddressId());
+
+        int pointRange=YouWantGames.getPointRange();
+
+        System.out.println(YouWantGames.getYouOfferGames());
+
+        List<Integer> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
+        List<Integer> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
+
+        System.out.println(YouWantGameList);
+        System.out.println("----------------------------------------");
+        System.out.println(YouOfferGameList);
+
+        return new ResponseEntity<List<WishListMatchResultItem>>(HttpStatus.OK);
+    }
+
+
 
     /*
                     OFFER CONTROLLER
     */
 
 
+
+    //fetch all the offer(paged)
+    @RequestMapping(value="/{userId}/offerlist/params",method=RequestMethod.GET)
+    public ResponseEntity<List<OfferEntity>> getAllOfferPaged(@PathVariable("userId")int userId,
+                                                              @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                              @RequestParam(value = "size",defaultValue = "5")Integer size){
+        System.out.println("fetch all the offering games...");
+
+        UserEntity user=userRepo.findByUserIdAndFetchOfferlist(userId);
+        if(user==null){
+            System.out.println("can't find the user");
+            return new ResponseEntity<List<OfferEntity>>(HttpStatus.NOT_FOUND);
+        }
+
+        Collection<OfferEntity> offerlist=user.getOffers();
+        //check the availability
+        Iterator<OfferEntity> iter=offerlist.iterator();
+        while(iter.hasNext()){
+            OfferEntity offerGame=iter.next();
+            if(offerGame.getStatus()==0){
+                iter.remove();
+            }
+        }
+
+        //get paged
+        PagedListHolder<OfferEntity> PagedOfferList=new PagedListHolder<>((List<OfferEntity>)offerlist);
+        PagedOfferList.setPageSize(size);
+        PagedOfferList.setPage(page);
+        return new ResponseEntity<List<OfferEntity>>(PagedOfferList.getPageList(),HttpStatus.OK);
+    }
 
     //fetch all the offer
     @RequestMapping(value="/{userId}/offerlist",method=RequestMethod.GET)
@@ -298,7 +384,6 @@ public class UserController {
 
         return new ResponseEntity<List<OfferEntity>>((List<OfferEntity>)offerlist,HttpStatus.OK);
     }
-
 
     //fetch single offer
     @RequestMapping(value="/{userId}/offerlist/{gameId}",method=RequestMethod.GET)
@@ -485,7 +570,24 @@ public class UserController {
         return new ResponseEntity<List<AddressEntity>>((List<AddressEntity>) addresses, HttpStatus.OK);
     }
 
+    // fetch address(paged)
+    @RequestMapping(value="/{userId}/address/params",method=RequestMethod.GET)
+    public ResponseEntity<List<AddressEntity>> getAddressPaged(@PathVariable("userId")int userId,
+                                                               @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                               @RequestParam(value = "size",defaultValue = "5")Integer size){
+        UserEntity user = userRepo.findByUserIdAndFetchAddresses(userId);
+        if(user==null){
+            System.out.println("cannot find the user...");
+            return new ResponseEntity<List<AddressEntity>>(HttpStatus.NOT_FOUND);
+        }
+        Collection<AddressEntity> addresses=user.getAddresses();
 
+        //get paged
+        PagedListHolder<AddressEntity> pagedAddress=new PagedListHolder<>((List<AddressEntity>)addresses);
+        pagedAddress.setPage(page);
+        pagedAddress.setPageSize(size);
+        return new ResponseEntity<List<AddressEntity>>(pagedAddress.getPageList(),HttpStatus.OK);
+    }
 
     //Add more address
     @RequestMapping(value="/{userid}/address",method=RequestMethod.POST)
@@ -615,7 +717,10 @@ public class UserController {
         List<Integer> offerUserid=new ArrayList<>();
         while(iterOfferList.hasNext()){
             OfferEntity offerentity=iterOfferList.next();
-            offerUserid.add(offerentity.getOfferEntityPK().getUser().getUserId());
+            int UserId=offerentity.getOfferEntityPK().getUser().getUserId();
+            if(UserId!=userid){
+                offerUserid.add(UserId);
+            }
         }
 
         System.out.println("the size of the list is "+offerUserid.size());
@@ -762,9 +867,12 @@ public class UserController {
         List<Integer> wishListUserId=new ArrayList<>();
         Iterator<WishEntity> wishListIter=wishList.iterator();
 
-        while(wishListIter.hasNext()){
-            WishEntity wish=wishListIter.next();
-            wishListUserId.add(wish.getWishEntityPK().getUser().getUserId());
+        while(wishListIter.hasNext()) {
+            WishEntity wish = wishListIter.next();
+            int UserId = wish.getWishEntityPK().getUser().getUserId();
+            if (UserId != userid) {
+                wishListUserId.add(UserId);
+            }
         }
 
         List<Integer> receivingGame;
@@ -858,14 +966,13 @@ public class UserController {
         return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
     }
 
-
     /*
             ORDER CONTROLLER
      */
 
 
 
-    //fetch all the order
+   //fetch all the order
     @RequestMapping(value="/{userid}/order",method=RequestMethod.GET)
     public ResponseEntity<List<ShowOrderItem>> getAllOrders(@PathVariable("userid")int userid){
         System.out.println("fetch all orders");
@@ -929,6 +1036,73 @@ public class UserController {
 
     }
 
+    //fetch all orders (paged)
+    @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
+    public ResponseEntity<List<ShowOrderItem>> getAllOrdersPaged(@PathVariable("userid")int userid,
+                                                                 @RequestParam(value = "size",defaultValue = "5")Integer size,
+                                                                 @RequestParam(value = "page",defaultValue = "0")Integer page){
+        System.out.println("fetch all orders");
+
+        UserEntity user=userRepo.findOne(userid);
+        if(user==null){
+            System.out.println("can't find order...");
+            return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
+
+        List<ShowOrderItem> ShowResult=new ArrayList<>();
+        Iterator<TradeOrderEntity> iterTradeOrder=tradeOrderList.iterator();
+        while(iterTradeOrder.hasNext()){
+            TradeOrderEntity TradeOrder= iterTradeOrder.next();
+            ShowOrderItem showItem=new ShowOrderItem();
+            showItem.setStatus(TradeOrder.getStatus());
+            showItem.setTime(TradeOrder.getCreatetime());
+            showItem.setTradeOrderId(TradeOrder.getTradeOrderId());
+            ShowResult.add(showItem);
+        }
+
+        List<TradeGameEntity> tradeGameList=tradeGameRepo.findAll();
+        Iterator<TradeGameEntity> iter=tradeGameList.iterator();
+        while(iter.hasNext()){
+            TradeGameEntity tradeGame=iter.next();
+            int orderid=tradeGame.getTradeOrder().getTradeOrderId();
+            int ReceiverId=tradeGame.getReceiver().getUserId();
+            int SenderId=tradeGame.getSender().getUserId();
+            for(int i =0;i<ShowResult.size();i++){
+                if(orderid==ShowResult.get(i).getTradeOrderId()&&(ReceiverId==userid||SenderId==userid)){
+                    ShowOrderGamesItem ShowGameItem=new ShowOrderGamesItem();
+                    ShowGameItem.setFromAddress(tradeGame.getFromAddress());
+                    ShowGameItem.setGameId(tradeGame.getGame().getGameId());
+                    ShowGameItem.setReceiver(tradeGame.getReceiver());
+                    ShowGameItem.setReceiverStatus(tradeGame.getReceiverStatus());
+                    ShowGameItem.setSender(tradeGame.getSender());
+                    ShowGameItem.setSenderStatus(tradeGame.getSenderStatus());
+                    ShowGameItem.setStatus(tradeGame.getStatus());
+                    ShowGameItem.setToAddress(tradeGame.getToAddress());
+                    ShowGameItem.setTrackingNumber(tradeGame.getTrackingNumber());
+                    ShowGameItem.setTradeGameId(tradeGame.getTradeGameId());
+
+                    List<ShowOrderGamesItem> temp=ShowResult.get(i).getGameDetail();
+                    temp.add(0,ShowGameItem);
+                    ShowResult.get(i).setGameDetail(temp);
+                    ShowResult.get(i).setUserStatus(1);
+                }
+            }
+        }
+        Iterator<ShowOrderItem> resultIter=ShowResult.iterator();
+        while(resultIter.hasNext()){
+            ShowOrderItem item=resultIter.next();
+            if(item.getUserStatus()==0){
+                resultIter.remove();
+            }
+        }
+
+        PagedListHolder<ShowOrderItem> pagedShowResult=new PagedListHolder<>(ShowResult);
+        pagedShowResult.setPageSize(size);
+        pagedShowResult.setPage(page);
+        return new ResponseEntity<List<ShowOrderItem>>(pagedShowResult.getPageList(),HttpStatus.OK);
+    }
 
     //fetch unconfirmed order
     @RequestMapping(value="/{userid}/order/unconfirmed",method=RequestMethod.GET)

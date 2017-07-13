@@ -27,20 +27,22 @@ def getEvaluatePoint(gameName,platform):
     elif(platform=="XBOX 360"):
         url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D14220161&field-keywords='+gameName
 
-
+    print(url)
 
     user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
     headers = {'User-Agent': user_agent}
 
     req = urllib2.Request(url, headers=headers)
-
+    print("-----------------------------------------------------")
+    print("here00")
     myResponse = urllib2.urlopen(req)
     myPage=myResponse.read()
-    #, "class": "a-size-base a-color-base"
     soup = BeautifulSoup(myPage,"html.parser")
+    print(url)
     rightContent = soup.findAll('span',attrs={"class":"a-size-base a-color-base"})
     sum = 0
     cnt = 1
+    print(url)
     for price in rightContent:
         priceDetail = price.get_text()
         priceDetail = priceDetail[1:]
