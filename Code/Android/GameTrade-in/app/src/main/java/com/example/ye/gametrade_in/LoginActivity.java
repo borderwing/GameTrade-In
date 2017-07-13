@@ -6,24 +6,29 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
+
+import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
+import com.example.ye.gametrade_in.Bean.UserBean;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 
 public class LoginActivity extends AppCompatActivity {
@@ -32,6 +37,9 @@ public class LoginActivity extends AppCompatActivity {
     private String nameString, password;
     private EditText userName, userPassword;
     public Integer userId;
+    public CheckBox loginPasswordCheckBox;
+    String serverUrl;
+    UserAuthenticationBean userAuthenticationBean;
 
     public GameTradeInApplication gameTradeInApplication;
 
@@ -39,29 +47,45 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setNavigationIcon(R.drawable.nav);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+
+        gameTradeInApplication = (GameTradeInApplication) getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
+        userAuthenticationBean = new UserAuthenticationBean();
+
         userName = (EditText) this.findViewById(R.id.loginUserName);
         userPassword = (EditText) this.findViewById(R.id.loginPassword);
+        loginPasswordCheckBox = (CheckBox) this.findViewById(R.id.loginPasswordCheckBox);
+        loginPasswordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    userPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+                else{
+                    userPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+                }
+            }
+        });
+
         login = (Button) this.findViewById(R.id.loginButton);
         login.setOnClickListener(onLoginClickListener);
-        gameTradeInApplication = (GameTradeInApplication) getApplication();
+        /*gameTradeInApplication = (GameTradeInApplication) getApplication();*/
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.inflateMenu(R.menu.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
     }
 
-    private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.setClass(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            LoginActivity.this.finish();
-        }
-    };
 
     private void showDialog(String msg, final Boolean canJump){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -154,17 +178,16 @@ public class LoginActivity extends AppCompatActivity {
 
     // Login function
     private void login(String username, String password){
-        final JSONObject postJson = formatJSON(username, password);
-        new LoginTask().execute(postJson);
-    }
-
-    // Go back to main menu with userId
-    public void BackToMainWithId(Integer userId){
-        Intent intent = new Intent();
-        intent.putExtra("userId", userId);
-        intent.setClass(LoginActivity.this, MainActivity.class);
-        startActivity(intent);
-        LoginActivity.this.finish();
+        try {
+            userAuthenticationBean.setUsername(username);
+            userAuthenticationBean.setPassword(password);
+            gameTradeInApplication.SetUserAuthenticationBean(userAuthenticationBean);
+            final JSONObject postJson = formatJSON(username, password);
+            new LoginTask().execute(postJson);
+        }
+        catch (Exception exc){
+            Log.d("string", exc.toString());
+        }
     }
 
     // Simply go bake to main menu
@@ -172,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(LoginActivity.this, MainActivity.class);
         startActivity(intent);
-        LoginActivity.this.finish();
+        finish();
     }
 
 
@@ -182,20 +205,20 @@ public class LoginActivity extends AppCompatActivity {
         private String status,urlStr;
         private JSONObject postJson;
         public UserBean userBean;
-        public boolean canJump;
+        public boolean canJump = false;
         private int responseCode = -1;
+
+        String authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
         @Override
         protected  void onPreExecute(){
-            // showDialog("start");
         }
-
         @Override
         protected  String doInBackground(JSONObject... params){
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/login/";
+                urlStr = serverUrl + "api/login/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
@@ -203,6 +226,10 @@ public class LoginActivity extends AppCompatActivity {
                 urlConn.setDoOutput(true);
                 urlConn.setDoInput(true);
                 urlConn.setUseCaches(false);
+
+                // new added for authentication
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                 urlConn.setRequestMethod("POST");
                 urlConn.setRequestProperty("Content-Type","application/json");
                 urlConn.connect();
@@ -225,11 +252,15 @@ public class LoginActivity extends AppCompatActivity {
 
                 if(responseCode == 200){
                     status = "Welcome back: " + nameString;
+                    canJump = true;
                 }
                 else if(responseCode == 404){
                     status = "Please input right username and password";
+                    gameTradeInApplication.SetUserAuthenticationOut();
                 }
-                canJump = true;
+                else{
+                    gameTradeInApplication.SetUserAuthenticationOut();
+                }
             }
             catch (Exception exc){
                 exc.printStackTrace();

@@ -16,7 +16,7 @@ import android.widget.Toast;
 public class GameDetailActivity extends AppCompatActivity {
 
     private ImageButton homebutton;
-    private String gameId,userId;
+    private String gameId, userId, operation, wishPoints, offerPoints;
     GameTradeInApplication gameTradeInApplication;
 
     @Override
@@ -27,10 +27,12 @@ public class GameDetailActivity extends AppCompatActivity {
         gameTradeInApplication =(GameTradeInApplication) getApplication();
         Intent intent = getIntent();
         gameId = intent.getStringExtra("gameId");
+        operation = intent.getStringExtra("operation");
+        // wishPoints = intent.getStringExtra("wishPoints");
+        // offerPoints = intent.getStringExtra("offerPoints");
         gameTradeInApplication.GetLoginUser();
 
         userId = String.valueOf(gameTradeInApplication.GetLoginUser().getUserId());
-        //userId = intent.getStringExtra("userId");
 
         // Build a new fragment and set variable to its bundle
         FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
@@ -39,17 +41,25 @@ public class GameDetailActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putString("gameId", gameId);
         bundle.putString("userId", userId);
+        bundle.putString("operation", operation);
+        //bundle.putString("wishPoints", wishPoints);
+        //bundle.putString("offerPoints", offerPoints);
         fragmentGameDetail.setArguments(bundle);
         transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
         transaction.commit();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.inflateMenu(R.menu.toolbar);
-
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        homebutton = (ImageButton) findViewById(R.id.homeButton);
-        homebutton.setOnClickListener(onHomeButtonListener);
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
         private View.OnClickListener onHomeButtonListener = new View.OnClickListener() {
@@ -62,6 +72,8 @@ public class GameDetailActivity extends AppCompatActivity {
             GameDetailActivity.this.finish();
             }
         };
+
+
 
 
     @Override

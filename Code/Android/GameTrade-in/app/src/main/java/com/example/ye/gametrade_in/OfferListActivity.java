@@ -13,10 +13,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.ImageButton;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.ye.gametrade_in.Bean.OfferListBean;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -32,6 +33,8 @@ public class OfferListActivity extends AppCompatActivity{
     GameTradeInApplication gameTradeInApplication;
     Integer userId;
     OfferListBean[] offerList;
+    String serverUrl;
+    String authorizedHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,18 +42,32 @@ public class OfferListActivity extends AppCompatActivity{
         setContentView(R.layout.activity_mylist);
         offerListTitle =(TextView) findViewById(R.id.myListTitle);
         offerListTitle.setText("My Offer List");
-        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
-        MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
-        myOfferListDetailTask.execute(userId.toString());
+        serverUrl = gameTradeInApplication.getServerUrl();
+        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
+        MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.inflateMenu(R.menu.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        myOfferListDetailTask.execute(userId.toString());
     }
+
+    /*****************************************************************************************/
+    /* Offer list Task */
+
     public void showList(Integer showNum){
         GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
         ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
@@ -69,7 +86,6 @@ public class OfferListActivity extends AppCompatActivity{
     private class MyOfferListDetailTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
-        // public MyListBean[] myList;
         public Boolean finish = false;
 
         @Override
@@ -79,25 +95,24 @@ public class OfferListActivity extends AppCompatActivity{
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId.toString() + "/offer";
+                urlStr = serverUrl + "api/user/" + userId.toString() + "/offerlist";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
+
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 responseCode = urlConn.getResponseCode();
                 JSONProcessor jsonProcessor = new JSONProcessor();
-
                 status = reader.readLine();
-
                 offerList = jsonProcessor.GetMyOfferListBean(status);
                 finish = true;
-
             }
             catch (Exception exc){
                 exc.printStackTrace();
-
             }
             return null;
         }
@@ -114,6 +129,14 @@ public class OfferListActivity extends AppCompatActivity{
         }
     }
 
+
+
+
+    /*****************************************************************************************/
+    /* Helper Function */
+
+
+
     private void showDialog(String msg){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
@@ -126,15 +149,20 @@ public class OfferListActivity extends AppCompatActivity{
     }
 
 
+
+
+    /*****************************************************************************************/
+    /* Button Listener Settings */
+
+
     private class gameItemClickListener implements AdapterView.OnItemClickListener {
         public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
             Intent intent;
             intent = new Intent();
-
+            intent.putExtra("operation","offerList");
             intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
             intent.setClass(OfferListActivity.this, GameDetailActivity.class);
             startActivity(intent);
-            OfferListActivity.this.finish();
         }
     }
 
@@ -144,15 +172,20 @@ public class OfferListActivity extends AppCompatActivity{
             Intent intent = new Intent();
             intent.setClass(OfferListActivity.this, MainActivity.class);
             startActivity(intent);
-            OfferListActivity.this.finish();
         }
     };
+
+
+
+
+    /*****************************************************************************************/
+    /* ToolBar Settings */
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.toolbar, menu);
-
         return true;
     }
 
@@ -170,12 +203,6 @@ public class OfferListActivity extends AppCompatActivity{
                 case R.id.action_settings:
                     message += "Click setting";
                     break;
-                case R.id.action_HomeButton:
-                    intent = new Intent();
-                    intent.setClass(OfferListActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    OfferListActivity.this.finish();
-                    break;
             }
             if(!message.equals(""))
             {
@@ -184,4 +211,10 @@ public class OfferListActivity extends AppCompatActivity{
             return true;
         }
     };
+
+
+
+
+    /*****************************************************************************************/
+
 }

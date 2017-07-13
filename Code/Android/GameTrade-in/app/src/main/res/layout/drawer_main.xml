@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:id = "@+id/drawer_main"
     android:background="#ccc"
+    android:clickable="true"
     >
 
     <fragment

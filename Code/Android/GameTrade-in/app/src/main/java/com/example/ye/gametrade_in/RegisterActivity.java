@@ -21,25 +21,24 @@ public class RegisterActivity extends AppCompatActivity{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.registerToolBar);
         setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        ImageButton button = (ImageButton) findViewById(R.id.homeButton);
-        button.setOnClickListener(listener);
+        toolbar.inflateMenu(R.menu.toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
-        private View.OnClickListener listener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.setClass(RegisterActivity.this, MainActivity.class);
-            startActivity(intent);
-            RegisterActivity.this.finish();
-        }
-    };
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
@@ -47,6 +46,25 @@ public class RegisterActivity extends AppCompatActivity{
         getMenuInflater().inflate(R.menu.toolbar, menu);
         return true;
     }
+
+
+    /*****************************************************************************************/
+    /* Button settings */
+
+
+    private View.OnClickListener listener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent();
+            intent.setClass(RegisterActivity.this, MainActivity.class);
+            startActivity(intent);
+        }
+    };
+
+
+    /*****************************************************************************************/
+    /* Toolbar settings */
+
 
     private Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
     {
@@ -78,6 +96,5 @@ public class RegisterActivity extends AppCompatActivity{
     };
 
 
-
-
+    /*****************************************************************************************/
 }
