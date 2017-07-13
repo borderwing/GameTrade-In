@@ -6,20 +6,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
+
+import com.example.ye.gametrade_in.Bean.GameBean;
+import com.example.ye.gametrade_in.Bean.MatchBean;
+import com.example.ye.gametrade_in.Bean.MyListBean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -36,13 +37,21 @@ public class FragmentGameDetail extends Fragment{
     Button addToOfferList, matchButton, addToWishList, modifyButton;
     String gameDetailId, userId;
     MatchBean[] matchBean;
+    String serverUrl;
+    String authorizedHeader;
+    public GameTradeInApplication gameTradeInApplication;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
+        gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
+        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+
         Bundle bundle = getArguments();
         gameDetailId = bundle.getString("gameId");
         userId = bundle.getString("userId");
         operation = bundle.getString("operation");
+        GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
     }
 
@@ -105,6 +114,7 @@ public class FragmentGameDetail extends Fragment{
                     Intent intent = new Intent();
                     Bundle bundle = new Bundle();
                     bundle.putSerializable("matchBean", matchBean);
+                    bundle.putSerializable("gameDetailId", gameDetailId);
                     intent.putExtras(bundle);
                     intent.setClass(getActivity(), MatchActivity.class);
                     try{
@@ -240,9 +250,10 @@ public class FragmentGameDetail extends Fragment{
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/game/" + gameDetailId;
+                urlStr = serverUrl + "api/game/" + gameDetailId;
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
+
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
@@ -252,9 +263,12 @@ public class FragmentGameDetail extends Fragment{
                 game = jsonProcessor.GetGameBean(reader.readLine());
                 switch (operation) {
                     case "wishList":
-                        urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/wishlist/" + gameDetailId;
+                        urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId;
                         url = new URL(urlStr);
                         urlConn = (HttpURLConnection) url.openConnection();
+
+                        urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                         urlConn.setRequestMethod("GET");
                         urlConn.connect();
                         in = urlConn.getInputStream();
@@ -265,7 +279,7 @@ public class FragmentGameDetail extends Fragment{
                         credits = String.valueOf(myList.getPoints());
                         break;
                     case "offerList":
-                        urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/offerlist/" + gameDetailId;
+                        urlStr = serverUrl+"api/user/" + userId + "/offerlist/" + gameDetailId;
                         url = new URL(urlStr);
                         urlConn = (HttpURLConnection) url.openConnection();
                         urlConn.setRequestMethod("GET");
@@ -327,12 +341,13 @@ public class FragmentGameDetail extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/wishlist/";
+                urlStr = serverUrl + "api/user/" + userId + "/wishlist/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);
                 urlConn.setDoInput(true);
                 urlConn.setUseCaches(false);
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
                 urlConn.setRequestMethod("POST");
                 urlConn.setRequestProperty("Content-Type", "application/json");
                 urlConn.connect();
@@ -389,7 +404,7 @@ public class FragmentGameDetail extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/offerlist/";
+                urlStr = serverUrl + "api/user/" + userId + "/offerlist/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
@@ -397,6 +412,9 @@ public class FragmentGameDetail extends Fragment{
                 urlConn.setDoOutput(true);
                 urlConn.setDoInput(true);
                 urlConn.setUseCaches(false);
+
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                 urlConn.setRequestMethod("POST");
                 urlConn.setRequestProperty("Content-Type", "application/json");
                 urlConn.connect();
@@ -466,12 +484,15 @@ public class FragmentGameDetail extends Fragment{
                     default:
                         break;
                 }
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId + modifyUrl + gameDetailId + "/modify";
+                urlStr = serverUrl + "api/user/" + userId + modifyUrl + gameDetailId + "/modify";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);
                 urlConn.setDoInput(true);
                 urlConn.setUseCaches(false);
+
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                 urlConn.setRequestMethod("PUT");
                 urlConn.setRequestProperty("Content-Type", "application/json");
                 urlConn.connect();
@@ -523,7 +544,8 @@ public class FragmentGameDetail extends Fragment{
 
     /*****************************************************************************************/
     /* Part for match task */
-    // didn't test
+
+
 
     private class MatchCheckTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
@@ -536,9 +558,12 @@ public class FragmentGameDetail extends Fragment{
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/user/" + userId + "/wishlist/" + gameDetailId + "/match";
+                urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId + "/match";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
+
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
@@ -547,7 +572,16 @@ public class FragmentGameDetail extends Fragment{
                 JSONProcessor jsonProcessor = new JSONProcessor();
                 status = reader.readLine();
                 matchBean = jsonProcessor.GetMatchBean(status);
-                // status = matchBean[0].toString();
+                switch (matchBean.length){
+                    case 0:
+                        toMatch = false;
+                        status = "Match not found";
+                        break;
+                    default:
+                        toMatch = true;
+                        status = "Match found";
+                        break;
+                }
             } catch (Exception exc) {
                 exc.printStackTrace();
             }
@@ -559,7 +593,6 @@ public class FragmentGameDetail extends Fragment{
         }
         @Override
         protected void onPostExecute(String result) {
-            toMatch = true;
             showDialog(status);
             super.onPostExecute(result);
         }
@@ -568,5 +601,8 @@ public class FragmentGameDetail extends Fragment{
     public void Match(){
         new FragmentGameDetail.MatchCheckTask().execute();
     }
+
+
+    /*****************************************************************************************/
 
 }

@@ -1,6 +1,7 @@
 package com.example.ye.gametrade_in;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -21,9 +22,13 @@ public class FragmentRegister extends Fragment{
     private EditText registerNameText, registerEmailText, registerPhoneText, registerPasswordText;
     private String registerName, registerEmail, registerPhone, registerPassword;
     Button registerButton;
+    String serverUrl;
+    Boolean jmpToLog = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
+        GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
         return inflater.inflate(R.layout.fragment_register, container, false);
     }
 
@@ -50,6 +55,12 @@ public class FragmentRegister extends Fragment{
         builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int id){
+                if( jmpToLog ){
+                    Intent intent = new Intent();
+                    intent.setClass(getActivity(), LoginActivity.class );
+                    startActivity(intent);
+                    getActivity().finish();
+                }
             }
         });
         AlertDialog alert = builder.create();
@@ -119,14 +130,14 @@ public class FragmentRegister extends Fragment{
         private int responseCode = -1;
         @Override
         protected  void onPreExecute(){
-            status = "Username is available. Please go back to main menu and login. ";
+            status = "Username is available. Please login. ";
         }
         @Override
         protected  String doInBackground(JSONObject... params){
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/register/";
+                urlStr = serverUrl + "api/register/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);
@@ -142,6 +153,10 @@ public class FragmentRegister extends Fragment{
                 responseCode = urlConn.getResponseCode();
                 if(responseCode == 409){
                     status = "Username exists, please pick another username. ";
+                }
+                else if(responseCode == 201){
+                    jmpToLog = true;
+                    status = "Username is available. Please login. ";
                 }
             }
             catch (Exception exc){

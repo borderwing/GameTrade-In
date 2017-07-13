@@ -25,9 +25,12 @@ public class FragmentPublish extends Fragment{
     String gameName, gameInfo, gameCredit;
     Button publishButton;
     ImageView gameImageView;
+    String serverUrl;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
+        GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
         return inflater.inflate(R.layout.fragment_publish, container, false);
     }
 

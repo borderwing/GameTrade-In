@@ -7,8 +7,8 @@
 
     <!-- SenderID -->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_alignParentLeft="true"
@@ -18,7 +18,7 @@
     <!-- GetGameID -->
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_centerHorizontal="true"
@@ -27,8 +27,8 @@
 
     <!-- OfferGameID -->
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_alignParentRight="true"

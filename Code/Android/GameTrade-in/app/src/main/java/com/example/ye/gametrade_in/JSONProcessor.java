@@ -1,11 +1,13 @@
 package com.example.ye.gametrade_in;
 
-import android.util.Log;
-
+import com.example.ye.gametrade_in.Bean.AddressBean;
+import com.example.ye.gametrade_in.Bean.GameBean;
+import com.example.ye.gametrade_in.Bean.MatchBean;
+import com.example.ye.gametrade_in.Bean.MyListBean;
+import com.example.ye.gametrade_in.Bean.OfferListBean;
+import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
-import java.util.List;
 
 public class JSONProcessor {
 
@@ -44,12 +46,21 @@ public class JSONProcessor {
         return match;
     }
 
+    // Get address list Bean
+    public AddressBean[] GetAddressListBean(String addressDetailedString){
+        Gson gson = new Gson();
+        AddressBean[] addressList = gson.fromJson(addressDetailedString, AddressBean[].class);
+        return addressList;
+    }
+
     // Get my offer list detail list Bean
     public OfferListBean[] GetMyOfferListBean(String myListDetailString){
         Gson gson = new Gson();
         OfferListBean[] myOfferList = gson.fromJson(myListDetailString, OfferListBean[].class);
         return myOfferList;
     }
+
+
 
     // Get user detail Bean
     public UserDetailBean GetUserDetailBean(String userDetailString){

@@ -58,9 +58,12 @@ public class RegisterActivity extends AppCompatActivity{
             Intent intent = new Intent();
             intent.setClass(RegisterActivity.this, MainActivity.class);
             startActivity(intent);
-            // RegisterActivity.this.finish();
         }
     };
+
+
+    /*****************************************************************************************/
+    /* Toolbar settings */
 
 
     private Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
