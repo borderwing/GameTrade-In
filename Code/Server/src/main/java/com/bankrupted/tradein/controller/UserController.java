@@ -324,7 +324,7 @@ public class UserController {
         OfferRange.add(Wantsum-pointRange);
         OfferRange.add(Wantsum+pointRange);
 
-        Map<Integer,List<Integer>> OfferGamesMap=new M
+        Map<Integer,List<Integer>> OfferGamesMap
         for(int i =0;i<YouWantGameList.size();i++){
 
         }
