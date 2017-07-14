@@ -2,6 +2,7 @@ package com.bankrupted.tradein.controller;
 
 import com.bankrupted.tradein.model.GameEntity;
 import com.bankrupted.tradein.model.json.SearchGameJsonItem;
+import org.python.bouncycastle.cert.ocsp.Req;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,10 @@ public class GameController {
 
         return new ResponseEntity<List<GameEntity>>(pagedAllGame.getPageList(),HttpStatus.OK);
     }
+
+//    // retrieve trending games
+//    @RequestMapping(value="/trending", method=RequestMethod.GET)
+//    public ResponseEntity<List>
 
     //retrieve single game
 
