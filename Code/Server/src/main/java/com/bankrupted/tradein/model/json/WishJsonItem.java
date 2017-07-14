@@ -4,14 +4,14 @@ package com.bankrupted.tradein.model.json;
  * Created by lykav on 2017/6/30.
  */
 public class WishJsonItem {
-    private int gameId;
+    private long gameId;
     private int points;
 
-    public int getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(long gameId) {
         this.gameId = gameId;
     }
 

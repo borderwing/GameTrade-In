@@ -27,16 +27,16 @@ public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> 
 
 
     @Query("select p from WishEntity p where p.wishEntityPK.user.userId=:userid and p.wishEntityPK.game.gameId=:gameid")
-    List<WishEntity> findByUserIDAndGameID(@Param("userid")int userid,@Param("gameid")int gameid);
+    List<WishEntity> findByUserIDAndGameID(@Param("userid")int userid,@Param("gameid")long gameid);
 
     @Query("select p from WishEntity p where p.points=:points and p.status=1 and p.wishEntityPK.game.gameId=:gameid order by p.wishEntityPK.user.userId")
-    List<WishEntity> getWishGame(@Param("points")int points,@Param("gameid")int gameid);
+    List<WishEntity> getWishGame(@Param("points")int points,@Param("gameid")long gameid);
 
 
     @Query("select wish.wishEntityPK.game.gameId from WishEntity wish, OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid" +
             " and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId" +
             " and offer.status=1 and wish.status=1 and offer.points=:points and wish.points=:points")
-    List<Integer> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
+    List<Long> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
 
 
     @Query(value = "select offerA.userID as userAId,offerA.gameID as UserASendGameId,offerB.userID as UserBId,offerB.gameID as UserBSendGameId\n" +
@@ -47,7 +47,7 @@ public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> 
     List<Object[]> getPotientialChanges();
 
     @Query("select p.points from WishEntity p where p.wishEntityPK.user.userId=:userid and p.wishEntityPK.game.gameId=:gameid and p.status=1")
-    Integer getWishPoints(@Param("userid")int userid,@Param("gameid")int gameid);
+    Integer getWishPoints(@Param("userid")int userid,@Param("gameid")long gameid);
 
     @Modifying
     @Transactional

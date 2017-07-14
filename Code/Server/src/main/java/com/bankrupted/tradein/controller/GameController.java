@@ -46,7 +46,7 @@ public class GameController {
     //retrieve single game
 
     @RequestMapping(value="/{gameid}",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") int gameid){
+    public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") long gameid){
         System.out.println("Fetch game with id "+gameid);
         GameEntity game=gamerepository.findOne(gameid);
         if(game==null){
@@ -58,7 +58,7 @@ public class GameController {
 
 
     //find game by key words
-    @RequestMapping(value="/params",method=RequestMethod.POST)
+   /* @RequestMapping(value="/params",method=RequestMethod.POST)
     public ResponseEntity<Page<GameEntity>> searchGame(@RequestBody SearchGameJsonItem GameInfo,
                                                        @RequestParam(value="page",defaultValue = "0")Integer page,
                                                        @RequestParam(value="size",defaultValue = "5")Integer size){
@@ -88,5 +88,5 @@ public class GameController {
 
         return new ResponseEntity<Page<GameEntity>>(gameList,HttpStatus.OK);
     }
-
+*/
 }

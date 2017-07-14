@@ -125,7 +125,7 @@ public class UserController {
     //fetch single game in wish list
     @RequestMapping(value="/{userId}/wishlist/{gameId}",method=RequestMethod.GET)
     public ResponseEntity<WishEntity> getOneWish(@PathVariable("userId")int userid,
-                                                 @PathVariable("gameId")int gameid){
+                                                 @PathVariable("gameId")long gameid){
         System.out.println("fetch single game...");
 
         UserEntity user=userRepo.findOne(userid);
@@ -216,7 +216,7 @@ public class UserController {
     //remove item from wishlist
     @RequestMapping(value="{userid}/wishlist/{gameid}/delete",method=RequestMethod.PUT)
     public ResponseEntity<Void> deleteGameFromWishlist(
-            @PathVariable("gameid")int gameid,
+            @PathVariable("gameid")long gameid,
             @PathVariable("userid")int userid) {
         System.out.println("delete game...");
 
@@ -259,7 +259,7 @@ public class UserController {
     //modify game points in wish list
     @RequestMapping(value="{userid}/wishlist/{gameid}/modify",method=RequestMethod.PUT)
     public ResponseEntity<Void> resetGamePointFromWishList(
-            @PathVariable("gameid")int gameid,
+            @PathVariable("gameid")long gameid,
             @PathVariable("userid")int userid,
             @RequestBody ModifyWishJsonItem modifyItem){
         System.out.println("modifying the points...");
@@ -313,8 +313,8 @@ public class UserController {
 
         System.out.println(pointRange);
 
-        List<Integer> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
-        List<Integer> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
+        List<Long> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
+        List<Long> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
 
         int Wantsum=0;
         for(int i =0;i<YouWantGameList.size();i++){
@@ -324,11 +324,30 @@ public class UserController {
         OfferRange.add(Wantsum-pointRange);
         OfferRange.add(Wantsum+pointRange);
 
-        Map<Integer,List<Integer>> OfferGamesMap
-        for(int i =0;i<YouWantGameList.size();i++){
+        //get the people who owns the game the customer want
+        List<OfferEntity> OfferWantedGameList=offerRepo.findAllExceptById(userid);
+        Map<Integer,Integer> AvailablePersonMap = assist.getAvailablePerson(OfferWantedGameList,YouWantGameList);
 
+        //check whether the points is in range
+        List<Integer> targetUserId=new ArrayList<>();
+        Iterator<Map.Entry<Integer,Integer>> iter=AvailablePersonMap.entrySet().iterator();
+        while(iter.hasNext()){
+            Map.Entry<Integer,Integer> userPoints=iter.next();
+            int points=userPoints.getValue();
+            if(points>OfferRange.get(0)&&points<OfferRange.get(1)){
+                targetUserId.add(userPoints.getKey());
+            }
         }
 
+
+        List<OfferEntity> UserOffer=offerRepo.findById(userid);
+        Map<Long,Integer> UserOfferPoints=new HashMap<>();
+        for(int i =0;i<UserOffer.size();i++){
+            UserOfferPoints.put(UserOffer.get(i).getOfferEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
+        }
+        for(int i =0 ;i<targetUserId.size();i++){
+            //List<WishEntity> TargetUserWishList=wishRepo
+        }
         return new ResponseEntity<List<WishListMatchResultItem>>(HttpStatus.OK);
     }
 
@@ -397,7 +416,7 @@ public class UserController {
     //fetch single offer
     @RequestMapping(value="/{userId}/offerlist/{gameId}",method=RequestMethod.GET)
     public ResponseEntity<OfferEntity> getOneOffer(@PathVariable("userId")int userid,
-                                                   @PathVariable("gameId")int gameid){
+                                                   @PathVariable("gameId")long gameid){
         System.out.println("fetch single game...");
 
         UserEntity user=userRepo.findOne(userid);
@@ -484,7 +503,7 @@ public class UserController {
     //delete a game from offer list
     @RequestMapping(value="/{userId}/offerlist/{gameId}/delete",method=RequestMethod.PUT)
     public ResponseEntity<Void> deleteItemFromOfferList(@PathVariable("userId")int userid,
-                                                               @PathVariable("gameId")int gameid){
+                                                               @PathVariable("gameId")long gameid){
         System.out.println("delete game...");
 
         UserEntity user=userRepo.findOne(userid);
@@ -523,7 +542,7 @@ public class UserController {
     //modify a game from offer list
     @RequestMapping(value="/{userId}/offerlist/{gameId}/modify",method=RequestMethod.PUT)
     public ResponseEntity<Void> modifyItemFromOfferList(@PathVariable("userId")int userid,
-                                                        @PathVariable("gameId")int gameid,
+                                                        @PathVariable("gameId")long gameid,
                                                         @RequestBody ModifyOfferJsonItem modifyPoints){
         System.out.println("modify the points...");
 
@@ -690,7 +709,7 @@ public class UserController {
     //match game in wish list
     @RequestMapping(value="/{userId}/wishlist/{gameId}/match",method=RequestMethod.GET)
     public ResponseEntity<List<ReceiverOrderItem>> matchWistList(@PathVariable("userId")int userid,
-                                                            @PathVariable("gameId")int gameid){
+                                                            @PathVariable("gameId")long gameid){
         System.out.println("match game...");
 
         UserEntity user=userRepo.findOne(userid);
@@ -734,7 +753,7 @@ public class UserController {
 
         System.out.println("the size of the list is "+offerUserid.size());
 
-        List<Integer> sendingGame;
+        List<Long> sendingGame;
         List<ReceiverOrderItem> resultOrder=new ArrayList<>();
         for(int i =0;i<offerUserid.size();i++){
             sendingGame=wishRepo.getSameGame(offerUserid.get(i),userid,wantPoint);
@@ -753,7 +772,7 @@ public class UserController {
     //confirm the match
     @RequestMapping(value="/{userid}/wishlist/{gameId}/match/confirm",method=RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmWishMatch(@RequestBody CreateOrderJsonItem orderItem,
-                                                         @PathVariable("gameId")int gameid,
+                                                         @PathVariable("gameId")long gameid,
                                                          @PathVariable("userid")int userid){
 
         UserEntity user=userRepo.findOne(userid);
@@ -845,7 +864,7 @@ public class UserController {
     //match game in offer list
     @RequestMapping(value="/{userid}/offerlist/{gameid}/match",method=RequestMethod.GET)
     public ResponseEntity<List<SenderOrderItem>> matchOfferList(@PathVariable("userid")int userid,
-                                                                @PathVariable("gameid")int gameid){
+                                                                @PathVariable("gameid")long gameid){
         System.out.println("match the game in offer list...");
 
         UserEntity user=userRepo.findOne(userid);
@@ -884,7 +903,7 @@ public class UserController {
             }
         }
 
-        List<Integer> receivingGame;
+        List<Long> receivingGame;
         List<SenderOrderItem> resultOrder=new ArrayList<>();
         for(int i =0;i<wishListUserId.size();i++){
             receivingGame=offerRepo.getSameGame(userid,wishListUserId.get(i),wantPoint);
@@ -905,7 +924,7 @@ public class UserController {
     //confirm the match in offer list
     @RequestMapping(value="/{userid}/offerlist/{gameid}/match/confirm",method=RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmOfferMatch(@RequestBody CreateOrderJsonItem orderItem,
-                                                              @PathVariable("gameid")int gameid,
+                                                              @PathVariable("gameid")long gameid,
                                                               @PathVariable("userid")int userid){
         UserEntity user=userRepo.findOne(userid);
 

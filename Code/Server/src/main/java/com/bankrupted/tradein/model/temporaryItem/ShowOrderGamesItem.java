@@ -16,7 +16,7 @@ public class ShowOrderGamesItem {
     private int senderStatus;
     private int receiverStatus;
     private int status;
-    private int gameId;
+    private long gameId;
 
     public UserEntity getSender() {
         return sender;
@@ -95,12 +95,11 @@ public class ShowOrderGamesItem {
         this.status = status;
     }
 
-    public int getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(long gameId) {
         this.gameId = gameId;
     }
-
 }
