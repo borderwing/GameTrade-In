@@ -311,14 +311,23 @@ public class UserController {
 
         int pointRange=YouWantGames.getPointRange();
 
-        System.out.println(YouWantGames.getYouOfferGames());
+        System.out.println(pointRange);
 
         List<Integer> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
         List<Integer> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
 
-        System.out.println(YouWantGameList);
-        System.out.println("----------------------------------------");
-        System.out.println(YouOfferGameList);
+        int Wantsum=0;
+        for(int i =0;i<YouWantGameList.size();i++){
+            Wantsum+=wishRepo.getWishPoints(userid,YouWantGameList.get(i));
+        }
+        List<Integer> OfferRange=new ArrayList<>();
+        OfferRange.add(Wantsum-pointRange);
+        OfferRange.add(Wantsum+pointRange);
+
+        Map<Integer,List<Integer>> OfferGamesMap=new M
+        for(int i =0;i<YouWantGameList.size();i++){
+
+        }
 
         return new ResponseEntity<List<WishListMatchResultItem>>(HttpStatus.OK);
     }

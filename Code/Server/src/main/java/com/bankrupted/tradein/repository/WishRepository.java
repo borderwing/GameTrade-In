@@ -46,6 +46,9 @@ public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> 
             "\tand wishA.status=1 and wishB.status=1 and offerA.status=1 and offerB.status=1 and offerA.userID>offerB.userID",nativeQuery = true)
     List<Object[]> getPotientialChanges();
 
+    @Query("select p.points from WishEntity p where p.wishEntityPK.user.userId=:userid and p.wishEntityPK.game.gameId=:gameid and p.status=1")
+    Integer getWishPoints(@Param("userid")int userid,@Param("gameid")int gameid);
+
     @Modifying
     @Transactional
     @Query("update WishEntity p set p.status=0 where p.wishEntityPK.user=:user and p.wishEntityPK.game=:game and p.wishEntityPK.createTime=:createTime")

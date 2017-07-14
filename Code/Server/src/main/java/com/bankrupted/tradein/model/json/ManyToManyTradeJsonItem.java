@@ -6,33 +6,33 @@ package com.bankrupted.tradein.model.json;
 public class ManyToManyTradeJsonItem {
     /*
            {
-                "YouWantGames":"gameid1,gameid2,"
-                "YouOfferGames":"gameid1,gameid2,..."
+                "youWantGames":"gameid1,gameid2,"
+                "youOfferGames":"gameid1,gameid2,..."
                 "TargetUserId":1,
                 "addressId":1,
                 "pointRange":1
            }
      */
-    private String YouWantGames;
-    private String YouOfferGames;
+    private String youWantGames;
+    private String youOfferGames;
     private int TargetUserId;
     private int addressId;
     private int pointRange;
 
     public String getYouWantGames() {
-        return YouWantGames;
+        return youWantGames;
     }
 
     public void setYouWantGames(String youWantGames) {
-        YouWantGames = youWantGames;
+        this.youWantGames = youWantGames;
     }
 
     public String getYouOfferGames() {
-        return YouOfferGames;
+        return youOfferGames;
     }
 
     public void setYouOfferGames(String youOfferGames) {
-        YouOfferGames = youOfferGames;
+        this.youOfferGames = youOfferGames;
     }
 
     public int getTargetUserId() {

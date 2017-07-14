@@ -15,7 +15,15 @@ public class GameEntity {
     private String title;
     private String platform;
     private String language;
-    private String genre;
+    private String Genre;
+
+    public String getGenre() {
+        return Genre;
+    }
+
+    public void setGenre(String genre) {
+        Genre = genre;
+    }
 
     //default value need to be changed later
     private Integer evaluatePoint=100;
@@ -69,16 +77,6 @@ public class GameEntity {
     }
 
     @Basic
-    @Column(name = "genre", nullable = true, length = 1024)
-    public String getGenre() {
-        return genre;
-    }
-
-    public void setGenre(String genre) {
-        this.genre = genre;
-    }
-
-    @Basic
     @Column(name = "evaluatePoint", nullable = true)
     public Integer getEvaluatePoint() {
         return evaluatePoint;
@@ -99,7 +97,6 @@ public class GameEntity {
         if (title != null ? !title.equals(that.title) : that.title != null) return false;
         if (platform != null ? !platform.equals(that.platform) : that.platform != null) return false;
         if (language != null ? !language.equals(that.language) : that.language != null) return false;
-        if (genre != null ? !genre.equals(that.genre) : that.genre != null) return false;
         if (evaluatePoint != null ? !evaluatePoint.equals(that.evaluatePoint) : that.evaluatePoint != null)
             return false;
 
@@ -112,7 +109,6 @@ public class GameEntity {
         result = 31 * result + (title != null ? title.hashCode() : 0);
         result = 31 * result + (platform != null ? platform.hashCode() : 0);
         result = 31 * result + (language != null ? language.hashCode() : 0);
-        result = 31 * result + (genre != null ? genre.hashCode() : 0);
         result = 31 * result + (evaluatePoint != null ? evaluatePoint.hashCode() : 0);
         return result;
     }
