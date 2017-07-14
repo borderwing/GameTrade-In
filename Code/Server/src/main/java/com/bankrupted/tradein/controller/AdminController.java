@@ -153,6 +153,7 @@ public class AdminController {
 
         //set the evaluate point
         String point=pythonGetEvaluatePoint.getPoints(game.getTitle(),game.getPlatform());
+        System.out.println("------------------------------------------");
         System.out.println(point);
         float floatPoint=Float.parseFloat(point)*100;
         newGame.setEvaluatePoint((int)floatPoint);

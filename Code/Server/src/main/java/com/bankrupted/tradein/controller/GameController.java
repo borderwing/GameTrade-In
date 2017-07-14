@@ -3,6 +3,7 @@ package com.bankrupted.tradein.controller;
 import com.bankrupted.tradein.model.GameEntity;
 import com.bankrupted.tradein.model.json.SearchGameJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.bankrupted.tradein.repository.GameRepository;
 import com.bankrupted.tradein.repository.PendingGameRepository;
+
+import java.util.List;
 
 /**
  * Created by homepppp on 2017/6/29.
@@ -28,11 +31,16 @@ public class GameController {
 
     //retrieve all games
     @RequestMapping(value="/params",method=RequestMethod.GET)
-    public ResponseEntity<Page<GameEntity>> listAllGames(@RequestParam(value="page",defaultValue="0")Integer page,
+    public ResponseEntity<List<GameEntity>> listAllGames(@RequestParam(value="page",defaultValue="0")Integer page,
                                                          @RequestParam(value="size",defaultValue="5")Integer size){
         Pageable pageable=new PageRequest(page,size);
-        Page<GameEntity> allGame=gamerepository.findAll(pageable);
-        return new ResponseEntity<Page<GameEntity>>(allGame,HttpStatus.OK);
+        List<GameEntity> allGame=gamerepository.findAll();
+
+        PagedListHolder<GameEntity> pagedAllGame=new PagedListHolder<>(allGame);
+        pagedAllGame.setPage(page);
+        pagedAllGame.setPageSize(size);
+
+        return new ResponseEntity<List<GameEntity>>(pagedAllGame.getPageList(),HttpStatus.OK);
     }
 
     //retrieve single game
