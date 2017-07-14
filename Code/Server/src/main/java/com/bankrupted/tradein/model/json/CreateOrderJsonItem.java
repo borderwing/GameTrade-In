@@ -4,15 +4,15 @@ package com.bankrupted.tradein.model.json;
  * Created by homepppp on 2017/7/5.
  */
 public class CreateOrderJsonItem {
-    private int gameId;
+    private long gameId;
     private int targetUserId;
     private int addressId;
 
-    public int getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(long gameId) {
         this.gameId = gameId;
     }
 
