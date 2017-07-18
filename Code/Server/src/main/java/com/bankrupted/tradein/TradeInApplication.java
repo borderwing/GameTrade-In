@@ -11,6 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import com.bankrupted.tradein.repository.RoleRepository;
 import com.bankrupted.tradein.repository.UserRepository;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -102,5 +105,10 @@ public class TradeInApplication implements CommandLineRunner {
 
         user = userRepository.saveAndFlush(user);
         return user;
+    }
+
+    @Bean
+    public RestTemplate restTemplate(RestTemplateBuilder builder){
+        return builder.build();
     }
 }

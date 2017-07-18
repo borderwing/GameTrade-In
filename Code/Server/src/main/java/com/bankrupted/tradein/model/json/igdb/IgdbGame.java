@@ -1,7 +1,9 @@
 package com.bankrupted.tradein.model.json.igdb;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,6 +13,7 @@ public class IgdbGame {
     private long id;
     private String name;
     private float popularity;
+    private String summary;
 
     @JsonProperty(value = "release_dates")
     private List<IgdbRelease> releaseDates;
@@ -74,6 +77,15 @@ public class IgdbGame {
     public List<Integer> getGenres() {
         return genres;
     }
+    @JsonIgnore
+    public List<Long> getLongGenres(){
+        int size = genres.size();
+        List<Long> longGenres = new ArrayList<>(size);
+        for(Integer genreId : genres){
+            longGenres.add(genreId.longValue());
+        }
+        return longGenres;
+    }
 
     public void setGenres(List<Integer> genres) {
         this.genres = genres;
@@ -93,5 +105,13 @@ public class IgdbGame {
 
     public void setKeywords(List<Integer> keywords) {
         this.keywords = keywords;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 }

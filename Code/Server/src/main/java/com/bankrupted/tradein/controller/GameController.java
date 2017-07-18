@@ -1,11 +1,12 @@
 package com.bankrupted.tradein.controller;
 
 import com.bankrupted.tradein.model.GameEntity;
-import com.bankrupted.tradein.model.json.SearchGameJsonItem;
-import org.python.bouncycastle.cert.ocsp.Req;
+import com.bankrupted.tradein.model.json.game.GameTileJson;
+import com.bankrupted.tradein.model.json.igdb.IgdbGame;
+import com.bankrupted.tradein.service.GameService;
+import com.bankrupted.tradein.utility.IgdbUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,35 +31,60 @@ public class GameController {
     @Autowired
     PendingGameRepository pendingrepository;
 
-    //retrieve all games
-    @RequestMapping(value="/params",method=RequestMethod.GET)
-    public ResponseEntity<List<GameEntity>> listAllGames(@RequestParam(value="page",defaultValue="0")Integer page,
-                                                         @RequestParam(value="size",defaultValue="5")Integer size){
-        Pageable pageable=new PageRequest(page,size);
-        List<GameEntity> allGame=gamerepository.findAll();
+    @Autowired
+    GameService gameService;
+    @Autowired
+    IgdbUtility igdbUtility;
 
-        PagedListHolder<GameEntity> pagedAllGame=new PagedListHolder<>(allGame);
+    //retrieve all games
+    @RequestMapping(value = "/params", method = RequestMethod.GET)
+    public ResponseEntity<List<GameEntity>> listAllGames(@RequestParam(value = "page", defaultValue = "0") Integer page,
+                                                         @RequestParam(value = "size", defaultValue = "5") Integer size) {
+        Pageable pageable = new PageRequest(page, size);
+        List<GameEntity> allGame = gamerepository.findAll();
+
+        PagedListHolder<GameEntity> pagedAllGame = new PagedListHolder<>(allGame);
         pagedAllGame.setPage(page);
         pagedAllGame.setPageSize(size);
 
-        return new ResponseEntity<List<GameEntity>>(pagedAllGame.getPageList(),HttpStatus.OK);
+        return new ResponseEntity<List<GameEntity>>(pagedAllGame.getPageList(), HttpStatus.OK);
     }
 
-//    // retrieve trending games
-//    @RequestMapping(value="/trending", method=RequestMethod.GET)
-//    public ResponseEntity<List>
+    // retrieve trending games
+    @RequestMapping(value="/trending", method=RequestMethod.GET)
+    public ResponseEntity<List<GameTileJson>> getTrendingGames(){
+        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(5,0);
+
+        if(trendingGames == null){
+            System.out.println("Fetch trending games failed");
+            return new ResponseEntity<List<GameTileJson>>(trendingGames, HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        return new ResponseEntity<List<GameTileJson>>(trendingGames, HttpStatus.OK);
+    }
 
     //retrieve single game
 
-    @RequestMapping(value="/{gameid}",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") long gameid){
-        System.out.println("Fetch game with id "+gameid);
-        GameEntity game=gamerepository.findOne(gameid);
-        if(game==null){
-            System.out.println("Games with id "+gameid+" not found");
-            return new ResponseEntity<GameEntity>(game,HttpStatus.NOT_FOUND);
+//    @RequestMapping(value="/{gameid}",method=RequestMethod.GET,produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<GameEntity> getGame(@PathVariable("gameid") long gameid){
+//        System.out.println("Fetch game with id "+gameid);
+//        GameEntity game=gamerepository.findOne(gameid);
+//        if(game==null){
+//            System.out.println("Games with id "+gameid+" not found");
+//            return new ResponseEntity<GameEntity>(game,HttpStatus.NOT_FOUND);
+//        }
+//        return new ResponseEntity<GameEntity>(game,HttpStatus.OK);
+//    }
+
+    @RequestMapping(value = "/{igdbId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<IgdbGame> getGame(@PathVariable("igdbId") long igdbId){
+        System.out.println("Fetch game with IGDB id "+ igdbId);
+
+        IgdbGame game = igdbUtility.getIgdbGame(igdbId);
+        if(game == null){
+            System.out.println("Games with id "+ igdbId +" not found");
+            return new ResponseEntity<IgdbGame>(game, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<GameEntity>(game,HttpStatus.OK);
+        return new ResponseEntity<IgdbGame>(game,HttpStatus.OK);
     }
 
 
