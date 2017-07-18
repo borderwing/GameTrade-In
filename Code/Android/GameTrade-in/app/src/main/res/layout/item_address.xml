@@ -5,65 +5,73 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <!-- Address -->
-    <!--<TextView
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/addressDetail" />-->
-
-
-    <!-- AddressId -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/itemAddressIdAddress">
     <TextView
         android:id="@+id/itemAddressDetailAddressId"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_alignParentLeft="true"
          />
 
-    <!-- Receiver -->
-    <TextView
-        android:id="@+id/itemAddressDetailReceiver"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_toRightOf="@id/itemAddressDetailAddressId"
-         />
-
-    <!-- Phone -->
-    <TextView
-        android:id="@+id/itemAddressDetailPhone"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_centerHorizontal="true"
-         />
-
     <!-- Address -->
     <TextView
         android:id="@+id/itemAddressDetailAddress"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:layout_alignParentRight="true"
-         />
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/itemAddressDetailAddressId"
+        />
+    </RelativeLayout>
 
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/itemAddressIdAddress">
     <!-- Region -->
     <TextView
         android:id="@+id/itemAddressDetailRegion"
-        android:layout_width="65dp"
-        android:layout_height="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:layout_toLeftOf="@id/itemAddressDetailAddress"
+        android:layout_alignParentLeft="true"
          />
+        <!-- Receiver -->
+        <TextView
+            android:id="@+id/itemAddressDetailReceiver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/itemAddressDetailRegion"
+            />
+        <!-- Phone -->
+        <TextView
+            android:id="@+id/itemAddressDetailPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/itemAddressDetailReceiver"
+            />
+    </RelativeLayout>
 
+    <Button
+        android:id = "@+id/itemAddressOperationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="modify"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"/>
 
 </RelativeLayout>

@@ -1,4 +1,4 @@
-package com.example.ye.gametrade_in;
+package com.example.ye.gametrade_in.TestedBean;
 
 import java.io.Serializable;
 import java.util.Map;

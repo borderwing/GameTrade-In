@@ -55,6 +55,10 @@
             android:label="">
         </activity>
 
+        <activity android:name=".AddressOperationActivity"
+            android:label="">
+        </activity>
+
     </application>
 
 </manifest>

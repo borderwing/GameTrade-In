@@ -94,6 +94,7 @@ public class MatchActivity extends AppCompatActivity {
         intent.putExtra("gameId", gameId);
         intent.putExtra("targetUserId", targetUserId);
         intent.putExtra("gameDetailId", gameDetailId);
+        intent.putExtra("operation", "match");
         intent.setClass(MatchActivity.this, AddressActivity.class);
         startActivity(intent);
     }

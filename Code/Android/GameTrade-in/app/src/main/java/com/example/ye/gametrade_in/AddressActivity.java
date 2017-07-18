@@ -7,9 +7,12 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
@@ -38,13 +41,14 @@ public class AddressActivity extends AppCompatActivity {
 
     GameTradeInApplication gameTradeInApplication;
     String gameDetailId;
-    private String gameId, targetUserId;
+    private String gameId, targetUserId, operation;
     String serverUrl;
     Integer userId;
     boolean canChoose;
     private AddressBean[] addressBean;
     private ListView listView;
     String authorizedHeader;
+    Button addressOperationButton;
 
 
 
@@ -58,17 +62,25 @@ public class AddressActivity extends AppCompatActivity {
         userId =  gameTradeInApplication.GetLoginUser().getUserId();
         authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
+        setContentView(R.layout.activity_address);
+
         Intent intentReceiver = getIntent();
         gameId = intentReceiver.getStringExtra("gameId");
         targetUserId = intentReceiver.getStringExtra("targetUserId");
         gameDetailId = intentReceiver.getStringExtra("gameDetailId");
 
-        setContentView(R.layout.activity_address);
-        listView = (ListView) findViewById(R.id.addressListView);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.addressToolBar);
+        operation = intentReceiver.getStringExtra("operation");
 
+
+        listView = (ListView) findViewById(R.id.addressListView);
+
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.addressToolBar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -77,6 +89,7 @@ public class AddressActivity extends AppCompatActivity {
                 finish();
             }
         });
+        toolbar.findViewById(R.id.action_add);
 
         GetAddress();
 
@@ -86,9 +99,54 @@ public class AddressActivity extends AppCompatActivity {
         );
 
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener(onAddressItemClickListener);
+
+        // addressOperationButton = (Button) findViewById(R.id.itemAddressOperationButton);
+
+        try {
+            switch (operation) {
+                case "match":
+                    listView.setOnItemClickListener(onAddressItemClickListener);
+                    break;
+                case "browse":
+                    // addressOperationButton.setVisibility(View.VISIBLE);
+                    listView.setOnItemClickListener(onAddressItemBrowseClickListener);
+                    toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
+                    int i = 1;
+
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception exc){
+            Log.d("error", exc.toString());
+        }
     }
 
+
+
+    /*****************************************************************************************/
+    /* Function for toolbar */
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        try {
+            getMenuInflater().inflate(R.menu.toolbar, menu);
+            switch (operation) {
+                case "browse":
+                    menu.findItem(R.id.action_add).setVisible(true);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception exc){
+            Log.d("",exc.toString());
+        }
+        return true;
+    }
 
 
     /*****************************************************************************************/
@@ -138,6 +196,29 @@ public class AddressActivity extends AppCompatActivity {
         }
     };
 
+    private AdapterView.OnItemClickListener onAddressItemBrowseClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ListView listView = (ListView) parent;
+            HashMap<String, String> map = (HashMap<String, String>) listView.getItemAtPosition(position);
+            String addressId ="";
+
+            try{
+                addressId = String.valueOf(map.get("itemAddressDetailAddressId"));
+                //ConfirmMatch(gameId, targetUserId, addressId);
+                Intent intent = new Intent();
+                intent.putExtra("addressId", addressId);
+                intent.putExtra("addressOperation", "modify");
+                intent.setClass(AddressActivity.this, AddressOperationActivity.class);
+                startActivity(intent);
+            }
+            catch (Exception exc)
+            {
+                showDialog(exc.toString());
+            }
+        }
+    };
+
 
 
     /*****************************************************************************************/
@@ -150,7 +231,7 @@ public class AddressActivity extends AppCompatActivity {
         public boolean onMenuItemClick(MenuItem menuItem)
         {
             String message = "";
-            Intent intent;
+            Intent intent = new Intent();
             switch (menuItem.getItemId()){
                 case R.id.action_search:
                     message += "Click search";
@@ -158,6 +239,10 @@ public class AddressActivity extends AppCompatActivity {
                 case R.id.action_settings:
                     message += "Click setting";
                     break;
+                case R.id.action_add:
+                    intent.putExtra("addressOperation", "add");
+                    intent.setClass(AddressActivity.this, AddressOperationActivity.class);
+                    startActivity(intent);
             }
             if(!message.equals(""))
             {
