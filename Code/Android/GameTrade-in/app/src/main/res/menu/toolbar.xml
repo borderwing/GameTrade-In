@@ -25,10 +25,18 @@
         android:orderInCategory="350"
         app:showAsAction="never"/>
     <item
+        android:id="@+id/action_add"
+        android:title="@string/action_search"
+        android:icon="@drawable/plus"
+        android:orderInCategory="90"
+        app:showAsAction="always"
+        android:visible="false"/>
+    <item
         android:id="@+id/action_search"
         android:title="@string/action_search"
         android:icon="@drawable/searchicon"
         android:orderInCategory="80"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="always"
+        android:visible="false"/>
 
 </menu>

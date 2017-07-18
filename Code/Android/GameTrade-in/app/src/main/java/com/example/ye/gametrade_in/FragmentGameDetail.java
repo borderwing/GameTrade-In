@@ -363,6 +363,9 @@ public class FragmentGameDetail extends Fragment{
                 } else if (responseCode == 404) {
                     status = "Connection problem, check connect and login";
                 }
+                else{
+                    status = "Connection problem, check connect and login";
+                }
             } catch (Exception exc) {
                 exc.printStackTrace();
                 status = "Disconnected: " + responseCode;
@@ -430,6 +433,9 @@ public class FragmentGameDetail extends Fragment{
                 } else if (responseCode == 409) {
                     status = "Your offer list includes this game";
                 } else if (responseCode == 404) {
+                    status = "Connection problem, check connect and login";
+                }
+                else{
                     status = "Connection problem, check connect and login";
                 }
             } catch (Exception exc) {
@@ -508,6 +514,9 @@ public class FragmentGameDetail extends Fragment{
                     status = "Modify failed";
                 } else if (responseCode == 404) {
                     status = "Modify failed";
+                }
+                else{
+                    status = "Connection problem, check connect and login";
                 }
             } catch (Exception exc) {
                 exc.printStackTrace();

@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public Integer userId ;
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
     public TextView menuUserName;
-    public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton;
+    public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
     public GameTradeInApplication gameTradeInApplication;
     String serverUrl;
 
@@ -103,12 +103,15 @@ public class MainActivity extends AppCompatActivity {
         menuLogoutButton = (Button) findViewById(R.id.menuLogoutButton);
         menuMyListButton = (Button) findViewById(R.id.menuMyListButton);
         menuMyOfferListButton = (Button) findViewById(R.id.menuMyOfferListButton);
+        menuMyAddressButton = (Button) findViewById(R.id.menuMyAddressButton);
 
         menuRegisterButton.setOnClickListener(menuRegisterOnClickListener);
         menuLoginButton.setOnClickListener(menuLoginOnClickListener);
         menuLogoutButton.setOnClickListener(menuLogoutOnClickListener);
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
+        menuMyAddressButton.setOnClickListener(menuMyAddressButtonOnClickListener);
+
 
         // set userId
         try{
@@ -121,9 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 userId = 0;
             }
             if(userId != 0){
-
                 authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-
                 SetMenuHeaderUserDetailed();
                 UserDetailTask userDetailTask = new UserDetailTask();
                 userDetailTask.execute(userId.toString());
@@ -200,6 +201,16 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             Intent intent = new Intent();
             intent.setClass(MainActivity.this, OfferListActivity.class);
+            startActivity(intent);
+        }
+    };
+
+    private View.OnClickListener menuMyAddressButtonOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            Intent intent = new Intent();
+            intent.putExtra("operation", "browse");
+            intent.setClass(MainActivity.this, AddressActivity.class);
             startActivity(intent);
         }
     };

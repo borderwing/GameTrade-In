@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/addressDetailToolBar"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_width="match_parent"
+            android:background="?attr/colorPrimary"
+            >
+            <TextView
+                android:id = "@+id/myAddressToolBarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Address Detail"
+                />
+        </android.support.v7.widget.Toolbar>
+
+
+
+
+
+
+
+    <RelativeLayout
+        android:id = "@+id/addressDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/addressDetailToolBar">
+
+
+        <EditText
+            android:id = "@+id/addressDetailReceiver"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Receiver"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+        <EditText
+            android:id = "@+id/addressDetailPhone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Phone"
+            android:layout_below="@id/addressDetailReceiver"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp"
+            >
+        </EditText>
+        <EditText
+            android:id = "@+id/addressDetailAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Address"
+            android:layout_below="@id/addressDetailPhone"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+        <EditText
+            android:id = "@+id/addressDetailRegion"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Region"
+            android:layout_below="@id/addressDetailAddress"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp"
+            android:layout_marginRight="40dp">
+        </EditText>
+
+
+    </RelativeLayout>
+
+    <Button
+        android:id = "@+id/addressOperationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/addressDetail"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorPrimary"
+        android:textAllCaps="false"
+        android:text="Add Address"
+        android:layout_marginTop="40dp">
+    </Button>
+
+</RelativeLayout>

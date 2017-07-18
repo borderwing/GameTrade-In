@@ -53,6 +53,15 @@ public class JSONProcessor {
         return addressList;
     }
 
+    // Get address Bean
+    public AddressBean GetAddressSingleBean(String addressDetailedString){
+        Gson gson = new Gson();
+        AddressBean addressList = gson.fromJson(addressDetailedString, AddressBean.class);
+        return addressList;
+    }
+
+
+
     // Get my offer list detail list Bean
     public OfferListBean[] GetMyOfferListBean(String myListDetailString){
         Gson gson = new Gson();
