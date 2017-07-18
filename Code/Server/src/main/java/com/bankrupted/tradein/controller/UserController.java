@@ -5,6 +5,7 @@ import com.bankrupted.tradein.assist.matchAssist.*;
 import com.bankrupted.tradein.model.*;
 import com.bankrupted.tradein.model.json.*;
 import com.bankrupted.tradein.model.temporaryItem.*;
+import com.bankrupted.tradein.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.bankrupted.tradein.repository.*;
 
+import java.lang.annotation.Target;
 import java.util.*;
 import java.sql.Timestamp;
 
@@ -23,9 +25,23 @@ import static org.python.icu.text.PluralRules.Operand.v;
  */
 @RestController
 @RequestMapping("/api/user")
-public class UserController {
+public class               UserController {
 
     private String apiPath = "/api/user";
+
+
+    @Autowired
+    UserService userService;
+    @Autowired
+    CustomerService customerService;
+    @Autowired
+    WishService wishService;
+    @Autowired
+    OfferService offerService;
+    @Autowired
+    AddressService addressService;
+    @Autowired
+    OrderService orderService;
 
     @Autowired
     UserRepository userRepo;
@@ -50,13 +66,13 @@ public class UserController {
     @RequestMapping(value = "/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<UserEntity> getUser(@PathVariable("id") int id) {
         System.out.println("Fetching User with id " + id);
-        UserEntity user = userRepo.findOne(id);
+        UserEntity user = userService.getUserById(id);
         if (user == null) {
             System.out.println("Cannot find User with id " + id);
             return new ResponseEntity<UserEntity>(HttpStatus.NOT_FOUND);
         }
 
-        CustomerEntity customer = customerRepo.findOne(user.getUserId());
+        CustomerEntity customer = customerService.getCustomerById(user.getUserId());
         if (customer != null) {
             return new ResponseEntity<UserEntity>(customer, HttpStatus.OK);
         }
@@ -69,29 +85,17 @@ public class UserController {
                 LIST CONTROLLER
      */
 
-
-
-    // Fetch wish list
-    @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.GET)
-    public ResponseEntity<List<WishEntity>> getWishList(
-            @PathVariable("userId") int userId) {
-        UserEntity user = userRepo.findByUserIdAndFetchWishlist(userId);
+    @RequestMapping(value="/{userid}/wishlist",method = RequestMethod.GET)
+    public ResponseEntity<List<WishEntity>> getWishList(@PathVariable("userid")int userid){
+        UserEntity user=userService.getUserById(userid);
         if (user == null) {
-            System.out.println("Cannot find User with id " + userId);
+            System.out.println("Cannot find User with id " + userid);
             return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
         }
-        Collection<WishEntity> wishList = user.getWishes();
-
-        //get the available game
-        Iterator<WishEntity> iter=wishList.iterator();
-        while(iter.hasNext()){
-            WishEntity wish=iter.next();
-            if(wish.getStatus()==0){
-                iter.remove();
-            }
-        }
-        return new ResponseEntity<List<WishEntity>>((List<WishEntity>) wishList, HttpStatus.OK);
+        Collection<WishEntity> wishList=wishService.getAvailableWish(user);
+        return new ResponseEntity<List<WishEntity>>((List<WishEntity>)wishList, HttpStatus.OK);
     }
+
 
     // Fetch wish list(paged)
     @RequestMapping(value = "/{userId}/wishlist/params", method = RequestMethod.GET)
@@ -99,21 +103,12 @@ public class UserController {
             @PathVariable("userId") int userId,
             @RequestParam(value = "page",defaultValue = "0")Integer page,
             @RequestParam(value = "size",defaultValue = "5")Integer size) {
-        UserEntity user = userRepo.findByUserIdAndFetchWishlist(userId);
+        UserEntity user=userService.getUserByIdAndFetchWishList(userId);
         if (user == null) {
             System.out.println("Cannot find User with id " + userId);
             return new ResponseEntity<List<WishEntity>>(HttpStatus.NOT_FOUND);
         }
-        Collection<WishEntity> wishList = user.getWishes();
-
-        //get the available game
-        Iterator<WishEntity> iter=wishList.iterator();
-        while(iter.hasNext()){
-            WishEntity wish=iter.next();
-            if(wish.getStatus()==0){
-                iter.remove();
-            }
-        }
+        Collection<WishEntity> wishList=wishService.getAvailableWish(user);
 
         PagedListHolder<WishEntity> pagedWishList= new PagedListHolder<>((List<WishEntity>)wishList);
         pagedWishList.setPage(page);
@@ -128,7 +123,7 @@ public class UserController {
                                                  @PathVariable("gameId")long gameid){
         System.out.println("fetch single game...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
@@ -138,20 +133,9 @@ public class UserController {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        List<WishEntity> wishlist=wishRepo.findByUserAndGame(user,game);
 
-        boolean isAvailable=false;
-        Iterator<WishEntity> iter=wishlist.iterator();
-        WishEntity wish=new WishEntity();
-        while(iter.hasNext()){
-            wish =iter.next();
-            if(wish.getStatus()==1){
-                isAvailable=true;
-                break;
-            }
-        }
-
-        if(!isAvailable){
+        WishEntity wish=wishService.getOneWishByUserAndGame(user,game);
+        if(wish==null){
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
         else{
@@ -165,10 +149,8 @@ public class UserController {
     public ResponseEntity<WishEntity> addItemsToWishList(
             @PathVariable("userId") int userId,
             @RequestBody WishJsonItem wishJsonItem) {
-        if (wishJsonItem == null) {
-            return new ResponseEntity<WishEntity>(HttpStatus.OK);
-        }
-        UserEntity user = userRepo.findOne(userId);
+
+        UserEntity user = userService.getUserById(userId);
         if (user == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
@@ -178,29 +160,12 @@ public class UserController {
 
         Timestamp time=new Timestamp(System.currentTimeMillis());
 
-        List<WishEntity> wishList=wishRepo.findByUserAndGame(user,game);
-
-        //check whether the game is available in wish list
-        boolean isAvailable=false;
-        Iterator<WishEntity> iter=wishList.iterator();
-        while(iter.hasNext()){
-            WishEntity wishItem=iter.next();
-            if(wishItem.getStatus()==1){
-                isAvailable=true;
-                break;
-            }
-        }
+        WishEntity wish=wishService.getOneWishByUserAndGame(user,game);
 
         //the game is not in the list
-        if(!isAvailable){
-            WishEntity wish=new WishEntity();
-            wish.setPoints(wishJsonItem.getPoints());
-            wish.setStatus(1);
-            wish.getWishEntityPK().setUser(user);
-            wish.getWishEntityPK().setGame(game);
-            wish.getWishEntityPK().setCreateTime(time);
-            wishRepo.saveAndFlush(wish);
-            return new ResponseEntity<WishEntity>(wish,HttpStatus.OK);
+        if(wish==null){
+            WishEntity NewWish=wishService.saveWishInAdd(wishJsonItem,user,game,time);
+            return new ResponseEntity<WishEntity>(NewWish,HttpStatus.OK);
         }
 
         //game is in the list
@@ -221,7 +186,7 @@ public class UserController {
         System.out.println("delete game...");
 
         //find the user
-        UserEntity user = userRepo.findOne(userid);
+        UserEntity user = userService.getUserById(userid);
         if (user == null) {
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -234,18 +199,7 @@ public class UserController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        //set status and find whether it is available
-        boolean isAvailable = false;
-        List<WishEntity> wishlist = wishRepo.findByUserAndGame(user, game);
-        Iterator<WishEntity> iter = wishlist.iterator();
-        while (iter.hasNext()) {
-            WishEntity wish = iter.next();
-            if (wish.getStatus() == 1) {
-                Timestamp createTime=wish.getWishEntityPK().getCreateTime();
-                wishRepo.deleteWishGame(user,game,createTime);
-                isAvailable = true;
-            }
-        }
+        boolean isAvailable=wishService.removeWishItem(user,game);
         if (isAvailable) {
             return new ResponseEntity<Void>(HttpStatus.OK);
         }
@@ -264,7 +218,7 @@ public class UserController {
             @RequestBody ModifyWishJsonItem modifyItem){
         System.out.println("modifying the points...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find the user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -275,20 +229,7 @@ public class UserController {
             System.out.println("can't find the game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
-
-        //reset status and find whether it is available
-        boolean isAvailable=false;
-        List<WishEntity> wishlist=wishRepo.findByUserAndGame(user,game);
-        Iterator<WishEntity> iter=wishlist.iterator();
-        while(iter.hasNext()){
-            WishEntity wish=iter.next();
-            if(wish.getStatus()==1){
-                Timestamp time=wish.getWishEntityPK().getCreateTime();
-                wishRepo.modifyWishGame(user,game,time,modifyItem.getPoints());
-                isAvailable=true;
-            }
-        }
-
+        boolean isAvailable=wishService.modifyWishItem(user,game,modifyItem);
         if(isAvailable) {
             return new ResponseEntity<Void>(HttpStatus.OK);
         }
@@ -298,20 +239,17 @@ public class UserController {
     }
 
 
-    //senior mathch in wishlist
+    //senior match in wishlist
     @RequestMapping(value="{userid}/wishlist/match/params",method=RequestMethod.POST)
     public ResponseEntity<List<WishListMatchResultItem>> GetWishListManyToManyMatch(@RequestBody ManyToManyTradeJsonItem YouWantGames,
                                                                                     @PathVariable("userid")int userid,
                                                                                     @RequestParam(value = "page",defaultValue = "0")Integer page,
                                                                                     @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("match the games in wishlist");
+
         matchAssist assist=new matchAssist();
 
-        System.out.println(YouWantGames.getAddressId());
-
         int pointRange=YouWantGames.getPointRange();
-
-        System.out.println(pointRange);
 
         List<Long> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
         List<Long> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
@@ -344,15 +282,73 @@ public class UserController {
         Map<Long,Integer> UserOfferPoints=new HashMap<>();
         for(int i =0;i<UserOffer.size();i++){
             UserOfferPoints.put(UserOffer.get(i).getOfferEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
+            System.out.println(UserOffer.get(i).getOfferEntityPK().getGame().getGameId());
         }
+        List<WishListMatchResultItem> result=new ArrayList<>();
         for(int i =0 ;i<targetUserId.size();i++){
-            //List<WishEntity> TargetUserWishList=wishRepo
+            int TargetUserId = targetUserId.get(i);
+            Map<Long,Integer> TargetUserWishPoints=new HashMap<>();
+            List<WishEntity> TargetUserWishList=wishRepo.findByUserId(TargetUserId);
+            for(int j =0;j< TargetUserWishList.size();j++){
+                TargetUserWishPoints.put(TargetUserWishList.get(j).getWishEntityPK().getGame().getGameId(), TargetUserWishList.get(j).getPoints());
+            }
+            List<String> PotentialOfferGames=assist.getOfferGames(UserOfferPoints,TargetUserWishPoints,OfferRange.get(0),OfferRange.get(1));
+
+            Iterator<String> StringIter=PotentialOfferGames.iterator();
+            while(StringIter.hasNext()){
+                String offerGame=StringIter.next();
+                WishListMatchResultItem resultItem = new WishListMatchResultItem();
+                resultItem.setTargetUserId(TargetUserId);
+                resultItem.setYouOfferGame(offerGame);
+                resultItem.setYouWantGame(YouWantGames.getYouWantGames());
+                result.add(resultItem);
+            }
         }
-        return new ResponseEntity<List<WishListMatchResultItem>>(HttpStatus.OK);
+        return new ResponseEntity<List<WishListMatchResultItem>>(result,HttpStatus.OK);
     }
 
 
+    //confirm the senior match
+    @RequestMapping(value="{userid}/wishlist/match/confirm",method = RequestMethod.POST)
+    public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody MatchConfirmJsonItem matchInfo,
+                                                         @PathVariable("userid")int userid){
+        System.out.println("confirming the match...");
 
+        matchAssist matchassist=new matchAssist();
+
+        //get the list of the gameId offering and wanting
+        List<Long> youOfferGameIdList=matchassist.getGameIdList(matchInfo.getYouOfferGames());
+        List<Long> youWantGameIdList=matchassist.getGameIdList(matchInfo.getYouWantGames());
+
+        UserEntity user=userService.getUserById(userid);
+
+        UserEntity TargetUser=userService.getUserById(matchInfo.getTargetUserId());
+
+        //create trade order
+        Timestamp time=new Timestamp(System.currentTimeMillis());
+        int orderid=orderService.getNewOrderId();
+        TradeOrderEntity tradeOrder=new TradeOrderEntity();
+        tradeOrder=orderService.saveTradeOrder(tradeOrder,time,(youOfferGameIdList.size()+youWantGameIdList.size()),orderid);
+
+        AddressEntity address=addressService.getAddressByUserAndId(user,matchInfo.getAddressid());
+
+        List<TradeGameEntity> tradeGameList=new ArrayList<>();
+
+        for(int i = 0;i<youOfferGameIdList.size();i++){
+            GameEntity game=gameRepo.findOne(youOfferGameIdList.get(i));
+            TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game, TargetUser,orderid);
+            tradeGameList.add(tradeGame);
+        }
+
+        for(int i = 0;i<youWantGameIdList.size();i++){
+            GameEntity game=gameRepo.findOne(youWantGameIdList.get(i));
+            TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,TargetUser,orderid);
+            tradeGameList.add(tradeGame);
+        }
+        tradeOrder.setTradeGames(tradeGameList);
+
+        return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
+    }
     /*
                     OFFER CONTROLLER
     */
@@ -366,21 +362,13 @@ public class UserController {
                                                               @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("fetch all the offering games...");
 
-        UserEntity user=userRepo.findByUserIdAndFetchOfferlist(userId);
+        UserEntity user=userService.getUserByIdAndFetchOfferList(userId);
         if(user==null){
             System.out.println("can't find the user");
             return new ResponseEntity<List<OfferEntity>>(HttpStatus.NOT_FOUND);
         }
 
-        Collection<OfferEntity> offerlist=user.getOffers();
-        //check the availability
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        while(iter.hasNext()){
-            OfferEntity offerGame=iter.next();
-            if(offerGame.getStatus()==0){
-                iter.remove();
-            }
-        }
+        Collection<OfferEntity> offerlist=offerService.getAvailableOffer(user);
 
         //get paged
         PagedListHolder<OfferEntity> PagedOfferList=new PagedListHolder<>((List<OfferEntity>)offerlist);
@@ -389,37 +377,13 @@ public class UserController {
         return new ResponseEntity<List<OfferEntity>>(PagedOfferList.getPageList(),HttpStatus.OK);
     }
 
-    //fetch all the offer
-    @RequestMapping(value="/{userId}/offerlist",method=RequestMethod.GET)
-    public ResponseEntity<List<OfferEntity>> getAllOffer(@PathVariable("userId")int userId){
-        System.out.println("fetch all the offering games...");
-
-        UserEntity user=userRepo.findByUserIdAndFetchOfferlist(userId);
-        if(user==null){
-            System.out.println("can't find the user");
-            return new ResponseEntity<List<OfferEntity>>(HttpStatus.NOT_FOUND);
-        }
-
-        Collection<OfferEntity> offerlist=user.getOffers();
-        //check the availability
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        while(iter.hasNext()){
-            OfferEntity offerGame=iter.next();
-            if(offerGame.getStatus()==0){
-                iter.remove();
-            }
-        }
-
-        return new ResponseEntity<List<OfferEntity>>((List<OfferEntity>)offerlist,HttpStatus.OK);
-    }
-
     //fetch single offer
     @RequestMapping(value="/{userId}/offerlist/{gameId}",method=RequestMethod.GET)
     public ResponseEntity<OfferEntity> getOneOffer(@PathVariable("userId")int userid,
                                                    @PathVariable("gameId")long gameid){
         System.out.println("fetch single game...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
@@ -428,21 +392,8 @@ public class UserController {
         if(game==null){
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
-
-        List<OfferEntity> offerlist=offerRepo.findByUserAndGame(user,game);
-
-        boolean isAvailable=false;
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        OfferEntity offer=new OfferEntity();
-        while(iter.hasNext()){
-            offer =iter.next();
-            if(offer.getStatus()==1){
-                isAvailable=true;
-                break;
-            }
-        }
-
-        if(!isAvailable){
+        OfferEntity offer=offerService.getOneOfferByUserAndGame(user,game);
+        if(offer==null){
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
         else{
@@ -457,7 +408,7 @@ public class UserController {
         @RequestBody OfferJsonItem offerGame){
         System.out.println("add game...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find the user...");
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
@@ -471,26 +422,11 @@ public class UserController {
 
         Timestamp time=new Timestamp(System.currentTimeMillis());
 
-        List<OfferEntity> offerlist=offerRepo.findByUserAndGame(user,game);
-        boolean isAvailable=false;
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        while(iter.hasNext()){
-            OfferEntity offer =iter.next();
-            if(offer.getStatus()==1){
-                isAvailable=true;
-                break;
-            }
-        }
+        OfferEntity offer=offerService.getOneOfferByUserAndGame(user,game);
 
-        if(!isAvailable){
-            OfferEntity offer=new OfferEntity();
-            offer.setPoints(offerGame.getPoints());
-            offer.setStatus(1);
-            offer.getOfferEntityPK().setUser(user);
-            offer.getOfferEntityPK().setGame(game);
-            offer.getOfferEntityPK().setCreateTime(time);
-            offerRepo.saveAndFlush(offer);
-            return new ResponseEntity<OfferEntity>(offer,HttpStatus.OK);
+        if(offer==null){
+            OfferEntity newOffer=offerService.saveOfferInAdd(offerGame,user,game,time);
+            return new ResponseEntity<OfferEntity>(newOffer,HttpStatus.OK);
         }
         else{
             System.out.println("the game is already in the offer list...");
@@ -506,7 +442,7 @@ public class UserController {
                                                                @PathVariable("gameId")long gameid){
         System.out.println("delete game...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -518,17 +454,7 @@ public class UserController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        List<OfferEntity> offerlist=offerRepo.findByUserAndGame(user,game);
-        boolean isAvailable=false;
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        while(iter.hasNext()){
-            OfferEntity offer=iter.next();
-            if(offer.getStatus()==1){
-                Timestamp time=offer.getOfferEntityPK().getCreateTime();
-                offerRepo.deleteOfferGame(game,user,time);
-                isAvailable=true;
-            }
-        }
+        boolean isAvailable=offerService.removeOfferItem(user,game);
         if(isAvailable){
             return new ResponseEntity<Void>(HttpStatus.OK);
         }
@@ -557,18 +483,7 @@ public class UserController {
             System.out.println("can't find the game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
-
-        List<OfferEntity> offerList = offerRepo.findByUserAndGame(user,game);
-        boolean isAvailable=false;
-        Iterator<OfferEntity> iter=offerList.iterator();
-        while(iter.hasNext()){
-            OfferEntity offer=iter.next();
-            if(offer.getStatus()==1){
-                Timestamp time=offer.getOfferEntityPK().getCreateTime();
-                offerRepo.modifyOfferGame(game,user,time,modifyPoints.getPoints());
-                isAvailable=true;
-            }
-        }
+        boolean isAvailable=offerService.modifyOfferItem(user,game,modifyPoints);
         if(isAvailable){
             return new ResponseEntity<Void>(HttpStatus.OK);
         }
@@ -603,7 +518,7 @@ public class UserController {
     public ResponseEntity<List<AddressEntity>> getAddressPaged(@PathVariable("userId")int userId,
                                                                @RequestParam(value = "page",defaultValue = "0")Integer page,
                                                                @RequestParam(value = "size",defaultValue = "5")Integer size){
-        UserEntity user = userRepo.findByUserIdAndFetchAddresses(userId);
+        UserEntity user = userService.getUserByIdAndFetchAddress(userId);
         if(user==null){
             System.out.println("cannot find the user...");
             return new ResponseEntity<List<AddressEntity>>(HttpStatus.NOT_FOUND);
@@ -615,6 +530,25 @@ public class UserController {
         pagedAddress.setPage(page);
         pagedAddress.setPageSize(size);
         return new ResponseEntity<List<AddressEntity>>(pagedAddress.getPageList(),HttpStatus.OK);
+    }
+
+    //fetch one address
+    @RequestMapping(value="/{userId}/address/{addressid}",method=RequestMethod.GET)
+    public ResponseEntity<AddressEntity> getOneAddress(@PathVariable("userId")int userid,
+                                                       @PathVariable("addressid")int addressid){
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find the user");
+            return new ResponseEntity<AddressEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        AddressEntity address=addressService.getAddressByUserAndId(user,addressid);
+
+        if(address==null){
+            System.out.println("can't find the address");
+            return new ResponseEntity<AddressEntity>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<AddressEntity>(address,HttpStatus.OK);
     }
 
     //Add more address
@@ -629,13 +563,7 @@ public class UserController {
             return new ResponseEntity<AddressEntity>(HttpStatus.NOT_FOUND);
         }
 
-        AddressEntity address=new AddressEntity();
-        address.setAddress(addressItem.getAddress());
-        address.setPhone(addressItem.getPhone());
-        address.setReceiver(addressItem.getReceiver());
-        address.setRegion(addressItem.getRegion());
-        address.setUser(user);
-        addressRepo.saveAndFlush(address);
+        AddressEntity address=addressService.addNewAddress(addressItem,user);
 
         return new ResponseEntity<AddressEntity>(address,HttpStatus.OK);
     }
@@ -649,26 +577,26 @@ public class UserController {
                                                        @PathVariable("addressid")int addressid){
         System.out.println("modify the address...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        AddressEntity address=addressRepo.findByUserAndId(user,addressid);
+        AddressEntity address=addressService.getAddressByUserAndId(user,addressid);
         if(address==null){
             System.out.println("can't find address");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        addressRepo.updateAddress(addressItem.getAddress(),addressItem.getPhone(),addressItem.getReceiver(),addressItem.getRegion(), addressid);
+        addressService.updateAddress(addressItem,addressid);
 
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 
 
 
-    //Create Game to pending game
+  /*  //Create Game to pending game
     @RequestMapping(value = "/{userId}/createGame", method = RequestMethod.POST)
     public ResponseEntity<Void> createGame(@RequestBody CreateGameJsonItem gameItem, @PathVariable("userId") int userId) {
         //check the game whether duplicated
@@ -699,7 +627,7 @@ public class UserController {
 
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
-
+*/
 
     /*
             MATCH CONTROLLER
@@ -712,7 +640,7 @@ public class UserController {
                                                             @PathVariable("gameId")long gameid){
         System.out.println("match game...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
@@ -729,7 +657,6 @@ public class UserController {
         int wantPoint=0;
         List<WishEntity> wishList=wishRepo.findByUserAndGame(user,game);
         Iterator<WishEntity> iter=wishList.iterator();
-        System.out.println("2");
         while(iter.hasNext()){
             WishEntity wish=iter.next();
             if(wish.getStatus()==1){
@@ -737,7 +664,7 @@ public class UserController {
                 break;
             }
         }
-        System.out.println(wantPoint);
+
         //get the list of userid
         List<OfferEntity> offerList=offerRepo.getOfferGame(wantPoint,gameid);
 
@@ -750,8 +677,6 @@ public class UserController {
                 offerUserid.add(UserId);
             }
         }
-
-        System.out.println("the size of the list is "+offerUserid.size());
 
         List<Long> sendingGame;
         List<ReceiverOrderItem> resultOrder=new ArrayList<>();
@@ -999,71 +924,6 @@ public class UserController {
      */
 
 
-
-   //fetch all the order
-    @RequestMapping(value="/{userid}/order",method=RequestMethod.GET)
-    public ResponseEntity<List<ShowOrderItem>> getAllOrders(@PathVariable("userid")int userid){
-        System.out.println("fetch all orders");
-
-        UserEntity user=userRepo.findOne(userid);
-        if(user==null){
-            System.out.println("can't find order...");
-            return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
-        }
-
-        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
-
-        List<ShowOrderItem> ShowResult=new ArrayList<>();
-        Iterator<TradeOrderEntity> iterTradeOrder=tradeOrderList.iterator();
-        while(iterTradeOrder.hasNext()){
-            TradeOrderEntity TradeOrder= iterTradeOrder.next();
-            ShowOrderItem showItem=new ShowOrderItem();
-            showItem.setStatus(TradeOrder.getStatus());
-            showItem.setTime(TradeOrder.getCreatetime());
-            showItem.setTradeOrderId(TradeOrder.getTradeOrderId());
-            ShowResult.add(showItem);
-        }
-
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findAll();
-        Iterator<TradeGameEntity> iter=tradeGameList.iterator();
-        while(iter.hasNext()){
-            TradeGameEntity tradeGame=iter.next();
-            int orderid=tradeGame.getTradeOrder().getTradeOrderId();
-            int ReceiverId=tradeGame.getReceiver().getUserId();
-            int SenderId=tradeGame.getSender().getUserId();
-            for(int i =0;i<ShowResult.size();i++){
-                if(orderid==ShowResult.get(i).getTradeOrderId()&&(ReceiverId==userid||SenderId==userid)){
-                    ShowOrderGamesItem ShowGameItem=new ShowOrderGamesItem();
-                    ShowGameItem.setFromAddress(tradeGame.getFromAddress());
-                    ShowGameItem.setGameId(tradeGame.getGame().getGameId());
-                    ShowGameItem.setReceiver(tradeGame.getReceiver());
-                    ShowGameItem.setReceiverStatus(tradeGame.getReceiverStatus());
-                    ShowGameItem.setSender(tradeGame.getSender());
-                    ShowGameItem.setSenderStatus(tradeGame.getSenderStatus());
-                    ShowGameItem.setStatus(tradeGame.getStatus());
-                    ShowGameItem.setToAddress(tradeGame.getToAddress());
-                    ShowGameItem.setTrackingNumber(tradeGame.getTrackingNumber());
-                    ShowGameItem.setTradeGameId(tradeGame.getTradeGameId());
-
-                    List<ShowOrderGamesItem> temp=ShowResult.get(i).getGameDetail();
-                    temp.add(0,ShowGameItem);
-                    ShowResult.get(i).setGameDetail(temp);
-                    ShowResult.get(i).setUserStatus(1);
-                }
-            }
-        }
-        Iterator<ShowOrderItem> resultIter=ShowResult.iterator();
-        while(resultIter.hasNext()){
-            ShowOrderItem item=resultIter.next();
-            if(item.getUserStatus()==0){
-                resultIter.remove();
-            }
-        }
-
-        return new ResponseEntity<List<ShowOrderItem>>(ShowResult,HttpStatus.OK);
-
-    }
-
     //fetch all orders (paged)
     @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
     public ResponseEntity<List<ShowOrderItem>> getAllOrdersPaged(@PathVariable("userid")int userid,
@@ -1071,26 +931,14 @@ public class UserController {
                                                                  @RequestParam(value = "page",defaultValue = "0")Integer page){
         System.out.println("fetch all orders");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find order...");
             return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
         }
+        List<ShowOrderItem> ShowResult=orderService.getAllGeneralOrder();
 
-        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
-
-        List<ShowOrderItem> ShowResult=new ArrayList<>();
-        Iterator<TradeOrderEntity> iterTradeOrder=tradeOrderList.iterator();
-        while(iterTradeOrder.hasNext()){
-            TradeOrderEntity TradeOrder= iterTradeOrder.next();
-            ShowOrderItem showItem=new ShowOrderItem();
-            showItem.setStatus(TradeOrder.getStatus());
-            showItem.setTime(TradeOrder.getCreatetime());
-            showItem.setTradeOrderId(TradeOrder.getTradeOrderId());
-            ShowResult.add(showItem);
-        }
-
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findAll();
+        List<TradeGameEntity> tradeGameList=orderService.getAllTradeGames();
         Iterator<TradeGameEntity> iter=tradeGameList.iterator();
         while(iter.hasNext()){
             TradeGameEntity tradeGame=iter.next();
@@ -1099,22 +947,7 @@ public class UserController {
             int SenderId=tradeGame.getSender().getUserId();
             for(int i =0;i<ShowResult.size();i++){
                 if(orderid==ShowResult.get(i).getTradeOrderId()&&(ReceiverId==userid||SenderId==userid)){
-                    ShowOrderGamesItem ShowGameItem=new ShowOrderGamesItem();
-                    ShowGameItem.setFromAddress(tradeGame.getFromAddress());
-                    ShowGameItem.setGameId(tradeGame.getGame().getGameId());
-                    ShowGameItem.setReceiver(tradeGame.getReceiver());
-                    ShowGameItem.setReceiverStatus(tradeGame.getReceiverStatus());
-                    ShowGameItem.setSender(tradeGame.getSender());
-                    ShowGameItem.setSenderStatus(tradeGame.getSenderStatus());
-                    ShowGameItem.setStatus(tradeGame.getStatus());
-                    ShowGameItem.setToAddress(tradeGame.getToAddress());
-                    ShowGameItem.setTrackingNumber(tradeGame.getTrackingNumber());
-                    ShowGameItem.setTradeGameId(tradeGame.getTradeGameId());
-
-                    List<ShowOrderGamesItem> temp=ShowResult.get(i).getGameDetail();
-                    temp.add(0,ShowGameItem);
-                    ShowResult.get(i).setGameDetail(temp);
-                    ShowResult.get(i).setUserStatus(1);
+                    ShowResult=orderService.getDetailedOrder(tradeGame,ShowResult,i);
                 }
             }
         }
@@ -1141,25 +974,9 @@ public class UserController {
             System.out.println("can't find order...");
             return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
         }
+        List<ShowOrderItem> ShowResult=orderService.getUnconfirmedGeneralOrder();
 
-        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
-
-
-        //create the general order
-        List<ShowOrderItem> ShowResult=new ArrayList<>();
-        Iterator<TradeOrderEntity> iterTradeOrder=tradeOrderList.iterator();
-        while(iterTradeOrder.hasNext()){
-            TradeOrderEntity TradeOrder= iterTradeOrder.next();
-            if(TradeOrder.getStatus()>0) {
-                ShowOrderItem showItem = new ShowOrderItem();
-                showItem.setStatus(TradeOrder.getStatus());
-                showItem.setTime(TradeOrder.getCreatetime());
-                showItem.setTradeOrderId(TradeOrder.getTradeOrderId());
-                ShowResult.add(showItem);
-            }
-        }
-
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findAll();
+        List<TradeGameEntity> tradeGameList=orderService.getAllTradeGames();
         Iterator<TradeGameEntity> iter=tradeGameList.iterator();
         while(iter.hasNext()){
             TradeGameEntity tradeGame=iter.next();
@@ -1173,22 +990,7 @@ public class UserController {
                     //check whether the order is unconfirmed
                     if (ShowResult.get(i).getStatus() > 0 && orderid == ShowResult.get(i).getTradeOrderId() && ((ReceiverId == userid && ReceiverStatus == 1) || (SenderId == userid && SenderStatus == 1))) {
                         //crete the order to be showed
-                        ShowOrderGamesItem ShowGameItems = new ShowOrderGamesItem();
-                        ShowGameItems.setFromAddress(tradeGame.getFromAddress());
-                        ShowGameItems.setGameId(tradeGame.getGame().getGameId());
-                        ShowGameItems.setReceiver(tradeGame.getReceiver());
-                        ShowGameItems.setReceiverStatus(tradeGame.getReceiverStatus());
-                        ShowGameItems.setSender(tradeGame.getSender());
-                        ShowGameItems.setSenderStatus(tradeGame.getSenderStatus());
-                        ShowGameItems.setStatus(tradeGame.getStatus());
-                        ShowGameItems.setToAddress(tradeGame.getToAddress());
-                        ShowGameItems.setTrackingNumber(tradeGame.getTrackingNumber());
-                        ShowGameItems.setTradeGameId(tradeGame.getTradeGameId());
-
-                        List<ShowOrderGamesItem> temp = ShowResult.get(i).getGameDetail();
-                        temp.add(0, ShowGameItems);
-                        ShowResult.get(i).setGameDetail(temp);
-                        ShowResult.get(i).setUserStatus(1);
+                        ShowResult=orderService.getDetailedOrder(tradeGame,ShowResult,i);
                     }
                 }
             }
@@ -1214,42 +1016,29 @@ public class UserController {
                                              @RequestBody ConfirmOrderJsonItem address){
         System.out.println("confirm the order...");
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        TradeOrderEntity tradeOrder=tradeOrderRepo.findOne(orderid);
+        TradeOrderEntity tradeOrder=orderService.getTradeOrderById(orderid);
         if(tradeOrder==null){
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findByOrderId(orderid);
+        List<TradeGameEntity> tradeGameList=orderService.getTradeGamesById(orderid);
         Iterator<TradeGameEntity> iter=tradeGameList.iterator();
         while(iter.hasNext()){
             TradeGameEntity tradeGame=iter.next();
             //confirm as receiver
             if(tradeGame.getReceiver().getUserId()==userid){
-                int tradeGameId=tradeGame.getTradeGameId();
-                AddressEntity Address=addressRepo.findOne(address.getAddressId());
-                tradeGameRepo.ConfirmByReceiver(tradeGameId,Address);
-                //get the status in trade or minus by one shows one game order is confirmed
-                if(tradeGame.getStatus()==0){
-                    tradeOrderRepo.confirmOneGame(orderid);
-                }
-                continue;
+                orderService.confirmAsReceiver(tradeGame,address,orderid);
             }
             //confirm as sender
             else if(tradeGame.getSender().getUserId()==userid){
-                int tradeGameId=tradeGame.getTradeGameId();
-                AddressEntity Address=addressRepo.findOne(address.getAddressId());
-                tradeGameRepo.ConfirmBySender(tradeGameId,Address);
-                if(tradeGame.getStatus()==0){
-                    tradeOrderRepo.confirmOneGame(orderid);
-                }
-                continue;
+                orderService.confirmAsSender(tradeGame,address,orderid);;
             }
         }
         return new ResponseEntity<Void>(HttpStatus.OK);
@@ -1262,37 +1051,35 @@ public class UserController {
                                              @PathVariable("orderid")int orderid){
         System.out.println("refusing order...");
 
-        UserEntity user=userRepo.getOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        TradeOrderEntity tradeOrder=tradeOrderRepo.findOne(orderid);
+        TradeOrderEntity tradeOrder=orderService.getTradeOrderById(orderid);
         if(tradeOrder==null){
             System.out.println("can't find order...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findByOrderId(orderid);
+        List<TradeGameEntity> tradeGameList=orderService.getTradeGamesById(orderid);
         Iterator<TradeGameEntity> iter=tradeGameList.iterator();
         while(iter.hasNext()){
             TradeGameEntity tradeGame=iter.next();
             //check the game order as receiver
             if(tradeGame.getReceiver().getUserId()==userid){
                 int tradeGameId=tradeGame.getTradeGameId();
-                tradeGameRepo.RefuseByReceiver(tradeGameId);
-                continue;
+                orderService.refuseAsReceiver(tradeGameId);
             }
             //check game order as sender
             else if(tradeGame.getSender().getUserId()==userid){
                 int tradeGameId=tradeGame.getTradeGameId();
-                tradeGameRepo.RefuseBySender(tradeGameId);
-                continue;
+                orderService.refuseAsSender(tradeGameId);
             }
         }
         //update the status in trade order
-        tradeOrderRepo.cancelOrder(orderid);
+        orderService.cancelOrder(orderid);
         return new ResponseEntity<Void>(HttpStatus.OK);
     }
 

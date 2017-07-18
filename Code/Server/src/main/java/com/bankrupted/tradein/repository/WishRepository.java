@@ -22,6 +22,9 @@ import java.util.List;
 public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> {
     WishEntity findByWishEntityPK(WishEntityPK wishEntityPK);
 
+    @Query("select p from WishEntity p where p.wishEntityPK.user.userId=:userId and p.status=1")
+    List<WishEntity> findByUserId(@Param("userId")int userId);
+
     @Query("select p from WishEntity p where p.wishEntityPK.user=:user and p.wishEntityPK.game=:game")
     List<WishEntity> findByUserAndGame(@Param("user")UserEntity user, @Param("game")GameEntity game);
 

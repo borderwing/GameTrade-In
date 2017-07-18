@@ -34,7 +34,7 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     @Query("select p from OfferEntity p where p.offerEntityPK.user.userId<>:userId")
     List<OfferEntity> findAllExceptById(@Param("userId")int userId);
 
-    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId=:userId")
+    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId=:userId and p.status=1")
     List<OfferEntity> findById(@Param("userId")int userId);
 
     @Modifying

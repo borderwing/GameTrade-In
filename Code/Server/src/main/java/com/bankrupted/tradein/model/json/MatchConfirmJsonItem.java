@@ -1,21 +1,13 @@
 package com.bankrupted.tradein.model.json;
 
 /**
- * Created by homepppp on 2017/7/13.
+ * Created by homepppp on 2017/7/18.
  */
-public class ManyToManyTradeJsonItem {
-    /*
-           {
-                "youWantGames":"gameid1,gameid2,"
-                "youOfferGames":"gameid1,gameid2,..."
-                "TargetUserId":1,
-                "addressId":1,
-                "pointRange":1
-           }
-     */
+public class MatchConfirmJsonItem {
     private String youWantGames;
     private String youOfferGames;
-    private int pointRange;
+    private int targetUserId;
+    private int addressid;
 
     public String getYouWantGames() {
         return youWantGames;
@@ -33,11 +25,19 @@ public class ManyToManyTradeJsonItem {
         this.youOfferGames = youOfferGames;
     }
 
-    public int getPointRange() {
-        return pointRange;
+    public int getTargetUserId() {
+        return targetUserId;
     }
 
-    public void setPointRange(int pointRange) {
-        this.pointRange = pointRange;
+    public void setTargetUserId(int targetUserId) {
+        this.targetUserId = targetUserId;
+    }
+
+    public int getAddressid() {
+        return addressid;
+    }
+
+    public void setAddressid(int addressid) {
+        this.addressid = addressid;
     }
 }

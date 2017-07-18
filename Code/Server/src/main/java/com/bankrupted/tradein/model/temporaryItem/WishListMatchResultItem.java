@@ -8,15 +8,15 @@ import java.util.List;
  * Created by homepppp on 2017/7/13.
  */
 public class WishListMatchResultItem {
-    private List<GameEntity> YouOfferGame;
+    private String YouOfferGame;
     private int TargetUserId;
-    private List<GameEntity> YouWantGame;
+    private String YouWantGame;
 
-    public List<GameEntity> getYouOfferGame() {
+    public String getYouOfferGame() {
         return YouOfferGame;
     }
 
-    public void setYouOfferGame(List<GameEntity> youOfferGame) {
+    public void setYouOfferGame(String youOfferGame) {
         YouOfferGame = youOfferGame;
     }
 
@@ -28,11 +28,11 @@ public class WishListMatchResultItem {
         TargetUserId = targetUserId;
     }
 
-    public List<GameEntity> getYouWantGame() {
+    public String getYouWantGame() {
         return YouWantGame;
     }
 
-    public void setYouWantGame(List<GameEntity> youWantGame) {
+    public void setYouWantGame(String youWantGame) {
         YouWantGame = youWantGame;
     }
 }
