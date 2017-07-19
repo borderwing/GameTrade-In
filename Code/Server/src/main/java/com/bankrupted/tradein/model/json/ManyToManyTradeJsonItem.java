@@ -8,8 +8,6 @@ public class ManyToManyTradeJsonItem {
            {
                 "youWantGames":"gameid1,gameid2,"
                 "youOfferGames":"gameid1,gameid2,..."
-                "TargetUserId":1,
-                "addressId":1,
                 "pointRange":1
            }
      */

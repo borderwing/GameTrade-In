@@ -106,7 +106,7 @@ public class OrderService {
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmByReceiver(tradeGameId,Address);
         //get the status in trade or minus by one shows one game order is confirmed
-        if(tradeGame.getStatus()==0){
+        if(tradeGame.getStatus()==1){
             tradeOrderRepo.confirmOneGame(orderid);
         }
     }
@@ -115,7 +115,7 @@ public class OrderService {
         int tradeGameId=tradeGame.getTradeGameId();
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmBySender(tradeGameId,Address);
-        if(tradeGame.getStatus()==0) {
+        if(tradeGame.getStatus()==1) {
             tradeOrderRepo.confirmOneGame(orderid);
         }
     }

@@ -18,6 +18,7 @@ import java.lang.annotation.Target;
 import java.util.*;
 import java.sql.Timestamp;
 
+import static org.python.icu.text.PluralRules.Operand.t;
 import static org.python.icu.text.PluralRules.Operand.v;
 
 /**
@@ -239,7 +240,7 @@ public class               UserController {
     }
 
 
-    //senior match in wishlist
+    //basic match in wishlist
     @RequestMapping(value="{userid}/wishlist/match/params",method=RequestMethod.POST)
     public ResponseEntity<List<WishListMatchResultItem>> GetWishListManyToManyMatch(@RequestBody ManyToManyTradeJsonItem YouWantGames,
                                                                                     @PathVariable("userid")int userid,
@@ -349,6 +350,11 @@ public class               UserController {
 
         return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
     }
+
+
+    //triple user match
+    @RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
+    public ResponseEntity<>
     /*
                     OFFER CONTROLLER
     */
@@ -700,13 +706,13 @@ public class               UserController {
                                                          @PathVariable("gameId")long gameid,
                                                          @PathVariable("userid")int userid){
 
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find user...");
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
-        UserEntity targetUser=userRepo.findOne(orderItem.getTargetUserId());
+        UserEntity targetUser=userService.getUserById(orderItem.getTargetUserId());
         if(targetUser==null){
             System.out.println("can't find user...");
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
@@ -727,54 +733,17 @@ public class               UserController {
         //create TradeOrder
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
-        tradeOrder.setCreatetime(time);
-        tradeOrder.setStatus(2);
-        int orderId=1;
-        if(tradeOrderRepo.findAll()!=null){
-            orderId=tradeOrderRepo.getMaxId()+1;
-        }
-        tradeOrder.setTradeOrderId(orderId);
-        tradeOrderRepo.saveAndFlush(tradeOrder);
+        int orderId=orderService.getNewOrderId();
+        orderService.saveTradeOrder(tradeOrder,time,2,orderId);
 
         //create TradeGame
         AddressEntity address=addressRepo.findOne(orderItem.getAddressId());
 
         //create the send game order
-        int tradeGameId;
-        if(tradeGameRepo.findAll().isEmpty()){
-            tradeGameId=1;
-        }
-        else {
-            tradeGameId = tradeGameRepo.getMaxId() + 1;
-        }
-
-        //create the send game order
-        TradeGameEntity tradeGameOne=new TradeGameEntity();
-        tradeGameOne.setTradeOrder(tradeOrder);
-        tradeGameOne.setTradeGameId(tradeGameId);
-        tradeGameOne.setFromAddress(address);
-        tradeGameOne.setSender(user);
-        tradeGameOne.setGame(sendGame);
-        tradeGameOne.setReceiver(targetUser);
-        tradeGameOne.setSenderStatus(0);
-        tradeGameOne.setReceiverStatus(1);
-        tradeGameOne.setStatus(1);
-        tradeGameOne.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameRepo.saveAndFlush(tradeGameOne);
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId);
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=new TradeGameEntity();
-        tradeGameTwo.setTradeOrder(tradeOrder);
-        tradeGameTwo.setTradeGameId(tradeGameId+1);
-        tradeGameTwo.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameTwo.setStatus(1);
-        tradeGameTwo.setReceiverStatus(0);
-        tradeGameTwo.setSenderStatus(1);
-        tradeGameTwo.setReceiver(user);
-        tradeGameTwo.setSender(targetUser);
-        tradeGameTwo.setGame(receiveGame);
-        tradeGameTwo.setToAddress(address);
-        tradeGameRepo.saveAndFlush(tradeGameTwo);
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,orderId);
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();
@@ -851,9 +820,9 @@ public class               UserController {
     public ResponseEntity<TradeOrderEntity> confirmOfferMatch(@RequestBody CreateOrderJsonItem orderItem,
                                                               @PathVariable("gameid")long gameid,
                                                               @PathVariable("userid")int userid){
-        UserEntity user=userRepo.findOne(userid);
+        UserEntity user=userService.getUserById(userid);
 
-        UserEntity targetUser=userRepo.findOne(orderItem.getTargetUserId());
+        UserEntity targetUser=userService.getUserById(orderItem.getTargetUserId());
 
         GameEntity SendGame=gameRepo.findOne(gameid);
 
@@ -863,52 +832,17 @@ public class               UserController {
         //create TradeOrder
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
-        tradeOrder.setCreatetime(time);
-        tradeOrder.setStatus(2);
-        int orderId=1;
-        if(tradeOrderRepo.findAll()!=null){
-            orderId=tradeOrderRepo.getMaxId()+1;
-        }
-        tradeOrder.setTradeOrderId(orderId);
-        tradeOrderRepo.saveAndFlush(tradeOrder);
+        int orderId=orderService.getNewOrderId();
+        orderService.saveTradeOrder(tradeOrder,time,2,orderId);
 
         //create trade game entity
         AddressEntity address=addressRepo.findOne(orderItem.getAddressId());
 
-        int tradeGameId;
-        if(tradeGameRepo.findAll().isEmpty()){
-            tradeGameId=1;
-        }
-        else {
-            tradeGameId = tradeGameRepo.getMaxId() + 1;
-        }
         //create send game order
-        TradeGameEntity tradeGameOne=new TradeGameEntity();
-        tradeGameOne.setTradeOrder(tradeOrder);
-        tradeGameOne.setTradeGameId(tradeGameId);
-        tradeGameOne.setFromAddress(address);
-        tradeGameOne.setSender(user);
-        tradeGameOne.setGame(SendGame);
-        tradeGameOne.setReceiver(targetUser);
-        tradeGameOne.setSenderStatus(0);
-        tradeGameOne.setReceiverStatus(1);
-        tradeGameOne.setStatus(1);
-        tradeGameOne.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameRepo.saveAndFlush(tradeGameOne);
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,SendGame,targetUser,orderId);
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=new TradeGameEntity();
-        tradeGameTwo.setTradeOrder(tradeOrder);
-        tradeGameTwo.setTradeGameId(tradeGameId+1);
-        tradeGameTwo.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameTwo.setStatus(1);
-        tradeGameTwo.setReceiverStatus(0);
-        tradeGameTwo.setSenderStatus(1);
-        tradeGameTwo.setReceiver(user);
-        tradeGameTwo.setSender(targetUser);
-        tradeGameTwo.setGame(ReceiveGame);
-        tradeGameTwo.setToAddress(address);
-        tradeGameRepo.saveAndFlush(tradeGameTwo);
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,ReceiveGame,targetUser,orderId);
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();
