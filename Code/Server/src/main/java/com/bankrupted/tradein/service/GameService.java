@@ -1,7 +1,9 @@
 package com.bankrupted.tradein.service;
 
+import com.bankrupted.tradein.model.json.game.GameDetailJson;
 import com.bankrupted.tradein.model.json.game.GameTileJson;
 import com.bankrupted.tradein.model.json.igdb.IgdbGame;
+import com.bankrupted.tradein.model.json.igdb.IgdbRelease;
 import com.bankrupted.tradein.utility.IgdbUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -47,6 +51,21 @@ public class GameService {
         List<GameTileJson> completed = allOf(gameTiles).join();
 
         return completed;
+    }
+
+    public GameDetailJson getIgdbGame(Long igdbId){
+        IgdbGame igdbGame = igdbUtility.getIgdbGame(igdbId);
+
+        // ------ fill in the platform names for the game ------
+        // prepare platformIdSet
+        Set<Integer> platformIdSet = new HashSet<>();
+        if(igdbGame.getReleaseDates() != null){
+            for(IgdbRelease release : igdbGame.getReleaseDates()){
+                ;
+            }
+        }
+
+        return null;
     }
 
     private <T> CompletableFuture<List<T>> allOf(List<CompletableFuture<T>> futuresList) {

@@ -25,6 +25,8 @@ public class IgdbGame {
     private List<Integer> themes;
     private List<Integer> keywords;
 
+    private String url;
+
 
     public long getId() {
         return id;
@@ -113,5 +115,13 @@ public class IgdbGame {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }
