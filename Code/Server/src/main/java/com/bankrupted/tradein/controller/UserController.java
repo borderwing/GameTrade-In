@@ -352,9 +352,9 @@ public class               UserController {
     }
 
 
-    //triple user match
+    /*//triple user match
     @RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
-    public ResponseEntity<>
+    public ResponseEntity<>*/
     /*
                     OFFER CONTROLLER
     */
