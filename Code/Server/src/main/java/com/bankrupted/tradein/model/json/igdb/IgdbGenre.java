@@ -8,6 +8,7 @@ import java.util.List;
  * Created by lykav on 7/18/2017.
  */
 public class IgdbGenre {
+
     private int id;
     private String name;
     private String url;

@@ -36,7 +36,7 @@ public class GameAsyncService {
 
         GameTileJson gameTile = new GameTileJson();
         gameTile.setTitle(igdbGame.getName());
-        gameTile.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big_2x"));
+        if(igdbGame.getCover() != null) gameTile.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big_2x"));
         gameTile.setIgdbId(igdbGame.getId());
         gameTile.setPlatforms(gamePlatformNames);
         gameTile.setPopularity(igdbGame.getPopularity());

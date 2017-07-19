@@ -191,13 +191,25 @@ public class IgdbUtility {
 
     private <T> ResponseEntity<List<T>> retrieveIgdbResponse (Class<T> type, UriComponentsBuilder builder){
 
-        ResponseEntity<String> stringResponse = restTemplate.exchange(
-                builder.build().encode().toUri(),
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                }
-        );
+        ResponseEntity<String> stringResponse;
+
+        try {
+            stringResponse = restTemplate.exchange(
+                    builder.build().encode().toUri(),
+                    HttpMethod.GET,
+                    httpEntity,
+                    new ParameterizedTypeReference<String>() {
+                    }
+            );
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+        }
+
+        if(stringResponse.getStatusCode() == null || stringResponse.getHeaders() == null){
+            return new ResponseEntity<>(HttpStatus.BAD_GATEWAY);
+        }
 
         if(stringResponse.getStatusCode() != HttpStatus.OK){
             // something went wrong
@@ -225,7 +237,7 @@ public class IgdbUtility {
     }
 
     private <T> T getOneFromResponse(ResponseEntity<List<T>> response){
-        if(response.getStatusCode() != HttpStatus.OK){
+        if(response.getStatusCode() != HttpStatus.OK || response.getBody() == null){
             // something went wrong, return null instead
             return null;
         }
@@ -242,7 +254,7 @@ public class IgdbUtility {
     }
 
     private <T> List<T> getListFromResponse(ResponseEntity<List<T>> response){
-        if(response.getStatusCode() != HttpStatus.OK){
+        if(response.getStatusCode() != HttpStatus.OK || response.getBody() == null){
             // something went wrong, return null instead
             return null;
         }
