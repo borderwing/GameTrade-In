@@ -13,16 +13,21 @@ import com.bankrupted.tradein.repository.RoleRepository;
 import com.bankrupted.tradein.repository.UserRepository;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 
 /**
  * Created by lykav on 7/11/2017.
  */
+
 @SpringBootApplication
+@EnableAsync
 public class TradeInApplication implements CommandLineRunner {
 
     @Autowired
@@ -35,6 +40,17 @@ public class TradeInApplication implements CommandLineRunner {
     public static void main(String[] args){
         SpringApplication.run(TradeInApplication.class, args);
     }
+
+//    @Bean
+//    public Executor asyncExecutor() {
+//        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//        executor.setCorePoolSize(2);
+//        executor.setMaxPoolSize(2);
+//        executor.setQueueCapacity(500);
+//        executor.setThreadNamePrefix("GithubLookup-");
+//        executor.initialize();
+//        return executor;
+//    }
 
     @Override
     public void run(String... args) throws Exception{

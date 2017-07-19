@@ -7,11 +7,14 @@ import com.bankrupted.tradein.service.GameService;
 import com.bankrupted.tradein.utility.IgdbUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import com.bankrupted.tradein.repository.GameRepository;
 import com.bankrupted.tradein.repository.PendingGameRepository;
@@ -21,7 +24,7 @@ import java.util.List;
 /**
  * Created by homepppp on 2017/6/29.
  */
-
+@EnableAsync
 @RestController
 @RequestMapping(value="/api/game")
 public class GameController {
@@ -30,6 +33,7 @@ public class GameController {
     GameRepository gamerepository;
     @Autowired
     PendingGameRepository pendingrepository;
+
 
     @Autowired
     GameService gameService;
@@ -52,8 +56,14 @@ public class GameController {
 
     // retrieve trending games
     @RequestMapping(value="/trending", method=RequestMethod.GET)
-    public ResponseEntity<List<GameTileJson>> getTrendingGames(){
-        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(5,0);
+    public ResponseEntity<List<GameTileJson>> getTrendingGames(
+            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
+            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+    {
+        if(limit <= 0)  limit = 5;
+        if(offset < 0)  offset = 0;
+
+        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(limit,offset);
 
         if(trendingGames == null){
             System.out.println("Fetch trending games failed");

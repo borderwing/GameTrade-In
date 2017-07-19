@@ -1,7 +1,5 @@
 package com.bankrupted.tradein.model.json.game;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.List;
 
 /**

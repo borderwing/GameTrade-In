@@ -3,15 +3,19 @@ package com.bankrupted.tradein.utility;
 import com.bankrupted.tradein.model.json.igdb.IgdbGame;
 import com.bankrupted.tradein.model.json.igdb.IgdbGenre;
 import com.bankrupted.tradein.model.json.igdb.IgdbPlatform;
+import com.bankrupted.tradein.service.GameService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.sun.org.apache.regexp.internal.RE;
 import javafx.util.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +32,8 @@ import java.util.List;
  */
 @Component
 public class IgdbUtility {
+
+    private final Logger logger = LoggerFactory.getLogger(IgdbUtility.class);
 
     @Autowired
     RestTemplate restTemplate;
@@ -65,7 +71,6 @@ public class IgdbUtility {
         headers.set("Accept", MediaType.APPLICATION_JSON_VALUE);
         headers.set("X-Mashape-Key", key);
         httpEntity = new HttpEntity<>(headers);
-
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -139,6 +144,7 @@ public class IgdbUtility {
         queryParams.add(new Pair<>("order", "popularity:desc"));
         queryParams.add(new Pair<>("limit", limit));
         queryParams.add(new Pair<>("offset", offset));
+        queryParams.add(new Pair<>("filter[release_dates][exists]", null));
 
         UriComponentsBuilder builder = constructBuilder("/games", queryParams);
         ResponseEntity<List<IgdbGame>> response = retrieveIgdbResponse(IgdbGame.class, builder);
@@ -156,7 +162,7 @@ public class IgdbUtility {
             builder.queryParam(paramPair.getKey(), paramPair.getValue());
         }
 
-        System.out.println(builder.build().encode().toString());
+        logger.info(builder.build().encode().toString());
 
         return builder;
     }
@@ -167,7 +173,7 @@ public class IgdbUtility {
             builder.queryParam(paramPair.getKey(), paramPair.getValue());
         }
 
-        System.out.println(builder.build().encode().toString());
+        logger.info(builder.build().encode().toString());
 
         return builder;
     }
@@ -178,7 +184,7 @@ public class IgdbUtility {
             builder.queryParam(paramPair.getKey(), paramPair.getValue());
         }
 
-        System.out.println(builder.build().encode().toString());
+        logger.info(builder.build().encode().toString());
 
         return builder;
     }
@@ -195,8 +201,8 @@ public class IgdbUtility {
 
         if(stringResponse.getStatusCode() != HttpStatus.OK){
             // something went wrong
-            System.out.println(stringResponse.getStatusCode().toString());
-            System.out.println(stringResponse.getBody());
+            logger.debug(stringResponse.getStatusCode().toString());
+            logger.debug(stringResponse.getBody());
             return new ResponseEntity<>(stringResponse.getHeaders(), stringResponse.getStatusCode());
         }
 
