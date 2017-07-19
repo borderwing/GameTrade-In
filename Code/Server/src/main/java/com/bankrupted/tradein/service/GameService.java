@@ -38,6 +38,10 @@ public class GameService {
     public List<GameTileJson> getTrendingGameTileList(int limit, int offset) {
         List<IgdbGame> igdbGames = igdbUtility.getTrendingIgdbGames(limit, offset);
 
+        if(igdbGames == null){
+            return null;
+        }
+
         List<CompletableFuture<GameTileJson>> gameTiles = new ArrayList<>(igdbGames.size());
 
         try {

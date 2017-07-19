@@ -62,6 +62,10 @@ public class GameAsyncService {
 
         List<IgdbPlatform> platforms = igdbUtility.getIgdbPlatforms(platformList);
 
+        if(platforms == null){
+            return null;
+        }
+
         List<String> platformNameList = new ArrayList<>(platforms.size());
         for(IgdbPlatform platform : platforms){
             platformNameList.add(platform.getName());
