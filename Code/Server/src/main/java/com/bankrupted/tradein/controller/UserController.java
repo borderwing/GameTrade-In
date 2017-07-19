@@ -253,7 +253,6 @@ public class               UserController {
         int pointRange=YouWantGames.getPointRange();
 
         List<Long> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
-        List<Long> YouOfferGameList = assist.getGameIdList(YouWantGames.getYouOfferGames());
 
         int Wantsum=0;
         for(int i =0;i<YouWantGameList.size();i++){
@@ -352,9 +351,9 @@ public class               UserController {
     }
 
 
-    /*//triple user match
-    @RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
-    public ResponseEntity<>*/
+    //triple user match
+    /*@RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
+    public ResponseEntity<WishListMatchResultItem> TripleUserMatch()*/
     /*
                     OFFER CONTROLLER
     */
@@ -1018,4 +1017,37 @@ public class               UserController {
     }
 
 
+    //get finished order
+    @RequestMapping(value="/{userid}/order/finished",method=RequestMethod.GET)
+    public ResponseEntity<List<ShowOrderItem>> getFinishedOrders(@PathVariable("userid")int userid){
+        System.out.println("fetching the finished orders");
+    }
+
+    //               User Rating
+
+
+    //get user rating
+    @RequestMapping(value="/{userid}/rating",method=RequestMethod.GET)
+    public ResponseEntity<Integer> getRating(@PathVariable("userid")int userid){
+        System.out.println("get the rating...");
+
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<Integer>(HttpStatus.NOT_FOUND);
+        }
+
+        int ratingUserNum=userService.getRaingUserNumById(userid);
+        if(ratingUserNum==0){
+            System.out.print("no one rating...");
+            return new ResponseEntity<Integer>(HttpStatus.NO_CONTENT);
+        }
+
+        int rating=userService.getUserRatingById(userid);
+
+        return new ResponseEntity<Integer>(rating,HttpStatus.OK);
+    }
+
+    //rating
+    @RequestMapping(value="/{userid}/")
 }

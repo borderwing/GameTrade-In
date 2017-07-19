@@ -14,4 +14,9 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     @Query("SELECT p FROM CustomerEntity p JOIN FETCH p.addresses WHERE p.userId = (:id)")
     CustomerEntity findByUserIdAndFetchAddresses(@Param("id") int userId);
 
+    @Query("select p.rating from CustomerEntity p where p.userId=:userid")
+    Integer getRatingById(@Param("userid")int userid);
+
+    @Query("select p.ratingUserNum from CustomerEntity p where p.userId=:userid")
+    Integer getRatingUserNumById(@Param("userid")int userid);
 }

@@ -21,7 +21,6 @@ public class UserEntity {
     private Collection<RoleEntity> roles;
     @JsonIgnore
     private Collection<AddressEntity> addresses;
-
     @JsonIgnore
     private Collection<WishEntity> wishes;
     @JsonIgnore

@@ -11,7 +11,7 @@ public class CustomerEntity extends UserEntity {
     private String email;
     private String phone;
     private Integer rating;
-
+    private Integer ratingUserNum=0;
 
     @Basic
     @Column(name = "email", nullable = true, length = 255)
@@ -22,6 +22,18 @@ public class CustomerEntity extends UserEntity {
     public void setEmail(String email) {
         this.email = email;
     }
+
+
+    @Basic
+    @Column
+    public Integer getRatingUserNum() {
+        return ratingUserNum;
+    }
+
+    public void setRatingUserNum(Integer ratingUserNum) {
+        this.ratingUserNum = ratingUserNum;
+    }
+
 
     @Basic
     @Column(name = "phone", nullable = true, length = 127)
