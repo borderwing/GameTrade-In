@@ -56,6 +56,10 @@ public class OfferService {
             return null;
     }
 
+    public List<OfferEntity> findByUserAndGame(UserEntity user,GameEntity game){
+        return offerRepo.findByUserAndGame(user,game);
+    }
+
     public OfferEntity saveOfferInAdd(OfferJsonItem offerGame,UserEntity user,GameEntity game,Timestamp time){
         OfferEntity offer=new OfferEntity();
         offer.setPoints(offerGame.getPoints());
@@ -95,5 +99,21 @@ public class OfferService {
             }
         }
         return isAvailable;
+    }
+
+    public List<OfferEntity> findExceptById(int userid){
+        return offerRepo.findAllExceptById(userid);
+    }
+
+    public List<OfferEntity> findByUserId(int userid){
+        return offerRepo.findById(userid);
+    }
+
+    public List<Long> getSameGame(int wishUserid,int offerUserid,int points){
+        return offerRepo.getSameGame(wishUserid,offerUserid,points);
+    }
+
+    public List<OfferEntity> getOfferGames(int wantPoint,long gameid){
+        return offerRepo.getOfferGame(wantPoint,gameid);
     }
 }

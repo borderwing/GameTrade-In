@@ -73,6 +73,34 @@ public class OrderService {
         return ShowResult;
     }
 
+    public List<ShowOrderItem> getFinishedGeneralOrder(){
+        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
+        List<ShowOrderItem> ShowResult=new ArrayList<>();
+        Iterator<TradeOrderEntity> iterTradeOrder=tradeOrderList.iterator();
+        while(iterTradeOrder.hasNext()){
+            TradeOrderEntity TradeOrder=iterTradeOrder.next();
+            if(TradeOrder.getStatus()==0){
+                ShowOrderItem showItem=new ShowOrderItem();
+                showItem.setStatus(0);
+                showItem.setTime(TradeOrder.getCreatetime());
+                showItem.setTradeOrderId(TradeOrder.getTradeOrderId());
+                ShowResult.add(showItem);
+            }
+        }
+        return ShowResult;
+    }
+
+    public List<ShowOrderItem> getNotInvolved(List<ShowOrderItem> ShowResult){
+        Iterator<ShowOrderItem> resultIter=ShowResult.iterator();
+        while(resultIter.hasNext()){
+            ShowOrderItem item=resultIter.next();
+            if(item.getUserStatus()==0){
+                resultIter.remove();
+            }
+        }
+        return ShowResult;
+    }
+
     public List<ShowOrderItem> getAllGeneralOrder(){
         List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
 
@@ -146,17 +174,6 @@ public class OrderService {
             orderId=tradeOrderRepo.getMaxId()+1;
         }
         return orderId;
-    }
-
-    public int getNewTradeGameId(){
-        int tradeGameId;
-        if(tradeGameRepo.findAll().isEmpty()){
-            tradeGameId=1;
-        }
-        else {
-            tradeGameId = tradeGameRepo.getMaxId() + 1;
-        }
-        return tradeGameId;
     }
 
     public TradeGameEntity setSenderTradeGame(AddressEntity address, UserEntity user, GameEntity sendGame,UserEntity targetUser,int orderId){

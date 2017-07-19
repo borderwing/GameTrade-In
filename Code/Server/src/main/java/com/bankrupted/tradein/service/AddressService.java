@@ -15,8 +15,8 @@ public class AddressService {
     @Autowired
     AddressRepository addressRepo;
 
-    public AddressEntity addNewAddress(createAddressJsonItem addressItem,UserEntity user){
-        AddressEntity address=new AddressEntity();
+    public AddressEntity addNewAddress(createAddressJsonItem addressItem, UserEntity user) {
+        AddressEntity address = new AddressEntity();
         address.setAddress(addressItem.getAddress());
         address.setPhone(addressItem.getPhone());
         address.setReceiver(addressItem.getReceiver());
@@ -26,12 +26,16 @@ public class AddressService {
         return address;
     }
 
-    public AddressEntity getAddressByUserAndId(UserEntity user,int addressid){
-        AddressEntity address=addressRepo.findByUserAndId(user,addressid);
+    public AddressEntity getAddressByUserAndId(UserEntity user, int addressid) {
+        AddressEntity address = addressRepo.findByUserAndId(user, addressid);
         return address;
     }
 
-    public void updateAddress(createAddressJsonItem addressItem,int addressid){
-        addressRepo.updateAddress(addressItem.getAddress(),addressItem.getPhone(),addressItem.getReceiver(),addressItem.getRegion(), addressid);
+    public void updateAddress(createAddressJsonItem addressItem, int addressid) {
+        addressRepo.updateAddress(addressItem.getAddress(), addressItem.getPhone(), addressItem.getReceiver(), addressItem.getRegion(), addressid);
+    }
+
+    public AddressEntity getAddressById(int addressid){
+        return addressRepo.findOne(addressid);
     }
 }

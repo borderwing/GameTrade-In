@@ -40,4 +40,8 @@ public class UserService {
     public Integer getRaingUserNumById(int userid){
         return customerRepo.getRatingUserNumById(userid);
     }
+
+    public UserEntity getUserByUsername(String username){
+        return userRepo.findByUsername(username);
+    }
 }

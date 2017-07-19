@@ -37,6 +37,10 @@ public class WishService {
         return wishList;
     }
 
+    public List<WishEntity> findByUserAndGame(UserEntity user,GameEntity game){
+        return wishRepo.findByUserAndGame(user,game);
+    }
+
     public WishEntity getOneWishByUserAndGame(UserEntity user,GameEntity game){
         List<WishEntity> wishList=wishRepo.findByUserAndGame(user,game);
         boolean isAvailable=false;
@@ -94,5 +98,21 @@ public class WishService {
             }
         }
         return isAvailable;
+    }
+
+    public int getWishPointsByIdAndGame(int userid,long gameid){
+        return wishRepo.getWishPoints(userid,gameid);
+    }
+
+    public List<WishEntity> findByUserId(int userid){
+        return wishRepo.findByUserId(userid);
+    }
+
+    public List<Long> getSameGame(int wishUserid,int offerUserid,int points){
+        return wishRepo.getSameGame(wishUserid,offerUserid,points);
+    }
+
+    public List<WishEntity> getWishGame(int wantPoint,long gameid){
+        return wishRepo.getWishGame(wantPoint,gameid);
     }
 }
