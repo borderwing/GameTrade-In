@@ -1,19 +1,20 @@
 package com.bankrupted.tradein.service;
 
 import com.bankrupted.tradein.model.json.game.GameDetailJson;
+import com.bankrupted.tradein.model.json.game.GameReleaseJson;
 import com.bankrupted.tradein.model.json.game.GameTileJson;
 import com.bankrupted.tradein.model.json.igdb.IgdbGame;
+import com.bankrupted.tradein.model.json.igdb.IgdbImage;
+import com.bankrupted.tradein.model.json.igdb.IgdbPlatform;
 import com.bankrupted.tradein.model.json.igdb.IgdbRelease;
+import com.bankrupted.tradein.model.json.igdb.meta.IgdbGenre;
 import com.bankrupted.tradein.utility.IgdbUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -30,11 +31,6 @@ public class GameService {
     @Autowired
     GameAsyncService gameAsyncService;
 
-
-//    public GameTileJson getGameTile(Long igdbId){
-//
-//    }
-
     public List<GameTileJson> getTrendingGameTileList(int limit, int offset) {
         List<IgdbGame> igdbGames = igdbUtility.getTrendingIgdbGames(limit, offset);
 
@@ -42,34 +38,132 @@ public class GameService {
             return null;
         }
 
-        List<CompletableFuture<GameTileJson>> gameTiles = new ArrayList<>(igdbGames.size());
+//        List<CompletableFuture<GameTileJson>> gameTiles = new ArrayList<>(igdbGames.size());
+//
+//        try {
+//            for (IgdbGame game : igdbGames) {
+//                gameTiles.add(gameAsyncService.convertToGameTile(game));
+//            }
+//        } catch (InterruptedException e){
+//            e.printStackTrace();
+//        }
+//
+//        List<GameTileJson> completed = allOf(gameTiles).join();
 
-        try {
-            for (IgdbGame game : igdbGames) {
-                gameTiles.add(gameAsyncService.convertToGameTile(game));
-            }
-        } catch (InterruptedException e){
-            e.printStackTrace();
+        return convertToGameTiles(igdbGames);
+    }
+
+    public List<GameTileJson> getSearchedGameTileList(String keyword, int limit, int offset){
+        List<IgdbGame> igdbGames = igdbUtility.getSearchedIgdbGames(keyword, limit, offset);
+
+        if(igdbGames == null){
+            return null;
         }
-
-        List<GameTileJson> completed = allOf(gameTiles).join();
-
-        return completed;
+        return convertToGameTiles(igdbGames);
     }
 
     public GameDetailJson getIgdbGame(Long igdbId){
         IgdbGame igdbGame = igdbUtility.getIgdbGame(igdbId);
 
-        // ------ fill in the platform names for the game ------
-        // prepare platformIdSet
-        Set<Integer> platformIdSet = new HashSet<>();
-        if(igdbGame.getReleaseDates() != null){
-            for(IgdbRelease release : igdbGame.getReleaseDates()){
-                ;
-            }
+        if(igdbGame == null){
+            return null;
         }
 
-        return null;
+        CompletableFuture<HashMap<Integer, String>> futurePlatformMap =
+                gameAsyncService.getFuturePlatformMap(igdbGame.getReleaseDates());
+        CompletableFuture<HashMap<Long, String>> futureGenreMap =
+                gameAsyncService.getFutureGenreMap(igdbGame.getGenres());
+        CompletableFuture<HashMap<Long, String>> futureThemeMap =
+                gameAsyncService.getFutureThemeMap(igdbGame.getThemes());
+        CompletableFuture<HashMap<Long, String>> futureKeywordMap =
+                gameAsyncService.getFutureKeywordMap(igdbGame.getKeywords());
+
+        CompletableFuture.allOf(futurePlatformMap, futureGenreMap, futureThemeMap, futureKeywordMap).join();
+
+        HashMap<Integer, String> platformMap = futurePlatformMap.join();
+        HashMap<Long, String> genreMap = futureGenreMap.join();
+        HashMap<Long, String> themeMap = futureThemeMap.join();
+        HashMap<Long, String> keywordMap = futureKeywordMap.join();
+
+
+
+        GameDetailJson gameDetail = new GameDetailJson();
+        gameDetail.setIgdbId(igdbGame.getId());
+        gameDetail.setTitle(igdbGame.getName());
+        gameDetail.setPopularity(igdbGame.getPopularity());
+        gameDetail.setSummary(igdbGame.getSummary());
+
+        List<GameReleaseJson> gameReleases;
+        if(igdbGame.getReleaseDates() != null){
+            gameReleases = new ArrayList<>(igdbGame.getReleaseDates().size());
+            for(IgdbRelease igdbRelease : igdbGame.getReleaseDates()){
+                String platformName = platformMap.get(igdbRelease.getPlatform());
+                if(platformName == null)  continue;
+
+                GameReleaseJson gameRelease = new GameReleaseJson();
+                gameRelease.setPlatformId(igdbRelease.getPlatform());
+                gameRelease.setPlatform(platformName);
+                gameRelease.setRegionId(igdbRelease.getRegion());
+                gameRelease.setRegion(igdbRelease.getRegionName());
+                gameReleases.add(gameRelease);
+            }
+            gameDetail.setReleases(gameReleases);
+        }
+
+        if(igdbGame.getCover() != null) gameDetail.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big_2x"));
+        if(igdbGame.getScreenshots() != null){
+            List<String> screenshots = new ArrayList<>(igdbGame.getScreenshots().size());
+            for(IgdbImage image : igdbGame.getScreenshots()){
+                screenshots.add(image.getUrlBySize("screenshot_med"));
+            }
+            gameDetail.setScreenshots(screenshots);
+        }
+
+        gameDetail.setGenres(new ArrayList<>(genreMap.values()));
+        gameDetail.setThemes(new ArrayList<>(themeMap.values()));
+        gameDetail.setKeywords(new ArrayList<>(keywordMap.values()));
+
+        gameDetail.setUrl(igdbGame.getUrl());
+
+        return gameDetail;
+    }
+
+
+    private  List<GameTileJson> convertToGameTiles(Collection<IgdbGame> igdbGames){
+        List<GameTileJson> gameTiles = new LinkedList<>();
+
+        if(igdbGames == null || igdbGames.size() == 0){
+            return gameTiles;
+        }
+
+        Set<Integer> platformIdSet = new HashSet<>();
+        for(IgdbGame igdbGame : igdbGames){
+            platformIdSet.addAll(gameAsyncService.preparePlatformIdSet(igdbGame.getReleaseDates()));
+        }
+
+        HashMap<Integer, String> platformMap = new HashMap<>();
+
+        try {
+            platformMap = gameAsyncService.getPlatformMap(platformIdSet);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        for(IgdbGame igdbGame : igdbGames) {
+            List<String> gamePlatformNames = new ArrayList<>();
+            gamePlatformNames.addAll(gameAsyncService.getPlatformNameSet(igdbGame, platformMap));
+
+            GameTileJson gameTile = new GameTileJson();
+            gameTile.setTitle(igdbGame.getName());
+            if (igdbGame.getCover() != null) gameTile.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big_2x"));
+            gameTile.setIgdbId(igdbGame.getId());
+            gameTile.setPlatforms(gamePlatformNames);
+            gameTile.setPopularity(igdbGame.getPopularity());
+
+            gameTiles.add(gameTile);
+        }
+
+        return gameTiles;
     }
 
     private <T> CompletableFuture<List<T>> allOf(List<CompletableFuture<T>> futuresList) {
@@ -81,7 +175,5 @@ public class GameService {
                         collect(Collectors.<T>toList())
         );
     }
-
-
 
 }

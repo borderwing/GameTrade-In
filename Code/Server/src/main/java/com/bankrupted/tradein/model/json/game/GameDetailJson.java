@@ -21,6 +21,8 @@ public class GameDetailJson {
     private List<String> themes;
     private List<String> keywords;
 
+    private String url;
+
     public Long getIgdbId() {
         return igdbId;
     }
@@ -99,5 +101,13 @@ public class GameDetailJson {
 
     public void setKeywords(List<String> keywords) {
         this.keywords = keywords;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

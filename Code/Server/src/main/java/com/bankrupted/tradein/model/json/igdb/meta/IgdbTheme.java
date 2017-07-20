@@ -1,26 +1,25 @@
-package com.bankrupted.tradein.model.json.igdb;
+package com.bankrupted.tradein.model.json.igdb.meta;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 /**
- * Created by lykav on 7/18/2017.
+ * Created by lykav on 7/20/2017.
  */
-public class IgdbGenre {
-
-    private int id;
+public class IgdbTheme {
+    private Long id;
     private String name;
     private String url;
 
     @JsonProperty(value = "games")
     List<Long> igdbGameIds;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

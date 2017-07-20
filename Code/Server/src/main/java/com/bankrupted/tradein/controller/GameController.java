@@ -1,6 +1,7 @@
 package com.bankrupted.tradein.controller;
 
 import com.bankrupted.tradein.model.GameEntity;
+import com.bankrupted.tradein.model.json.game.GameDetailJson;
 import com.bankrupted.tradein.model.json.game.GameTileJson;
 import com.bankrupted.tradein.model.json.igdb.IgdbGame;
 import com.bankrupted.tradein.service.GameService;
@@ -37,8 +38,7 @@ public class GameController {
 
     @Autowired
     GameService gameService;
-    @Autowired
-    IgdbUtility igdbUtility;
+
 
     //retrieve all games
     @RequestMapping(value = "/params", method = RequestMethod.GET)
@@ -60,17 +60,38 @@ public class GameController {
             @RequestParam(value = "limit", defaultValue = "5") Integer limit,
             @RequestParam(value = "offset", defaultValue = "0") Integer offset)
     {
-        if(limit <= 0)  limit = 5;
-        if(offset < 0)  offset = 0;
+        if(limit <= 0 || offset < 0) {
+            return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
+        }
 
         List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(limit,offset);
 
         if(trendingGames == null){
             System.out.println("Fetch trending games failed");
-            return new ResponseEntity<List<GameTileJson>>(trendingGames, HttpStatus.SERVICE_UNAVAILABLE);
+            return new ResponseEntity<List<GameTileJson>>(HttpStatus.SERVICE_UNAVAILABLE);
         }
         return new ResponseEntity<List<GameTileJson>>(trendingGames, HttpStatus.OK);
     }
+
+    @RequestMapping(value="/search", method=RequestMethod.GET)
+    public ResponseEntity<List<GameTileJson>> getSearchResults(
+            @RequestParam(value = "keyword", required = true) String keyword,
+            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
+            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+    {
+        if(limit <= 0 || offset < 0) {
+            return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
+        }
+
+        List<GameTileJson> searchedGames = gameService.getSearchedGameTileList(keyword, limit,offset);
+
+        if(searchedGames == null){
+            System.out.println("Fetch trending games failed");
+            return new ResponseEntity<List<GameTileJson>>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        return new ResponseEntity<List<GameTileJson>>(searchedGames, HttpStatus.OK);
+    }
+
 
     //retrieve single game
 
@@ -86,15 +107,15 @@ public class GameController {
 //    }
 
     @RequestMapping(value = "/{igdbId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<IgdbGame> getGame(@PathVariable("igdbId") long igdbId){
+    public ResponseEntity<GameDetailJson> getGame(@PathVariable("igdbId") long igdbId){
         System.out.println("Fetch game with IGDB id "+ igdbId);
 
-        IgdbGame game = igdbUtility.getIgdbGame(igdbId);
+        GameDetailJson game = gameService.getIgdbGame(igdbId);
         if(game == null){
             System.out.println("Games with id "+ igdbId +" not found");
-            return new ResponseEntity<IgdbGame>(game, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<GameDetailJson>(game, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<IgdbGame>(game,HttpStatus.OK);
+        return new ResponseEntity<GameDetailJson>(game,HttpStatus.OK);
     }
 
 
