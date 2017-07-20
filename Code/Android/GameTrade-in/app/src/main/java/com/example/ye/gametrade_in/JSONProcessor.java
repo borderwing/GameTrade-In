@@ -2,6 +2,7 @@ package com.example.ye.gametrade_in;
 
 import com.example.ye.gametrade_in.Bean.AddressBean;
 import com.example.ye.gametrade_in.Bean.GameBean;
+import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
 import com.example.ye.gametrade_in.Bean.OfferListBean;
@@ -76,5 +77,12 @@ public class JSONProcessor {
         Gson gson = new Gson();
         UserDetailBean userDetail = gson.fromJson(userDetailString, UserDetailBean.class);
         return userDetail;
+    }
+
+    // Get gameTile list Bean
+    public GameTileBean[] GetGameTileListBean(String gameTileDetail){
+        Gson gson = new Gson();
+        GameTileBean[] gameTile = gson.fromJson(gameTileDetail, GameTileBean[].class);
+        return gameTile;
     }
 }

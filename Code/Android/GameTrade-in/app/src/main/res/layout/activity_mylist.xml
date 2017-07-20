@@ -41,8 +41,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/myListToolBar"
         android:columnWidth="80dp"
-        android:numColumns="auto_fit"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:numColumns="2"
         android:stretchMode="columnWidth"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
         />
-
 </RelativeLayout>
