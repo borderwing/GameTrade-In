@@ -2,9 +2,13 @@ package com.example.ye.gametrade_in;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,13 +20,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.ye.gametrade_in.Bean.BitmapBean;
+import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
+import com.example.ye.gametrade_in.Listener.AutoLoadListener;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -31,6 +39,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -40,16 +50,26 @@ public class MainActivity extends AppCompatActivity {
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
     public GameTradeInApplication gameTradeInApplication;
     String serverUrl;
+    GameTileBean[] gameTileBeanList;
+    BitmapBean[] bitmapBeanList = new BitmapBean[10];
+    boolean finish;
+    WorkCounter workCounter = new WorkCounter();
 
     private Notification notification;
     private NotificationManager notificationManager;
-    private int i = 1;
+    private int i = 0;
+    private int k = 0;
 
     String authorizedHeader;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        for(int p = 0; p < 10; ++p){
+            bitmapBeanList[p] = new BitmapBean();
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -77,21 +97,59 @@ public class MainActivity extends AppCompatActivity {
         notification = builder.build();
         notificationManager.notify(i, notification);
 
+        workCounter.setRunningTasks(10);
+
+        GetGameTileDetail();
+
+        /*while (workCounter.getRunningTasks() != 0){
+
+        }*/
 
         // Grid View
         GridView gameGridView = (GridView) findViewById(R.id.gameGridView);
         ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
-        for(int i = 0; i < 14; i++){
+        for(i = 0; i < 10; i++){
             HashMap<String, Object> map = new HashMap<String, Object>();
-            map.put("gameItemImage", R.drawable.gameicon);
-            map.put("gameItemText", "NO." + String.valueOf(i+1));
-            ListImageItem.add(map);
+            try {
+                map.put("gameItemImage", bitmapBeanList[i].getBitmap());
+                map.put("gameItemText", gameTileBeanList[i].getTitle());
+                ListImageItem.add(map);
+            }
+            catch (Exception exc){
+                showDialog(exc.toString());
+            }
         }
 
-        SimpleAdapter homeGameItems =  new SimpleAdapter
-                (this, ListImageItem, R.layout.item, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.gameItemImage, R.id.gameItemText});
-        gameGridView.setAdapter(homeGameItems);
+
+
+        try {
+            SimpleAdapter homeGameItems = new SimpleAdapter
+                    (this,
+                            ListImageItem,
+                            R.layout.item,
+                            new String[]{"gameItemImage", "gameItemText"},
+                            new int[]{R.id.gameItemImage, R.id.gameItemText});
+
+            homeGameItems.setViewBinder(new SimpleAdapter.ViewBinder(){
+                @Override
+                public boolean setViewValue(View view, Object bitmapData, String s) {
+                    if (view instanceof ImageView && bitmapData instanceof Bitmap) {
+                        ImageView i = (ImageView) view;
+                        i.setImageBitmap((Bitmap) bitmapData);
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            gameGridView.setAdapter(homeGameItems);
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
         gameGridView.setOnItemClickListener(new gameItemClickListener());
+
+        // AutoLoadListener autoLoadListener = new AutoLoadListener(callBack);
+        // gameGridView.setOnScrollListener(autoLoadListener);
 
         // Declaration
         menuUserDetailedHeader = (RelativeLayout) findViewById(R.id.menuUserDetailedHeader);
@@ -137,6 +195,18 @@ public class MainActivity extends AppCompatActivity {
             showDialog(exc.toString());
         }
     }
+
+    /*****************************************************************************************/
+    /* Grid View Scroll Listener*/
+
+
+    AutoLoadListener.AutoLoadCallBack callBack = new AutoLoadListener.AutoLoadCallBack() {
+
+        public void execute() {
+            showDialog("Bottom");
+
+        }
+    };
 
     /*****************************************************************************************/
     /* Button Listener settings */
@@ -218,7 +288,160 @@ public class MainActivity extends AppCompatActivity {
 
 
     /*****************************************************************************************/
-    /* Part user detail */
+    /* Part for gameTile detail */
+
+
+    private class GameTileDetailTask extends AsyncTask<String, Integer, String> {
+        private String status, urlStr;
+        private int responseCode = -1;
+        public Boolean finish = false;
+
+        @Override
+        protected  void onPreExecute(){
+        }
+
+        @Override
+        protected  String doInBackground(String... params){
+            HttpURLConnection urlConn;
+            try {
+
+                urlStr = serverUrl + "api/game/trending?limit=10&offset=0";
+
+                URL url = new URL(urlStr);
+                urlConn = (HttpURLConnection) url.openConnection();
+                urlConn.setRequestProperty("Authorization", authorizedHeader);
+                urlConn.setRequestMethod("GET");
+                urlConn.connect();
+                InputStream in = urlConn.getInputStream();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                responseCode = urlConn.getResponseCode();
+                JSONProcessor jsonProcessor = new JSONProcessor();
+                gameTileBeanList = jsonProcessor.GetGameTileListBean(reader.readLine());
+                finish = true;
+            }
+            catch (Exception exc){
+                exc.printStackTrace();
+                status = "Failed";
+            }
+            return null;
+        }
+        @Override
+        protected void onProgressUpdate(Integer... progresses)
+        {
+            super.onProgressUpdate(progresses);
+        }
+        @Override
+        protected  void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+        }
+    }
+
+
+
+    private class GameTileImageTask extends AsyncTask<String, Integer, String> {
+        private String status, urlStr;
+        private int responseCode = -1;
+        public Boolean finish = false;
+        Bitmap bmp ;
+
+
+
+        @Override
+        protected  void onPreExecute(){
+        }
+
+        @Override
+        protected  String doInBackground(String... params){
+            HttpURLConnection urlConn;
+            try {
+
+                urlStr = params[0];
+
+                URL url = new URL(urlStr);
+                urlConn = (HttpURLConnection) url.openConnection();
+
+                //urlConn.setRequestProperty("Authorization", authorizedHeader);
+
+                urlConn.setRequestMethod("GET");
+                urlConn.connect();
+                InputStream in = urlConn.getInputStream();
+                // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                responseCode = urlConn.getResponseCode();
+                bmp = BitmapFactory.decodeStream(in);
+
+                bitmapBeanList[k].setBitmap(bmp);
+                in.close();
+                finish = true;
+            }
+            catch (Exception exc){
+                exc.printStackTrace();
+                status = "Failed";
+            }
+            return null;
+        }
+        @Override
+        protected void onProgressUpdate(Integer... progresses)
+        {
+            super.onProgressUpdate(progresses);
+        }
+        @Override
+        protected  void onPostExecute(String result)
+        {
+            super.onPostExecute(result);
+            workCounter.getRunningTasks();
+            workCounter.runningTasksRelease();
+        }
+    }
+
+
+
+
+    public void GetGameTileDetail(){
+        MainActivity.GameTileDetailTask gameTileDetailTask = new MainActivity.GameTileDetailTask();
+        try {
+            String test = gameTileDetailTask.execute().get();
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
+        //List< AsyncTask<String,Integer,String> > asyncTasks = new ArrayList<AsyncTask<String, Integer, String>>();
+
+
+
+        for(k = 0; k < 9; k++)
+        {
+            try {
+
+                String CoverUrl = gameTileBeanList[k].getCoverUrl();
+
+
+                // MainActivity.GameTileImageTask gameTileImageTask = new MainActivity.GameTileImageTask();
+                // gameTileImageTask.execute(CoverUrl);
+                // asyncTasks.add(gameTileImageTask);
+
+                new GameTileImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CoverUrl);
+
+                //new GameTileImageTask().execute(CoverUrl);
+                // gameTileImageTask.execute(CoverUrl);
+                // String test = gameTileImageTask.execute(CoverUrl).get();
+            }
+            catch (Exception exc){
+                showDialog(exc.toString());
+            }
+        }
+        workCounter.getRunningTasks();
+        while (workCounter.getRunningTasks()!= 0){
+
+        }
+
+    }
+
+
+
+
+    /*****************************************************************************************/
+    /* Part for user detail */
 
 
     private void SetUserDetailedLayout(String userName){
@@ -343,7 +566,6 @@ public class MainActivity extends AppCompatActivity {
     /*****************************************************************************************/
     /* Helper function */
 
-
     private void showDialog(String msg){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
@@ -354,5 +576,4 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog alert = builder.create();
         alert.show();
     }
-
 }
