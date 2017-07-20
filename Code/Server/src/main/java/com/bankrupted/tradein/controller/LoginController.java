@@ -3,6 +3,8 @@ package com.bankrupted.tradein.controller;
 import com.bankrupted.tradein.model.json.LoginJsonItem;
 import com.bankrupted.tradein.model.UserEntity;
 import com.bankrupted.tradein.model.json.ReturnLoginJsonItem;
+import com.bankrupted.tradein.service.UserService;
+import com.bankrupted.tradein.utility.SecurityUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
@@ -20,19 +22,21 @@ import com.bankrupted.tradein.repository.UserRepository;
 public class LoginController {
 
     @Autowired
-    UserRepository userrepository;
+    UserService userService;
 
     @RequestMapping(value="/",method= RequestMethod.POST)
     public ResponseEntity<ReturnLoginJsonItem> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
-        UserEntity user=userrepository.findByUsername(loginItem.getUsername());
-        System.out.println(userrepository.getMaxId());
+        UserEntity user=userService.getUserByUsername(loginItem.getUsername());
         if(user==null){
             //cant find the user
             System.out.println("not find user");
             return new ResponseEntity<ReturnLoginJsonItem>(HttpStatus.NOT_FOUND);
         }
-        if(user.getPassword().equals(loginItem.getPassword())){
+
+        String encryptedPassword = SecurityUtility.passwordEncoder().encode(loginItem.getPassword());
+
+        if(user.getPassword().equals(encryptedPassword)){
             ReturnLoginJsonItem returnLogin=new ReturnLoginJsonItem();
             returnLogin.setUserId(user.getUserId());
             return new ResponseEntity<ReturnLoginJsonItem>(returnLogin,HttpStatus.OK);

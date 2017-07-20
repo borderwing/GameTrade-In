@@ -5,8 +5,8 @@ package com.bankrupted.tradein.model.temporaryItem;
  */
 public class SenderOrderItem {
     private int receiverId;
-    private int getGameId;
-    private int offerGameId;
+    private long getGameId;
+    private long offerGameId;
 
     public int getReceiverId() {
         return receiverId;
@@ -16,19 +16,19 @@ public class SenderOrderItem {
         this.receiverId = receiverId;
     }
 
-    public int getGetGameId() {
+    public long getGetGameId() {
         return getGameId;
     }
 
-    public void setGetGameId(int getGameId) {
+    public void setGetGameId(long getGameId) {
         this.getGameId = getGameId;
     }
 
-    public int getOfferGameId() {
+    public long getOfferGameId() {
         return offerGameId;
     }
 
-    public void setOfferGameId(int offerGameId) {
+    public void setOfferGameId(long offerGameId) {
         this.offerGameId = offerGameId;
     }
 }

@@ -24,12 +24,18 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     List<OfferEntity> findByUserAndGame(@Param("user")UserEntity user, @Param("game")GameEntity game);
 
     @Query("select p from OfferEntity p where p.points=:points and p.status=1 and p.offerEntityPK.game.gameId=:gameId order by p.offerEntityPK.user.userId")
-    List<OfferEntity> getOfferGame(@Param("points")int points,@Param("gameId")int gameId);
+    List<OfferEntity> getOfferGame(@Param("points")int points,@Param("gameId")long gameId);
 
     @Query("select wish.wishEntityPK.game.gameId from WishEntity wish, OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid" +
             " and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId" +
             " and offer.status=1 and wish.status=1 and offer.points=:points and wish.points=:points")
-    List<Integer> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
+    List<Long> getSameGame(@Param("WishUserid")int wishUserid,@Param("OfferUserid")int offerUserid,@Param("points")int points);
+
+    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId<>:userId")
+    List<OfferEntity> findAllExceptById(@Param("userId")int userId);
+
+    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId=:userId and p.status=1")
+    List<OfferEntity> findById(@Param("userId")int userId);
 
     @Modifying
     @Transactional

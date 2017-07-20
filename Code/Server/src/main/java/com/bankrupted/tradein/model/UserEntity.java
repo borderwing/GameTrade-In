@@ -13,7 +13,7 @@ import java.util.Collection;
 @Inheritance(strategy=InheritanceType.JOINED)
 @Table(name = "users", catalog = "")
 public class UserEntity {
-    private int userId=0;
+    private int userId = 0;
     private String username;
     private String password;
 
@@ -21,7 +21,6 @@ public class UserEntity {
     private Collection<RoleEntity> roles;
     @JsonIgnore
     private Collection<AddressEntity> addresses;
-
     @JsonIgnore
     private Collection<WishEntity> wishes;
     @JsonIgnore

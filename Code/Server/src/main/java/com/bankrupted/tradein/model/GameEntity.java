@@ -11,7 +11,12 @@ import java.util.Collection;
 @Entity
 @Table(name = "games", catalog = "")
 public class GameEntity {
-    private int gameId;
+    private long gameId;
+
+    private long igdbId;
+    private int platformId;
+    private int regionId;
+
     private String title;
     private String platform;
     private String language;
@@ -30,12 +35,38 @@ public class GameEntity {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Column(name = "gameID", nullable = false)
-    public int getGameId() {
+    public long getGameId() {
         return gameId;
     }
 
-    public void setGameId(int gameId) {
+    public void setGameId(long gameId) {
         this.gameId = gameId;
+    }
+
+
+    // columns for IGDB database
+    public long getIgdbId() {
+        return igdbId;
+    }
+
+    public void setIgdbId(long igdbId) {
+        this.igdbId = igdbId;
+    }
+
+    public int getPlatformId() {
+        return platformId;
+    }
+
+    public void setPlatformId(int platformId) {
+        this.platformId = platformId;
+    }
+
+    public int getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(int regionId) {
+        this.regionId = regionId;
     }
 
     @Basic
@@ -95,26 +126,12 @@ public class GameEntity {
 
         GameEntity that = (GameEntity) o;
 
-        if (gameId != that.gameId) return false;
-        if (title != null ? !title.equals(that.title) : that.title != null) return false;
-        if (platform != null ? !platform.equals(that.platform) : that.platform != null) return false;
-        if (language != null ? !language.equals(that.language) : that.language != null) return false;
-        if (genre != null ? !genre.equals(that.genre) : that.genre != null) return false;
-        if (evaluatePoint != null ? !evaluatePoint.equals(that.evaluatePoint) : that.evaluatePoint != null)
-            return false;
-
-        return true;
+        return gameId == that.gameId;
     }
 
     @Override
     public int hashCode() {
-        int result = gameId;
-        result = 31 * result + (title != null ? title.hashCode() : 0);
-        result = 31 * result + (platform != null ? platform.hashCode() : 0);
-        result = 31 * result + (language != null ? language.hashCode() : 0);
-        result = 31 * result + (genre != null ? genre.hashCode() : 0);
-        result = 31 * result + (evaluatePoint != null ? evaluatePoint.hashCode() : 0);
-        return result;
+        return (int) (gameId ^ (gameId >>> 32));
     }
 
     @OneToMany(mappedBy = "wishEntityPK.game")
