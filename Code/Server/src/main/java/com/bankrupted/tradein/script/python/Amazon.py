@@ -26,6 +26,8 @@ def getEvaluatePoint(gameName,platform):
         url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D14210751&field-keywords='+gameName
     elif(platform=="XBOX 360"):
         url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D14220161&field-keywords='+gameName
+    else:
+        url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D4924894011&field-keywords='+gameName
 
     print(url)
 

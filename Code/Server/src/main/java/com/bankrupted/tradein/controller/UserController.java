@@ -115,7 +115,7 @@ public class UserController {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
@@ -142,8 +142,10 @@ public class UserController {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game = gameRepo.findOne(createWishJson.getGameId());
-        if (game == null) return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        GameEntity game=gameService.findGameByIgdbId(createWishJson.getIgdbId(),createWishJson.getPlatformId(),createWishJson.getRegionId());
+        if (game == null) {
+            return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
+        }
 
         Timestamp time=new Timestamp(System.currentTimeMillis());
 
@@ -180,7 +182,7 @@ public class UserController {
         }
 
         //find the game
-        GameEntity game = gameRepo.findOne(gameid);
+        GameEntity game = gameService.fetchOneGame(gameid);
         if (game == null) {
             System.out.println("can't find game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -211,7 +213,7 @@ public class UserController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             System.out.println("can't find the game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -314,14 +316,14 @@ public class UserController {
 
         //set the TradeGames as sender
         for(int i = 0;i<youOfferGameIdList.size();i++){
-            GameEntity game=gameRepo.findOne(youOfferGameIdList.get(i));
+            GameEntity game=gameService.fetchOneGame(youOfferGameIdList.get(i));
             TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game, TargetUser,orderid);
             tradeGameList.add(tradeGame);
         }
 
         //set the tradeGames as receiver
         for(int i = 0;i<youWantGameIdList.size();i++){
-            GameEntity game=gameRepo.findOne(youWantGameIdList.get(i));
+            GameEntity game=gameService.fetchOneGame(youWantGameIdList.get(i));
             TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,TargetUser,orderid);
             tradeGameList.add(tradeGame);
         }
@@ -439,7 +441,7 @@ public class UserController {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
@@ -465,9 +467,8 @@ public class UserController {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(offerGame.getGameId());
-        if(game==null){
-            System.out.println("can't find the game...");
+        GameEntity game=gameService.findGameByIgdbId(offerGame.getIgdbId(),offerGame.getPlatformId(),offerGame.getRegionId());
+        if (game == null) {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
 
@@ -499,7 +500,7 @@ public class UserController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             System.out.println("can't find game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -529,7 +530,7 @@ public class UserController {
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             System.out.println("can't find the game...");
             return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
@@ -663,7 +664,7 @@ public class UserController {
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             System.out.println("can't find game...");
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
@@ -729,13 +730,13 @@ public class UserController {
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity sendGame=gameRepo.findOne(orderItem.getGameId());
+        GameEntity sendGame=gameService.fetchOneGame(orderItem.getGameId());
         if(sendGame==null){
             System.out.println("can't find game...");
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity receiveGame=gameRepo.findOne(gameid);
+        GameEntity receiveGame=gameService.fetchOneGame(gameid);
         if(receiveGame==null){
             System.out.println("can't find game...");
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
@@ -778,7 +779,7 @@ public class UserController {
             return new ResponseEntity<List<SenderOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameRepo.findOne(gameid);
+        GameEntity game=gameService.fetchOneGame(gameid);
         if(game==null){
             System.out.println("can't find game...");
             return new ResponseEntity<List<SenderOrderItem>>(HttpStatus.NOT_FOUND);
@@ -835,9 +836,9 @@ public class UserController {
 
         UserEntity targetUser=userService.getUserById(orderItem.getTargetUserId());
 
-        GameEntity SendGame=gameRepo.findOne(gameid);
+        GameEntity SendGame=gameService.fetchOneGame(gameid);
 
-        GameEntity ReceiveGame=gameRepo.findOne(orderItem.getGameId());
+        GameEntity ReceiveGame=gameService.fetchOneGame(orderItem.getGameId());
 
 
         //create TradeOrder

@@ -4,15 +4,33 @@ package com.bankrupted.tradein.model.json.wish;
  * Created by lykav on 2017/6/30.
  */
 public class CreateWishJson {
-    private long gameId;
+    private Long igdbId;
+    private int platformId;
+    private int regionId;
     private int points;
 
-    public long getGameId() {
-        return gameId;
+    public Long getIgdbId() {
+        return igdbId;
     }
 
-    public void setGameId(long gameId) {
-        this.gameId = gameId;
+    public void setIgdbId(Long igdbId) {
+        this.igdbId = igdbId;
+    }
+
+    public int getPlatformId() {
+        return platformId;
+    }
+
+    public void setPlatformId(int platformId) {
+        this.platformId = platformId;
+    }
+
+    public int getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(int regionId) {
+        this.regionId = regionId;
     }
 
     public int getPoints() {
@@ -22,5 +40,4 @@ public class CreateWishJson {
     public void setPoints(int points) {
         this.points = points;
     }
-
 }
