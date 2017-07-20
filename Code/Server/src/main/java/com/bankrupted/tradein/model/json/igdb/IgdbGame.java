@@ -21,9 +21,9 @@ public class IgdbGame {
     private IgdbImage cover;
     private List<IgdbImage> screenshots;
 
-    private List<Integer> genres;
-    private List<Integer> themes;
-    private List<Integer> keywords;
+    private List<Long> genres;
+    private List<Long> themes;
+    private List<Long> keywords;
 
     private String url;
 
@@ -76,36 +76,31 @@ public class IgdbGame {
         this.screenshots = screenshots;
     }
 
-    public List<Integer> getGenres() {
+    public List<Long> getGenres() {
         return genres;
     }
     @JsonIgnore
     public List<Long> getLongGenres(){
-        int size = genres.size();
-        List<Long> longGenres = new ArrayList<>(size);
-        for(Integer genreId : genres){
-            longGenres.add(genreId.longValue());
-        }
-        return longGenres;
+        return genres;
     }
 
-    public void setGenres(List<Integer> genres) {
+    public void setGenres(List<Long> genres) {
         this.genres = genres;
     }
 
-    public List<Integer> getThemes() {
+    public List<Long> getThemes() {
         return themes;
     }
 
-    public void setThemes(List<Integer> themes) {
+    public void setThemes(List<Long> themes) {
         this.themes = themes;
     }
 
-    public List<Integer> getKeywords() {
+    public List<Long> getKeywords() {
         return keywords;
     }
 
-    public void setKeywords(List<Integer> keywords) {
+    public void setKeywords(List<Long> keywords) {
         this.keywords = keywords;
     }
 

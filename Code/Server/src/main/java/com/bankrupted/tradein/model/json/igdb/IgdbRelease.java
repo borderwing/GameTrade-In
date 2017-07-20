@@ -19,6 +19,7 @@ public class IgdbRelease {
     static{
         Map<Integer, String> tempRegionMap = new HashMap<>();
 
+        tempRegionMap.put(0, "Unrestricted");
         tempRegionMap.put(1, "Europe (EU)");
         tempRegionMap.put(2, "North America (NA)");
         tempRegionMap.put(3, "Australia (AU)");
