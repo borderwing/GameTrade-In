@@ -6,6 +6,9 @@ import com.bankrupted.tradein.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by homepppp on 2017/7/18.
  */
@@ -27,6 +30,11 @@ public class UserService {
 
     public UserEntity getUserByIdAndFetchOfferList(int userid){
         return userRepo.findByUserIdAndFetchOfferlist(userid);
+    }
+
+    public List<Integer> getAllUserId(){
+        List<Integer> UserId=new ArrayList<>();
+        return userRepo.getAllUserId();
     }
 
     public UserEntity getUserByIdAndFetchAddress(int userid){

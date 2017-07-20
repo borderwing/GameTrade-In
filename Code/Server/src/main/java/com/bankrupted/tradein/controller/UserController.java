@@ -1,9 +1,16 @@
 package com.bankrupted.tradein.controller;
 
 import com.bankrupted.tradein.assist.matchAssist;
-import com.bankrupted.tradein.assist.matchAssist.*;
 import com.bankrupted.tradein.model.*;
-import com.bankrupted.tradein.model.json.*;
+import com.bankrupted.tradein.model.json.offer.CreateOfferJson;
+import com.bankrupted.tradein.model.json.offer.ModifyOfferJson;
+import com.bankrupted.tradein.model.json.order.BasicMatchConfirmJson;
+import com.bankrupted.tradein.model.json.order.BasicMatchJson;
+import com.bankrupted.tradein.model.json.order.ConfirmMatchJson;
+import com.bankrupted.tradein.model.json.user.CreateAddressJson;
+import com.bankrupted.tradein.model.json.user.RatingJson;
+import com.bankrupted.tradein.model.json.wish.CreateWishJson;
+import com.bankrupted.tradein.model.json.wish.ModifyWishJson;
 import com.bankrupted.tradein.model.temporaryItem.*;
 import com.bankrupted.tradein.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.bankrupted.tradein.repository.*;
 
-import java.lang.annotation.Target;
 import java.util.*;
 import java.sql.Timestamp;
-
-import static org.python.icu.text.PluralRules.Operand.t;
-import static org.python.icu.text.PluralRules.Operand.v;
 
 /**
  * Created by lykav on 2017/6/29.
@@ -86,7 +89,7 @@ public class UserController {
     public ResponseEntity<List<WishEntity>> getWishListPaged(
             @PathVariable("userId") int userId,
             @RequestParam(value = "offset",defaultValue = "0")Integer offset,
-            @RequestParam(value = "limit",defaultValue = "3")Integer limit) {
+            @RequestParam(value = "limit",defaultValue = "5")Integer limit) {
         UserEntity user=userService.getUserByIdAndFetchWishList(userId);
         if (user == null) {
             System.out.println("Cannot find User with id " + userId);
@@ -132,14 +135,14 @@ public class UserController {
     @RequestMapping(value = "/{userId}/wishlist", method = RequestMethod.POST)
     public ResponseEntity<WishEntity> addItemsToWishList(
             @PathVariable("userId") int userId,
-            @RequestBody WishJsonItem wishJsonItem) {
+            @RequestBody CreateWishJson createWishJson) {
 
         UserEntity user = userService.getUserById(userId);
         if (user == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game = gameRepo.findOne(wishJsonItem.getGameId());
+        GameEntity game = gameRepo.findOne(createWishJson.getGameId());
         if (game == null) return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
 
         Timestamp time=new Timestamp(System.currentTimeMillis());
@@ -148,7 +151,7 @@ public class UserController {
 
         //the game is not in the list
         if(wish==null){
-            WishEntity NewWish=wishService.saveWishInAdd(wishJsonItem,user,game,time);
+            WishEntity NewWish=wishService.saveWishInAdd(createWishJson,user,game,time);
             return new ResponseEntity<WishEntity>(NewWish,HttpStatus.OK);
         }
 
@@ -199,7 +202,7 @@ public class UserController {
     public ResponseEntity<Void> resetGamePointFromWishList(
             @PathVariable("gameid")long gameid,
             @PathVariable("userid")int userid,
-            @RequestBody ModifyWishJsonItem modifyItem){
+            @RequestBody ModifyWishJson modifyItem){
         System.out.println("modifying the points...");
 
         UserEntity user=userService.getUserById(userid);
@@ -225,10 +228,10 @@ public class UserController {
 
     //basic match in wishlist
     @RequestMapping(value="{userid}/wishlist/match/params",method=RequestMethod.POST)
-    public ResponseEntity<List<WishListMatchResultItem>> GetWishListManyToManyMatch(@RequestBody ManyToManyTradeJsonItem YouWantGames,
-                                                                                    @PathVariable("userid")int userid,
-                                                                                    @RequestParam(value = "page",defaultValue = "0")Integer page,
-                                                                                    @RequestParam(value = "size",defaultValue = "5")Integer size){
+    public ResponseEntity<List<BasicMatchResultItem>> GetWishListManyToManyMatch(@RequestBody BasicMatchJson YouWantGames,
+                                                                                 @PathVariable("userid")int userid,
+                                                                                 @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                                                 @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("match the games in wishlist");
 
         matchAssist assist=new matchAssist();
@@ -237,6 +240,7 @@ public class UserController {
 
         List<Long> YouWantGameList = assist.getGameIdList(YouWantGames.getYouWantGames());
 
+        //get the points that you want to offer to get the wish games
         int Wantsum=0;
         for(int i =0;i<YouWantGameList.size();i++){
             Wantsum+=wishService.getWishPointsByIdAndGame(userid,YouWantGameList.get(i));
@@ -247,18 +251,7 @@ public class UserController {
 
         //get the people who owns the game the customer want
         List<OfferEntity> OfferWantedGameList=offerService.findExceptById(userid);
-        Map<Integer,Integer> AvailablePersonMap = assist.getAvailablePerson(OfferWantedGameList,YouWantGameList);
-
-        //check whether the points is in range
-        List<Integer> targetUserId=new ArrayList<>();
-        Iterator<Map.Entry<Integer,Integer>> iter=AvailablePersonMap.entrySet().iterator();
-        while(iter.hasNext()){
-            Map.Entry<Integer,Integer> userPoints=iter.next();
-            int points=userPoints.getValue();
-            if(points>OfferRange.get(0)&&points<OfferRange.get(1)){
-                targetUserId.add(userPoints.getKey());
-            }
-        }
+        List<Integer> targetUserId=assist.getUsersOwnsWantingGames(OfferWantedGameList,YouWantGameList,OfferRange);
 
 
         List<OfferEntity> UserOffer=offerService.findByUserId(userid);
@@ -267,7 +260,7 @@ public class UserController {
             UserOfferPoints.put(UserOffer.get(i).getOfferEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
             System.out.println(UserOffer.get(i).getOfferEntityPK().getGame().getGameId());
         }
-        List<WishListMatchResultItem> result=new ArrayList<>();
+        List<BasicMatchResultItem> result=new ArrayList<>();
         for(int i =0 ;i<targetUserId.size();i++){
             int TargetUserId = targetUserId.get(i);
             Map<Long,Integer> TargetUserWishPoints=new HashMap<>();
@@ -277,23 +270,25 @@ public class UserController {
             }
             List<String> PotentialOfferGames=assist.getOfferGames(UserOfferPoints,TargetUserWishPoints,OfferRange.get(0),OfferRange.get(1));
 
+
+            //get the result to print
             Iterator<String> StringIter=PotentialOfferGames.iterator();
             while(StringIter.hasNext()){
                 String offerGame=StringIter.next();
-                WishListMatchResultItem resultItem = new WishListMatchResultItem();
+                BasicMatchResultItem resultItem = new BasicMatchResultItem();
                 resultItem.setTargetUserId(TargetUserId);
                 resultItem.setYouOfferGame(offerGame);
                 resultItem.setYouWantGame(YouWantGames.getYouWantGames());
                 result.add(resultItem);
             }
         }
-        return new ResponseEntity<List<WishListMatchResultItem>>(result,HttpStatus.OK);
+        return new ResponseEntity<List<BasicMatchResultItem>>(result,HttpStatus.OK);
     }
 
 
     //confirm the senior match
     @RequestMapping(value="{userid}/wishlist/match/confirm",method = RequestMethod.POST)
-    public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody MatchConfirmJsonItem matchInfo,
+    public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody BasicMatchConfirmJson matchInfo,
                                                          @PathVariable("userid")int userid){
         System.out.println("confirming the match...");
 
@@ -317,12 +312,14 @@ public class UserController {
 
         List<TradeGameEntity> tradeGameList=new ArrayList<>();
 
+        //set the TradeGames as sender
         for(int i = 0;i<youOfferGameIdList.size();i++){
             GameEntity game=gameRepo.findOne(youOfferGameIdList.get(i));
             TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game, TargetUser,orderid);
             tradeGameList.add(tradeGame);
         }
 
+        //set the tradeGames as receiver
         for(int i = 0;i<youWantGameIdList.size();i++){
             GameEntity game=gameRepo.findOne(youWantGameIdList.get(i));
             TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,TargetUser,orderid);
@@ -333,6 +330,75 @@ public class UserController {
         return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
     }
 
+
+    //senior match in wishlist
+    @RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
+    public ResponseEntity<List<SeniorMatchResultItem>> getTripleMatch(@PathVariable("userid")int userid,
+                                                          @RequestBody BasicMatchJson YouWantGames){
+        System.out.println("get senior matching...");
+
+        //check the user
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<List<SeniorMatchResultItem>>(HttpStatus.NOT_FOUND);
+        }
+
+        matchAssist assist=new matchAssist();
+
+        List<Long> YouWantGameList=assist.getGameIdList(YouWantGames.getYouWantGames());
+        int pointRange=YouWantGames.getPointRange();
+
+        //get the point range
+        int WantPoints=0;
+        for(int i =0;i<YouWantGameList.size();i++){
+            WantPoints+=wishService.getWishPointsByIdAndGame(userid,YouWantGameList.get(i));
+        }
+        List<Integer> OfferRange=new ArrayList<>();
+        OfferRange.add(WantPoints-pointRange);
+        OfferRange.add(WantPoints+pointRange);
+
+        List<SeniorMatchResultItem> seniorMatchResult=new ArrayList<>();
+
+
+        //get the people who owns the people user want
+        List<OfferEntity> OfferWantedGameList=offerService.findExceptById(userid);
+        //targetUser as UserA
+        List<Integer> targetUserId=assist.getUsersOwnsWantingGames(OfferWantedGameList,YouWantGameList,OfferRange);
+
+        List<OfferEntity> UserOffer=offerService.findByUserId(userid);
+        Map<Long,Integer> UserOfferPoints=new HashMap<>();
+        for(int i =0;i<UserOffer.size();i++){
+            UserOfferPoints.put(UserOffer.get(i).getOfferEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
+        }
+
+        //AllUser As UserB
+        List<Integer> AllUser=userService.getAllUserId();
+
+        for(int i = 0; i < targetUserId.size(); i++){
+            for(int j = 0; j < AllUser.size(); j++){
+                if(AllUser.get(j) != targetUserId.get(i)){
+                    Map<Long,Integer> UserAWishPoints=wishService.getGamePointsById(targetUserId.get(i));
+                    Map<Long,Integer> UserBWishPoints=wishService.getGamePointsById(AllUser.get(j));
+                    Map<Long,Integer> UserBOfferPoints=offerService.getGamePointsById(AllUser.get(j));
+                    List<String> ResultUserAAndUserB=assist.getOfferGames(UserBOfferPoints,UserAWishPoints,OfferRange.get(0),OfferRange.get(1));
+                    List<String> ResultUserBAndYou=assist.getOfferGames(UserOfferPoints,UserBWishPoints,OfferRange.get(0),OfferRange.get(1));
+                    for(int AToBSize=0;AToBSize<ResultUserAAndUserB.size();AToBSize++) {
+                        for (int YouToBSize = 0; YouToBSize < ResultUserBAndYou.size();YouToBSize++) {
+                            SeniorMatchResultItem ResultItem = new SeniorMatchResultItem();
+                            ResultItem.setUserAId(targetUserId.get(i));
+                            ResultItem.setUserBId(AllUser.get(j));
+                            ResultItem.setUserAOffer(YouWantGames.getYouWantGames());
+                            ResultItem.setUserBOffer(ResultUserAAndUserB.get(AToBSize));
+                            ResultItem.setYouOffer(ResultUserBAndYou.get(YouToBSize));
+                            seniorMatchResult.add(ResultItem);
+                        }
+                    }
+                }
+            }
+        }
+        return new ResponseEntity<List<SeniorMatchResultItem>>(seniorMatchResult,HttpStatus.OK);
+    }
 
     /*
                     OFFER CONTROLLER
@@ -390,7 +456,7 @@ public class UserController {
     //add offer game
     @RequestMapping(value="/{userId}/offerlist",method=RequestMethod.POST)
     public ResponseEntity<OfferEntity> addItemsToOfferList(@PathVariable("userId")int userid,
-        @RequestBody OfferJsonItem offerGame){
+        @RequestBody CreateOfferJson offerGame){
         System.out.println("add game...");
 
         UserEntity user=userService.getUserById(userid);
@@ -454,7 +520,7 @@ public class UserController {
     @RequestMapping(value="/{userId}/offerlist/{gameId}/modify",method=RequestMethod.PUT)
     public ResponseEntity<Void> modifyItemFromOfferList(@PathVariable("userId")int userid,
                                                         @PathVariable("gameId")long gameid,
-                                                        @RequestBody ModifyOfferJsonItem modifyPoints){
+                                                        @RequestBody ModifyOfferJson modifyPoints){
         System.out.println("modify the points...");
 
         UserEntity user=userService.getUserById(userid);
@@ -538,7 +604,7 @@ public class UserController {
 
     //Add more address
     @RequestMapping(value="/{userid}/address",method=RequestMethod.POST)
-    public ResponseEntity<AddressEntity> addAddress(@RequestBody createAddressJsonItem addressItem,
+    public ResponseEntity<AddressEntity> addAddress(@RequestBody CreateAddressJson addressItem,
                                                     @PathVariable("userid")int userid){
         System.out.println("creating new address");
 
@@ -557,7 +623,7 @@ public class UserController {
 
     //modify address
     @RequestMapping(value="/{userid}/address/{addressid}",method=RequestMethod.PUT)
-    public ResponseEntity<Void> modifyAddress(@RequestBody createAddressJsonItem addressItem,
+    public ResponseEntity<Void> modifyAddress(@RequestBody CreateAddressJson addressItem,
                                                        @PathVariable("userid")int userid,
                                                        @PathVariable("addressid")int addressid){
         System.out.println("modify the address...");
@@ -647,7 +713,7 @@ public class UserController {
 
     //confirm the match
     @RequestMapping(value="/{userid}/wishlist/{gameId}/match/confirm",method=RequestMethod.POST)
-    public ResponseEntity<TradeOrderEntity> confirmWishMatch(@RequestBody CreateOrderJsonItem orderItem,
+    public ResponseEntity<TradeOrderEntity> confirmWishMatch(@RequestBody ConfirmMatchJson orderItem,
                                                          @PathVariable("gameId")long gameid,
                                                          @PathVariable("userid")int userid){
 
@@ -762,7 +828,7 @@ public class UserController {
 
     //confirm the match in offer list
     @RequestMapping(value="/{userid}/offerlist/{gameid}/match/confirm",method=RequestMethod.POST)
-    public ResponseEntity<TradeOrderEntity> confirmOfferMatch(@RequestBody CreateOrderJsonItem orderItem,
+    public ResponseEntity<TradeOrderEntity> confirmOfferMatch(@RequestBody ConfirmMatchJson orderItem,
                                                               @PathVariable("gameid")long gameid,
                                                               @PathVariable("userid")int userid){
         UserEntity user=userService.getUserById(userid);
@@ -806,8 +872,8 @@ public class UserController {
     //fetch all orders (paged)
     @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
     public ResponseEntity<List<ShowOrderItem>> getAllOrdersPaged(@PathVariable("userid")int userid,
-                                                                 @RequestParam(value = "size",defaultValue = "5")Integer size,
-                                                                 @RequestParam(value = "page",defaultValue = "0")Integer page){
+                                                                 @RequestParam(value = "limit",defaultValue = "5")Integer limit,
+                                                                 @RequestParam(value = "offset",defaultValue = "0")Integer offset){
         System.out.println("fetch all orders");
 
         UserEntity user=userService.getUserById(userid);
@@ -839,8 +905,8 @@ public class UserController {
         }
 
         PagedListHolder<ShowOrderItem> pagedShowResult=new PagedListHolder<>(ShowResult);
-        pagedShowResult.setPageSize(size);
-        pagedShowResult.setPage(page);
+        pagedShowResult.setPageSize(limit);
+        pagedShowResult.setPage(offset/limit);
         return new ResponseEntity<List<ShowOrderItem>>(pagedShowResult.getPageList(),HttpStatus.OK);
     }
 
@@ -920,7 +986,7 @@ public class UserController {
     @RequestMapping(value="/{userid}/order/{orderid}/confirm",method=RequestMethod.PUT)
     public ResponseEntity<Void> confirmOrder(@PathVariable("userid")int userid,
                                              @PathVariable("orderid")int orderid,
-                                             @RequestBody ConfirmOrderJsonItem address){
+                                             @RequestBody com.bankrupted.tradein.model.json.offer.ConfirmMatchJson address){
         System.out.println("confirm the order...");
 
         UserEntity user=userService.getUserById(userid);
@@ -1015,4 +1081,32 @@ public class UserController {
         return new ResponseEntity<Integer>(rating,HttpStatus.OK);
     }
 
+    //rating
+    @RequestMapping(value="/{userid}/rating/{targetUserid}",method=RequestMethod.PUT)
+    public ResponseEntity<Void> rating(@PathVariable("userid")int userid,
+                                       @PathVariable("targetUserid")int targetUserid,
+                                       @RequestBody RatingJson points){
+        System.out.println("rating...");
+
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+
+        UserEntity TargetUser=userService.getUserById(targetUserid);
+        if(TargetUser==null){
+            System.out.println("can't find targetUser...");
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+
+        int ratingPoints=points.getRatingPoints();
+        if(ratingPoints>100 || ratingPoints<0){
+            System.out.println("invalid rating points...");
+            return new ResponseEntity<Void>(HttpStatus.PRECONDITION_FAILED);
+        }
+
+        customerService.UpdateRating(targetUserid,ratingPoints);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
 }

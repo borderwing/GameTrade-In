@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.order;
 
 /**
  * Created by homepppp on 2017/7/5.
  */
-public class CreateOrderJsonItem {
+public class ConfirmMatchJson {
     private long gameId;
     private int targetUserId;
     private int addressId;

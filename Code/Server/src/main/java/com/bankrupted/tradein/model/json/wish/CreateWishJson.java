@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.wish;
 
 /**
  * Created by lykav on 2017/6/30.
  */
-public class WishJsonItem {
+public class CreateWishJson {
     private long gameId;
     private int points;
 

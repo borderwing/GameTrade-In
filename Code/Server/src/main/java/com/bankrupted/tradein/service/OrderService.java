@@ -1,7 +1,7 @@
 package com.bankrupted.tradein.service;
 
 import com.bankrupted.tradein.model.*;
-import com.bankrupted.tradein.model.json.ConfirmOrderJsonItem;
+import com.bankrupted.tradein.model.json.offer.ConfirmMatchJson;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderGamesItem;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderItem;
 import com.bankrupted.tradein.repository.AddressRepository;
@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by homepppp on 2017/7/18.
@@ -129,7 +130,7 @@ public class OrderService {
         return ShowResult;
     }
 
-    public void confirmAsReceiver(TradeGameEntity tradeGame, ConfirmOrderJsonItem address,int orderid){
+    public void confirmAsReceiver(TradeGameEntity tradeGame, ConfirmMatchJson address, int orderid){
         int tradeGameId=tradeGame.getTradeGameId();
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmByReceiver(tradeGameId,Address);
@@ -139,7 +140,7 @@ public class OrderService {
         }
     }
 
-    public void confirmAsSender(TradeGameEntity tradeGame,ConfirmOrderJsonItem address,int orderid){
+    public void confirmAsSender(TradeGameEntity tradeGame, ConfirmMatchJson address, int orderid){
         int tradeGameId=tradeGame.getTradeGameId();
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmBySender(tradeGameId,Address);
@@ -205,4 +206,5 @@ public class OrderService {
 
         return tradeGameTwo;
     }
+
 }

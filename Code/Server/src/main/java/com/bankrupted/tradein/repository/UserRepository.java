@@ -33,4 +33,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Integer> {
     @Query("select max(p.userId) from UserEntity p")
     int getMaxId();
 
+    @Query("select p.userId from UserEntity p")
+    List<Integer> getAllUserId();
 }

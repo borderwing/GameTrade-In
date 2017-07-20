@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.offer;
 
 /**
  * Created by homepppp on 2017/7/4.
  */
-public class OfferJsonItem {
+public class CreateOfferJson {
     private long gameId;
     private int points;
 
