@@ -29,6 +29,10 @@ public class OrderService {
     @Autowired
     AddressRepository addressRepo;
 
+    public List<TradeOrderEntity> getALlTradeOrder(){
+        return tradeOrderRepo.findAll();
+    }
+
     public TradeOrderEntity getTradeOrderById(int orderid){
         return tradeOrderRepo.findOne(orderid);
     }
@@ -178,33 +182,47 @@ public class OrderService {
     }
 
     public TradeGameEntity setSenderTradeGame(AddressEntity address, UserEntity user, GameEntity sendGame,UserEntity targetUser,int orderId){
-        TradeGameEntity tradeGameOne=new TradeGameEntity();
-        tradeGameOne.setFromAddress(address);
-        tradeGameOne.setSender(user);
-        tradeGameOne.setGame(sendGame);
-        tradeGameOne.setReceiver(targetUser);
-        tradeGameOne.setSenderStatus(0);
-        tradeGameOne.setReceiverStatus(1);
-        tradeGameOne.setStatus(1);
-        tradeGameOne.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameRepo.saveAndFlush(tradeGameOne);
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setFromAddress(address);
+        tradeGame.setSender(user);
+        tradeGame.setGame(sendGame);
+        tradeGame.setReceiver(targetUser);
+        tradeGame.setSenderStatus(0);
+        tradeGame.setReceiverStatus(1);
+        tradeGame.setStatus(1);
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGameRepo.saveAndFlush(tradeGame);
 
-        return tradeGameOne;
+        return tradeGame;
     }
 
     public TradeGameEntity setReceiverTradeGame(AddressEntity address,UserEntity user,GameEntity receiveGame,UserEntity targetUser,int orderId){
-        TradeGameEntity tradeGameTwo=new TradeGameEntity();
-        tradeGameTwo.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameTwo.setStatus(1);
-        tradeGameTwo.setReceiverStatus(0);
-        tradeGameTwo.setSenderStatus(1);
-        tradeGameTwo.setReceiver(user);
-        tradeGameTwo.setSender(targetUser);
-        tradeGameTwo.setGame(receiveGame);
-        tradeGameTwo.setToAddress(address);
-        tradeGameRepo.saveAndFlush(tradeGameTwo);
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGame.setStatus(1);
+        tradeGame.setReceiverStatus(0);
+        tradeGame.setSenderStatus(1);
+        tradeGame.setReceiver(user);
+        tradeGame.setSender(targetUser);
+        tradeGame.setGame(receiveGame);
+        tradeGame.setToAddress(address);
+        tradeGameRepo.saveAndFlush(tradeGame);
 
-        return tradeGameTwo;
+        return tradeGame;
+    }
+
+    public TradeGameEntity setUnconfirmTradeGame(GameEntity game,UserEntity OfferUser,UserEntity ReceiveUser,int orderId){
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGame.setStatus(2);
+        tradeGame.setSender(OfferUser);
+        tradeGame.setSenderStatus(1);
+        tradeGame.setReceiver(ReceiveUser);
+        tradeGame.setReceiverStatus(1);
+        tradeGame.setGame(game);
+        tradeGameRepo.saveAndFlush(tradeGame);
+
+        return tradeGame;
     }
 
 }

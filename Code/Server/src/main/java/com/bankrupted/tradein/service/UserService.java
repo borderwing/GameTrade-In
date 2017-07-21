@@ -52,4 +52,8 @@ public class UserService {
     public UserEntity getUserByUsername(String username){
         return userRepo.findByUsername(username);
     }
+
+    public List<UserEntity> getAllUser(){
+        return userRepo.findAll();
+    }
 }

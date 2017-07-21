@@ -123,4 +123,8 @@ public class WishService {
         }
         return UserOfferPoints;
     }
+
+    public List<Object[]> getPotentialChanges(){
+        return wishRepo.getPotientialChanges();
+    }
 }

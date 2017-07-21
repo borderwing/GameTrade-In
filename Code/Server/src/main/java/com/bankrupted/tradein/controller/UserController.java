@@ -7,6 +7,7 @@ import com.bankrupted.tradein.model.json.offer.ModifyOfferJson;
 import com.bankrupted.tradein.model.json.order.BasicMatchConfirmJson;
 import com.bankrupted.tradein.model.json.order.BasicMatchJson;
 import com.bankrupted.tradein.model.json.order.ConfirmMatchJson;
+import com.bankrupted.tradein.model.json.order.SeniorMatchConfirmJson;
 import com.bankrupted.tradein.model.json.user.CreateAddressJson;
 import com.bankrupted.tradein.model.json.user.RatingJson;
 import com.bankrupted.tradein.model.json.wish.CreateWishJson;
@@ -18,6 +19,7 @@ import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 import com.bankrupted.tradein.repository.*;
 
@@ -288,7 +290,7 @@ public class UserController {
     }
 
 
-    //confirm the senior match
+    //confirm basic match
     @RequestMapping(value="{userid}/wishlist/match/confirm",method = RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody BasicMatchConfirmJson matchInfo,
                                                          @PathVariable("userid")int userid){
@@ -402,6 +404,71 @@ public class UserController {
         return new ResponseEntity<List<SeniorMatchResultItem>>(seniorMatchResult,HttpStatus.OK);
     }
 
+    //confirm senior match
+    @RequestMapping(value="{userid}/wishlist/match/senior/confirm",method = RequestMethod.POST)
+    public ResponseEntity<TradeOrderEntity> confirmSeniorMatch(@PathVariable("userid")int userid,
+                                                               @RequestBody SeniorMatchConfirmJson matchInfo){
+        System.out.println("confirm the match");
+
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        UserEntity userA=userService.getUserById(matchInfo.getUserAId());
+        if(userA==null){
+            System.out.println("can't find userA...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        UserEntity userB=userService.getUserById(matchInfo.getUserBId());
+        if(userB==null){
+            System.out.println("can't find userB...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
+        }
+
+        matchAssist assist=new matchAssist();
+
+        List<Long> YouOfferList=assist.getGameIdList(matchInfo.getYouOffer());
+        List<Long> UserAOfferList=assist.getGameIdList(matchInfo.getUserAOffer());
+        List<Long> UserBOfferList=assist.getGameIdList(matchInfo.getUserBOffer());
+
+        //create tradeOrder
+        Timestamp time=new Timestamp(System.currentTimeMillis());
+        int orderid=orderService.getNewOrderId();
+        TradeOrderEntity tradeOrder=new TradeOrderEntity();
+        tradeOrder=orderService.saveTradeOrder(tradeOrder,time,(YouOfferList.size()+ UserAOfferList.size()+UserBOfferList.size()),orderid);
+
+        AddressEntity address=addressService.getAddressById(matchInfo.getAddresssId());
+
+        List<TradeGameEntity> tradeGameList=new ArrayList<>();
+
+        //set the tradeGames as sender
+        for(int i = 0;i<YouOfferList.size();i++){
+            GameEntity game=gameService.fetchOneGame(YouOfferList.get(i));
+            TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game,userB,orderid);
+            tradeGameList.add(tradeGame);
+        }
+
+        //set the tradeGames as receiver
+        for(int i = 0;i<UserAOfferList.size();i++){
+            GameEntity game=gameService.fetchOneGame(UserAOfferList.get(i));
+            TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,userA,orderid);
+            tradeGameList.add(tradeGame);
+        }
+
+        //set other tradeGames
+        for(int i =0;i<UserBOfferList.size();i++){
+            GameEntity game=gameService.fetchOneGame(UserBOfferList.get(i));
+            TradeGameEntity tradeGame=orderService.setUnconfirmTradeGame(game,userB,userA,orderid);
+            tradeGameList.add(tradeGame);
+        }
+
+        tradeOrder.setTradeGames(tradeGameList);
+
+        return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
+    }
     /*
                     OFFER CONTROLLER
     */

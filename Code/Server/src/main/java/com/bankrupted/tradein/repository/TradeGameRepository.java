@@ -20,10 +20,6 @@ public interface TradeGameRepository extends JpaRepository<TradeGameEntity,Integ
     @Query("select max(p.tradeGameId) from TradeGameEntity p")
     int getMaxId();
 
-    @Query("select p from TradeGameEntity p")
-    List<TradeGameEntity> findAllTradeGame();
-
-
     @Query("select p from TradeGameEntity p where p.tradeOrder.tradeOrderId=:orderid")
     List<TradeGameEntity> findByOrderId(@Param("orderid")int orderid);
 
