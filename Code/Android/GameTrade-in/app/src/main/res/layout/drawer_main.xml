@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:id = "@+id/drawer_main"
     android:background="#ccc"
+    android:clickable="true"
     >
 
     <fragment
@@ -44,7 +45,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/menuMyShare"
+            android:id="@+id/menuMyOfferList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/menuMyList"
@@ -63,29 +64,29 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/menuMyOrder"
+            android:id="@+id/menuMyAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/menuMyShare"
+            android:layout_below="@id/menuMyOfferList"
             android:layout_marginTop="30dp">
             <ImageView
                 android:layout_height="30dp"
                 android:layout_width="30dp"
                 android:src = "@drawable/gameicon"/>
-            <TextView
-                android:layout_width="match_parent"
+            <Button
+                android:id = "@+id/menuMyAddressButton"
+                android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:gravity="center_vertical"
                 android:layout_marginLeft="20dp"
-                android:text="My Order"
-                android:textSize="16sp" />
+                android:text="My address"
+                android:textSize="8sp" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/menuMyOrder"
+            android:layout_below="@id/menuMyAddress"
             android:layout_marginTop="30dp">
             <ImageView
                 android:layout_height="30dp"

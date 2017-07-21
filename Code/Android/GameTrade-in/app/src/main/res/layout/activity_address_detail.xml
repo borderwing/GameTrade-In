@@ -3,36 +3,53 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:id = "@+id/registerDetail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id = "@+id/registerPhoto"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/addressDetailToolBar"
+            android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/userlauncher"
-            android:layout_marginTop="40dp"
-            android:contentDescription="@string/app_name">
-        </ImageView>
+            android:background="?attr/colorPrimary"
+            >
+            <TextView
+                android:id = "@+id/myAddressToolBarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Address Detail"
+                />
+        </android.support.v7.widget.Toolbar>
+
+
+
+
+
+
+
+    <RelativeLayout
+        android:id = "@+id/addressDetail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/addressDetailToolBar">
+
+
         <EditText
-            android:id = "@+id/registerName"
+            android:id = "@+id/addressDetailReceiver"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
-            android:layout_below="@id/registerPhoto"
+            android:hint="Receiver"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="30dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp">
         </EditText>
         <EditText
-            android:id = "@+id/registerEmail"
+            android:id = "@+id/addressDetailPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
-            android:layout_below="@id/registerName"
+            android:hint="Phone"
+            android:layout_below="@id/addressDetailReceiver"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
@@ -40,22 +57,22 @@
             >
         </EditText>
         <EditText
-            android:id = "@+id/registerPhNum"
+            android:id = "@+id/addressDetailAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Phone"
-            android:layout_below="@id/registerEmail"
+            android:hint="Address"
+            android:layout_below="@id/addressDetailPhone"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp">
         </EditText>
         <EditText
-            android:id = "@+id/registerPassword"
+            android:id = "@+id/addressDetailRegion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Password"
-            android:layout_below="@id/registerPhNum"
+            android:hint="Region"
+            android:layout_below="@id/addressDetailAddress"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp"
@@ -66,14 +83,14 @@
     </RelativeLayout>
 
     <Button
-        android:id = "@+id/registerButton"
+        android:id = "@+id/addressOperationButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/registerDetail"
+        android:layout_below="@id/addressDetail"
         android:layout_centerHorizontal="true"
         android:textColor="@color/colorPrimary"
         android:textAllCaps="false"
-        android:text="Register"
+        android:text="Add Address"
         android:layout_marginTop="40dp">
     </Button>
 

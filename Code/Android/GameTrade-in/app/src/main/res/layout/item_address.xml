@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--item -->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/itemAddressIdAddress">
+    <TextView
+        android:id="@+id/itemAddressDetailAddressId"
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_alignParentLeft="true"
+         />
+
+    <!-- Address -->
+    <TextView
+        android:id="@+id/itemAddressDetailAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/itemAddressDetailAddressId"
+        />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/itemAddressIdAddress">
+    <!-- Region -->
+    <TextView
+        android:id="@+id/itemAddressDetailRegion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_alignParentLeft="true"
+         />
+        <!-- Receiver -->
+        <TextView
+            android:id="@+id/itemAddressDetailReceiver"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/itemAddressDetailRegion"
+            />
+        <!-- Phone -->
+        <TextView
+            android:id="@+id/itemAddressDetailPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/itemAddressDetailReceiver"
+            />
+    </RelativeLayout>
+
+    <Button
+        android:id = "@+id/itemAddressOperationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="modify"
+        android:layout_alignParentRight="true"
+        android:visibility="gone"/>
+
+</RelativeLayout>

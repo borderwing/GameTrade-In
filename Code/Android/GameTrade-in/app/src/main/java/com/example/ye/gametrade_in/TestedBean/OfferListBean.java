@@ -1,4 +1,4 @@
-package com.example.ye.gametrade_in;
+package com.example.ye.gametrade_in.TestedBean;
 
 /**
  * Created by ye on 2017/7/7.

@@ -1,8 +1,11 @@
 package com.example.ye.gametrade_in;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -13,43 +16,83 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.ye.gametrade_in.Bean.BitmapBean;
+
 public class GameDetailActivity extends AppCompatActivity {
 
     private ImageButton homebutton;
-    private String gameId,userId;
+    private String gameId, userId, operation, wishPoints, offerPoints;
+    private String igdbId;
     GameTradeInApplication gameTradeInApplication;
+    BitmapBean bitmapBean;
+    Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_gamedetail);
+            gameTradeInApplication = (GameTradeInApplication) getApplication();
 
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_gamedetail);
-        gameTradeInApplication =(GameTradeInApplication) getApplication();
-        Intent intent = getIntent();
-        gameId = intent.getStringExtra("gameId");
-        gameTradeInApplication.GetLoginUser();
+            Intent intent = getIntent();
+            gameId = intent.getStringExtra("gameId");
+            igdbId = intent.getStringExtra("igdbId");
+            operation = intent.getStringExtra("operation");
 
-        userId = String.valueOf(gameTradeInApplication.GetLoginUser().getUserId());
-        //userId = intent.getStringExtra("userId");
+            bitmap = intent.getParcelableExtra("gameBitmap");
 
-        // Build a new fragment and set variable to its bundle
-        FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
-        android.app.FragmentManager manager = getFragmentManager();
-        android.app.FragmentTransaction transaction =manager.beginTransaction();
-        Bundle bundle = new Bundle();
-        bundle.putString("gameId", gameId);
-        bundle.putString("userId", userId);
-        fragmentGameDetail.setArguments(bundle);
-        transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
-        transaction.commit();
+            /*try {
+                // Bundle receiver =() intent.getExtras();
+                Bundle receiverBundle = intent.getBundleExtra("transBundle");
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
-        setSupportActionBar(toolbar);
-        toolbar.inflateMenu(R.menu.toolbar);
+                bitmapBean = (BitmapBean) receiverBundle.getSerializable("gameBitmapBean");
+            } catch (Exception exc) {
+                showDialog(exc.toString());
+            }*/
+            // wishPoints = intent.getStringExtra("wishPoints");
+            // offerPoints = intent.getStringExtra("offerPoints");
+            gameTradeInApplication.GetLoginUser();
 
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
-        homebutton = (ImageButton) findViewById(R.id.homeButton);
-        homebutton.setOnClickListener(onHomeButtonListener);
+            userId = String.valueOf(gameTradeInApplication.GetLoginUser().getUserId());
+
+            // Build a new fragment and set variable to its bundle
+            FragmentGameDetail fragmentGameDetail = new FragmentGameDetail();
+            android.app.FragmentManager manager = getFragmentManager();
+            android.app.FragmentTransaction transaction = manager.beginTransaction();
+            Bundle bundle = new Bundle();
+            bundle.putString("igdbId", igdbId);
+            bundle.putString("gameId", gameId);
+            bundle.putString("userId", userId);
+            bundle.putString("operation", operation);
+            try {
+                // bundle.putSerializable("bitmapBean", bitmapBean);
+                bundle.putParcelable("bitmap", bitmap);
+            } catch (Exception exc) {
+                showDialog(exc.toString());
+            }
+            //bundle.putString("wishPoints", wishPoints);
+            //bundle.putString("offerPoints", offerPoints);
+
+            fragmentGameDetail.setArguments(bundle);
+            transaction.add(R.id.layoutGameDetail, fragmentGameDetail);
+            transaction.commit();
+
+            Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            toolbar.inflateMenu(R.menu.toolbar);
+            toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+            getSupportActionBar().setDisplayShowHomeEnabled(false);
+            toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
     }
 
         private View.OnClickListener onHomeButtonListener = new View.OnClickListener() {
@@ -62,6 +105,8 @@ public class GameDetailActivity extends AppCompatActivity {
             GameDetailActivity.this.finish();
             }
         };
+
+
 
 
     @Override
@@ -99,4 +144,19 @@ public class GameDetailActivity extends AppCompatActivity {
             return true;
         }
     };
+
+
+    /*****************************************************************************************/
+    /* Helper function */
+
+    private void showDialog(String msg){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener(){
+            @Override
+            public void onClick(DialogInterface dialog, int id){
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
 }

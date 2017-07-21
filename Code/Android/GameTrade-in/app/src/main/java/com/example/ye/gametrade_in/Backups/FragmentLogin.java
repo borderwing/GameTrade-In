@@ -1,4 +1,4 @@
-package com.example.ye.gametrade_in;
+package com.example.ye.gametrade_in.Backups;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
@@ -10,6 +10,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.example.ye.gametrade_in.GameTradeInApplication;
+import com.example.ye.gametrade_in.R;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.OutputStream;
@@ -18,11 +22,14 @@ import java.net.URL;
 
 public class FragmentLogin extends Fragment{
 
+    String serverUrl;
     private Button login;
     private EditText userName, userPassword;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
+        GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
     @Override
@@ -98,7 +105,7 @@ public class FragmentLogin extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/login/";
+                urlStr = serverUrl + "api/login/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 

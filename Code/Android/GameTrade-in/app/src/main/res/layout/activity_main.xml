@@ -7,6 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     >
+    <android.support.v4.view.ViewPager
+        android:paddingTop="250dip"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:id="@+id/myViewpager"
+        android:layout_weight="7"
+        android:clickable="true"
+        android:focusable="true"
+        />
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -32,18 +41,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/toolBar"
-        android:columnWidth="80dp"
-        android:numColumns="auto_fit"
+        android:columnWidth="90dp"
+        android:verticalSpacing="10dp"
+        android:horizontalSpacing="10dp"
+        android:numColumns="2"
         android:stretchMode="columnWidth"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="80dp"
          />
 
     </RelativeLayout>
 
     <include
-            layout = "@layout/drawer_main"
-            android:layout_width="260dp"
-            android:layout_height="match_parent"
-            android:layout_gravity = "start"
-            />
+        layout = "@layout/drawer_main"
+        android:layout_width="260dp"
+        android:layout_height="match_parent"
+        android:layout_gravity = "start"
+        />
 
 </android.support.v4.widget.DrawerLayout>

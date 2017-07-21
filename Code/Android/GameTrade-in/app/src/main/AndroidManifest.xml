@@ -47,6 +47,18 @@
             android:label="">
         </activity>
 
+        <activity android:name=".MatchActivity"
+            android:label="">
+        </activity>
+
+        <activity android:name=".AddressActivity"
+            android:label="">
+        </activity>
+
+        <activity android:name=".AddressOperationActivity"
+            android:label="">
+        </activity>
+
     </application>
 
 </manifest>
