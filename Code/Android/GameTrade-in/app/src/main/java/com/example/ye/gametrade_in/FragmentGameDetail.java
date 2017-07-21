@@ -9,16 +9,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameBean;
+import com.example.ye.gametrade_in.Bean.GameDetailBean;
+import com.example.ye.gametrade_in.Bean.GameReleaseJson;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
 
@@ -31,10 +38,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FragmentGameDetail extends Fragment{
 
-    TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView;
+    TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView, gamePopularity;
+    Spinner platformSpinner, regionSpinner;
     EditText addToListEdit;
     String gameTitle, gameText, operation, credits;
     Integer addToListPoints;
@@ -47,14 +57,28 @@ public class FragmentGameDetail extends Fragment{
     public GameTradeInApplication gameTradeInApplication;
     BitmapBean bitmapBean;
     Bitmap bitmap;
+    ArrayAdapter <String> platformAdapter;
+    ArrayAdapter <String> regionAdapter;
+    List<String> platformList;
+    List<String> regionList;
+    List<Integer> platformIdList;
+    List<Integer> regionIdList;
+    Integer selectedPlatformId, selectedRegionId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
+        platformList = new ArrayList<String>();
+        regionList = new ArrayList<String>();
+        platformIdList = new ArrayList<Integer>();
+        regionIdList = new ArrayList<Integer>();
+
         gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
         authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
         Bundle bundle = getArguments();
+
         gameDetailId = bundle.getString("igdbId");
+
         userId = bundle.getString("userId");
         operation = bundle.getString("operation");
         try {
@@ -74,6 +98,23 @@ public class FragmentGameDetail extends Fragment{
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        GameDetailTask gameDetailTask = new GameDetailTask();
+
+        gameTitleView = (TextView) getView().findViewById(R.id.gameTitle);
+        gameTextView = (TextView) getView().findViewById(R.id.gameText);
+        gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
+        addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
+        gamePopularity = (TextView) getView().findViewById(R.id.popularityText);
+
+        gameTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        try{
+            String test = gameDetailTask.execute(gameDetailId).get();
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
+
         try {
             ImageView gameImageView = (ImageView) getView().findViewById(R.id.gameImage);
             gameImageView.setImageBitmap(bitmap);
@@ -81,14 +122,12 @@ public class FragmentGameDetail extends Fragment{
         catch (Exception exc){
             showDialog(exc.toString());
         }
-        gameTitleView = (TextView) getView().findViewById(R.id.gameTitle);
-        gameTextView = (TextView) getView().findViewById(R.id.gameText);
-        gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
-        addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
 
-        gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
+
+
+        /*gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
         gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
-        gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);
+        gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);*/
 
         addToWishList = (Button) getView().findViewById(R.id.addToListButton);
         addToWishList.setOnClickListener(onAddToWishListListener);
@@ -106,6 +145,39 @@ public class FragmentGameDetail extends Fragment{
             case "browse":
                 matchButton.setVisibility(View.GONE);
                 modifyButton.setVisibility(View.GONE);
+
+                platformSpinner = (Spinner) getView().findViewById(R.id.categoryPlatformSpinner);
+                platformSpinner.setPrompt("Choose platform");
+                platformAdapter = new ArrayAdapter<String>(this.getActivity() , R.layout.support_simple_spinner_dropdown_item, platformList);
+                platformSpinner.setAdapter(platformAdapter);
+                platformSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    public void onItemSelected(AdapterView<?> parent, View view,
+                                               int position, long id) {
+                        Toast.makeText(getActivity(),"Your choice："+platformList.get(position)+platformIdList.get(position), Toast.LENGTH_SHORT).show();
+                        selectedPlatformId = platformIdList.get(position);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        selectedPlatformId = platformIdList.get(0);
+                    }
+                });
+                regionSpinner = (Spinner) getView().findViewById(R.id.categoryRegionSpinner);
+                regionSpinner.setPrompt("Choose region");
+                regionAdapter = new ArrayAdapter<String>(this.getActivity() , R.layout.support_simple_spinner_dropdown_item, regionList);
+                regionSpinner.setAdapter(regionAdapter);
+                regionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    public void onItemSelected(AdapterView<?> parent, View view,
+                                               int position, long id) {
+                        Toast.makeText(getActivity(),"Your choice："+regionList.get(position)+regionIdList.get(position), Toast.LENGTH_SHORT).show();
+                        selectedRegionId = regionIdList.get(position);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                        selectedRegionId = regionIdList.get(0);
+                    }
+                });
                 break;
             case "wishList":
                 addToWishList.setVisibility(View.GONE);
@@ -119,8 +191,8 @@ public class FragmentGameDetail extends Fragment{
             default:
                 break;
         }
-        new GameDetailTask().execute(gameDetailId);
     }
+
 
 
 
@@ -194,7 +266,7 @@ public class FragmentGameDetail extends Fragment{
                 canAddToWish = false;
             }
             if (canAddToWish) {
-                AddToList(Integer.valueOf(gameDetailId), addToListPoints);
+                AddToList(Integer.valueOf(gameDetailId), selectedPlatformId, selectedRegionId, addToListPoints);
             }
         }
     };
@@ -212,7 +284,7 @@ public class FragmentGameDetail extends Fragment{
                 canAddToOffer = false;
             }
             if (canAddToOffer) {
-                AddToOfferList(Integer.valueOf(gameDetailId), addToListPoints);
+                AddToOfferList(Integer.valueOf(gameDetailId), selectedPlatformId, selectedRegionId, addToListPoints);
             }
         }
     };
@@ -222,7 +294,7 @@ public class FragmentGameDetail extends Fragment{
     /* Function for json */
 
 
-    private JSONObject formatJSON(Integer gameId, Integer wishPoints) {
+    private JSONObject formatJSON(Integer igdbId, Integer platformId, Integer regionId, Integer wishPoints) {
         final JSONObject root = new JSONObject();
         try {
             // JSON
@@ -230,7 +302,9 @@ public class FragmentGameDetail extends Fragment{
             //     "gameId": gameId,
             //     "points": wishPoints
             // }
-            root.put("gameId", gameId);
+            root.put("igdbId", igdbId);
+            root.put("platformId", platformId);
+            root.put("regionId", regionId);
             root.put("points", wishPoints);
             return root;
         } catch (JSONException exc) {
@@ -263,7 +337,7 @@ public class FragmentGameDetail extends Fragment{
     private class GameDetailTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
-        public GameBean game;
+        public GameDetailBean gameDetail;
         public MyListBean myList;
         public Boolean finish = false;
         @Override
@@ -273,31 +347,28 @@ public class FragmentGameDetail extends Fragment{
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-
                 Uri.Builder builder = new Uri.Builder();
                 builder.appendPath("api")
-                        .appendPath("game");
-
+                        .appendPath("game")
+                        .appendPath("");
                 urlStr = serverUrl + builder.build().toString()+ gameDetailId;
-
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
-
+                // urlConn.setRequestProperty("Authorization", authorizedHeader);
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 responseCode = urlConn.getResponseCode();
                 JSONProcessor jsonProcessor = new JSONProcessor();
-                game = jsonProcessor.GetGameBean(reader.readLine());
+                gameDetail = jsonProcessor.GetGameDetailSingleBean(reader.readLine());
+
                 switch (operation) {
                     case "wishList":
                         urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId;
                         url = new URL(urlStr);
                         urlConn = (HttpURLConnection) url.openConnection();
-
                         urlConn.setRequestProperty("Authorization", authorizedHeader);
-
                         urlConn.setRequestMethod("GET");
                         urlConn.connect();
                         in = urlConn.getInputStream();
@@ -311,6 +382,7 @@ public class FragmentGameDetail extends Fragment{
                         urlStr = serverUrl+"api/user/" + userId + "/offerlist/" + gameDetailId;
                         url = new URL(urlStr);
                         urlConn = (HttpURLConnection) url.openConnection();
+                        urlConn.setRequestProperty("Authorization", authorizedHeader);
                         urlConn.setRequestMethod("GET");
                         urlConn.connect();
                         in = urlConn.getInputStream();
@@ -321,11 +393,20 @@ public class FragmentGameDetail extends Fragment{
                         credits = String.valueOf(myList.getPoints());
                         break;
                     case "browse":
-                        credits = String.valueOf(game.evaluatePoint);
+                        credits = "0";
                         break;
                     default:
                         break;
                 }
+
+                List<GameReleaseJson> gameReleaseJsons = gameDetail.getReleases();
+                for (int p = 0; p < gameReleaseJsons.size(); p++) {
+                    platformList.add(gameReleaseJsons.get(p).getPlatform());
+                    platformIdList.add(gameReleaseJsons.get(p).getPlatformId());
+                    regionList.add(gameReleaseJsons.get(p).getRegion());
+                    regionIdList.add(gameReleaseJsons.get(p).getRegionId());
+                }
+                setGameDetail(gameDetail.getTitle(), String.valueOf(((int) gameDetail.getPopularity())), gameDetail.getSummary());
                 finish = true;
             } catch (Exception exc) {
                 exc.printStackTrace();
@@ -338,18 +419,25 @@ public class FragmentGameDetail extends Fragment{
         }
         @Override
         protected void onPostExecute(String result) {
-            // setGameDetail(game.title, game.platform, game.language, game.genre, credits);
+            try {
+
+            }
+            catch (Exception exc){
+                showDialog(exc.toString());
+            }
             super.onPostExecute(result);
         }
     }
 
 
-    private void setGameDetail(String title, String platform, String language, String genre, String credits) {
+    private void setGameDetail(String title, String popularity, String text/*String language, String genre, String credits*/) {
         gameTitleView.setText(title);
-        gameCategoryPlatform.setText(platform);
-        gameCategoryLanguage.setText(language);
-        gameCategoryGenre.setText(genre);
-        gameCreditView.setText(credits);
+        gamePopularity.setText(popularity);
+        gameTextView.setText(text);
+        //gameCategoryPlatform.setText(platform);
+        //gameCategoryLanguage.setText(language);
+        //gameCategoryGenre.setText(genre);
+        //gameCreditView.setText(credits);
     }
 
 
@@ -362,15 +450,25 @@ public class FragmentGameDetail extends Fragment{
         private String status, urlStr;
         private JSONObject postJson;
         private int responseCode = -1;
+
         @Override
         protected void onPreExecute() {
         }
+
         @Override
         protected String doInBackground(JSONObject... params) {
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + userId + "/wishlist/";
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath(userId)
+                        .appendPath("wishlist");
+                urlStr = serverUrl +builder.build().toString();
+
+                // urlStr = serverUrl + "api/user/" + userId + "/wishlist/";
+
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);
@@ -391,6 +489,8 @@ public class FragmentGameDetail extends Fragment{
                     status = "Your wish list includes this game";
                 } else if (responseCode == 404) {
                     status = "Connection problem, check connect and login";
+                }else if(responseCode == 401){
+                    status = "Please log in";
                 }
                 else{
                     status = "Connection problem, check connect and login";
@@ -413,8 +513,8 @@ public class FragmentGameDetail extends Fragment{
     }
 
 
-    private void AddToList(Integer gameId, Integer wishPoints) {
-        final JSONObject postJson = formatJSON(gameId, wishPoints);
+    private void AddToList(Integer gameId, Integer platformId, Integer regionId, Integer wishPoints) {
+        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
         new FragmentGameDetail.AddToListTask().execute(postJson);
     }
 
@@ -436,7 +536,12 @@ public class FragmentGameDetail extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + userId + "/offerlist/";
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath(userId)
+                        .appendPath("offerlist");
+                urlStr = serverUrl +builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
@@ -485,8 +590,8 @@ public class FragmentGameDetail extends Fragment{
     }
 
 
-    private void AddToOfferList(Integer gameId, Integer wishPoints) {
-        final JSONObject postJson = formatJSON(gameId, wishPoints);
+    private void AddToOfferList(Integer gameId, Integer platformId, Integer regionId,Integer wishPoints) {
+        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
         new FragmentGameDetail.AddToOfferListTask().execute(postJson);
     }
 
