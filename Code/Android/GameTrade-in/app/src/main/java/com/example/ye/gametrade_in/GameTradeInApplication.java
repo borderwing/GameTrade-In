@@ -15,10 +15,18 @@ public class GameTradeInApplication extends Application {
 
     public String  serverUrl = "http://192.168.1.27:8080/";
 
+    public int limit = 4;
+
     private UserBean loginUser = new UserBean();
     private UserAuthenticationBean userAuthenticationBean = new UserAuthenticationBean();
 
+    public int getLimit() {
+        return limit;
+    }
 
+    public void setLimit(int limit) {
+        this.limit = limit;
+    }
 
     public String getServerUrl() {
         return serverUrl;

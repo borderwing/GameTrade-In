@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
@@ -40,6 +42,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity {
@@ -49,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
     public TextView menuUserName;
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton, menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
     public GameTradeInApplication gameTradeInApplication;
+    int limit;
     String serverUrl;
     GameTileBean[] gameTileBeanList;
-    BitmapBean[] bitmapBeanList = new BitmapBean[10];
+    BitmapBean[] bitmapBeanList;
     boolean finish;
     WorkCounter workCounter = new WorkCounter();
+
+    private static final int THREAD_NUM = 2;
+    private static CountDownLatch countDownLatch = null;
 
     private Notification notification;
     private NotificationManager notificationManager;
@@ -66,15 +73,20 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        for(int p = 0; p < 10; ++p){
+        gameTradeInApplication = (GameTradeInApplication) getApplication();
+        serverUrl = gameTradeInApplication.getServerUrl();
+        limit = gameTradeInApplication.getLimit();
+
+        bitmapBeanList = new BitmapBean[limit];
+
+        for(int p = 0; p < limit; ++p){
             bitmapBeanList[p] = new BitmapBean();
         }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        gameTradeInApplication = (GameTradeInApplication) getApplication();
-        serverUrl = gameTradeInApplication.getServerUrl();
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
@@ -97,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         notification = builder.build();
         notificationManager.notify(i, notification);
 
-        workCounter.setRunningTasks(10);
+        // workCounter.setRunningTasks(10);
 
         GetGameTileDetail();
 
@@ -108,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         // Grid View
         GridView gameGridView = (GridView) findViewById(R.id.gameGridView);
         ArrayList<HashMap<String, Object>> ListImageItem = new ArrayList<HashMap<String, Object>>();
-        for(i = 0; i < 10; i++){
+        for(i = 0; i < limit; i++){
             HashMap<String, Object> map = new HashMap<String, Object>();
             try {
                 map.put("gameItemImage", bitmapBeanList[i].getBitmap());
@@ -215,8 +227,9 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
             Intent intent;
             intent = new Intent();
-            intent.putExtra("gameId", String.valueOf(arg2+1));
+            intent.putExtra("igdbId", gameTileBeanList[arg2].getIgdbId());
             intent.putExtra("operation", "browse");
+            intent.putExtra("gameBitmap",(Bitmap) bitmapBeanList[arg2].getBitmap());
             intent.setClass(MainActivity.this, GameDetailActivity.class);
             startActivity(intent);
         }
@@ -305,8 +318,17 @@ public class MainActivity extends AppCompatActivity {
             HttpURLConnection urlConn;
             try {
 
-                urlStr = serverUrl + "api/game/trending?limit=10&offset=0";
 
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("game")
+                        .appendPath("trending")
+                        .appendQueryParameter("limit", String.valueOf(limit))
+                        .appendQueryParameter("offset", "0");
+
+                //urlStr = serverUrl + "api/game/trending?limit="+String.valueOf(limit)+"&offset=0";
+                urlStr = serverUrl + builder.build().toString();
+                //urlStr = builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestProperty("Authorization", authorizedHeader);
@@ -366,19 +388,27 @@ public class MainActivity extends AppCompatActivity {
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
+
+                Log.d("log", String.valueOf(k)+"get bitmap start");
                 // BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 responseCode = urlConn.getResponseCode();
                 bmp = BitmapFactory.decodeStream(in);
 
                 bitmapBeanList[k].setBitmap(bmp);
+
                 in.close();
-                finish = true;
+                Log.d("log", String.valueOf(k)+"get bitmap finished");
+
+
+                /*countDownLatch.countDown();*/
+                // finish = true;
             }
             catch (Exception exc){
                 exc.printStackTrace();
                 status = "Failed";
             }
             return null;
+
         }
         @Override
         protected void onProgressUpdate(Integer... progresses)
@@ -388,9 +418,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected  void onPostExecute(String result)
         {
+
             super.onPostExecute(result);
-            workCounter.getRunningTasks();
-            workCounter.runningTasksRelease();
+            // workCounter.getRunningTasks();
+            // workCounter.runningTasksRelease();
         }
     }
 
@@ -405,35 +436,50 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception exc){
             showDialog(exc.toString());
         }
-        //List< AsyncTask<String,Integer,String> > asyncTasks = new ArrayList<AsyncTask<String, Integer, String>>();
 
+        countDownLatch = new CountDownLatch(THREAD_NUM-1);
 
-
-        for(k = 0; k < 9; k++)
+        for(k = 0; k < limit; k++)
         {
             try {
 
                 String CoverUrl = gameTileBeanList[k].getCoverUrl();
-
-
-                // MainActivity.GameTileImageTask gameTileImageTask = new MainActivity.GameTileImageTask();
+                MainActivity.GameTileImageTask gameTileImageTask = new MainActivity.GameTileImageTask();
                 // gameTileImageTask.execute(CoverUrl);
                 // asyncTasks.add(gameTileImageTask);
 
-                new GameTileImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CoverUrl);
+                //Log.d("log", "thread:"+String.valueOf(k)+"start");
 
-                //new GameTileImageTask().execute(CoverUrl);
+                //new GameTileImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CoverUrl);
+
+                // Log.d("log", "thread:"+String.valueOf(k)+"out");
+
+                // new GameTileImageTask().execute(CoverUrl);
                 // gameTileImageTask.execute(CoverUrl);
-                // String test = gameTileImageTask.execute(CoverUrl).get();
+
+                String test = gameTileImageTask.execute(CoverUrl).get();
+
+                // countDownLatch.await();
+
             }
             catch (Exception exc){
                 showDialog(exc.toString());
             }
         }
-        workCounter.getRunningTasks();
-        while (workCounter.getRunningTasks()!= 0){
 
+        /*try{
+            Log.d("log","main wait");
+            countDownLatch.await();
         }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
+        Log.d("log","main continue");*/
+        // workCounter.getRunningTasks();
+
+        //while (workCounter.getRunningTasks()!= 0){
+
+        //}
 
     }
 
