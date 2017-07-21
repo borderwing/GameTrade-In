@@ -13,7 +13,7 @@ import com.example.ye.gametrade_in.Bean.UserBean;
 public class GameTradeInApplication extends Application {
     public String appVersion = "v1.0";
 
-    public String  serverUrl = "http://192.168.1.27:8080/";
+    public String  serverUrl = "http://192.168.1.27:8080";
 
     public int limit = 4;
 

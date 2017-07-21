@@ -9,6 +9,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
+import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameBean;
+import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
 
@@ -34,7 +36,7 @@ import java.net.URL;
 
 public class FragmentGameDetail extends Fragment{
 
-    TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView;
+    TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView, gamePopularity;
     EditText addToListEdit;
     String gameTitle, gameText, operation, credits;
     Integer addToListPoints;
@@ -54,7 +56,9 @@ public class FragmentGameDetail extends Fragment{
         authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
         Bundle bundle = getArguments();
+
         gameDetailId = bundle.getString("igdbId");
+
         userId = bundle.getString("userId");
         operation = bundle.getString("operation");
         try {
@@ -85,10 +89,13 @@ public class FragmentGameDetail extends Fragment{
         gameTextView = (TextView) getView().findViewById(R.id.gameText);
         gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
         addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
+        gamePopularity = (TextView) getView().findViewById(R.id.popularityText);
 
-        gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
+        gameTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
+
+        /*gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
         gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
-        gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);
+        gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);*/
 
         addToWishList = (Button) getView().findViewById(R.id.addToListButton);
         addToWishList.setOnClickListener(onAddToWishListListener);
@@ -263,7 +270,7 @@ public class FragmentGameDetail extends Fragment{
     private class GameDetailTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
-        public GameBean game;
+        public GameDetailBean gameDetail;
         public MyListBean myList;
         public Boolean finish = false;
         @Override
@@ -275,21 +282,27 @@ public class FragmentGameDetail extends Fragment{
             try {
 
                 Uri.Builder builder = new Uri.Builder();
+
                 builder.appendPath("api")
-                        .appendPath("game");
+                        .appendPath("game")
+                        .appendPath("");
 
                 urlStr = serverUrl + builder.build().toString()+ gameDetailId;
 
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
+                // urlConn.setRequestProperty("Authorization", authorizedHeader);
                 urlConn.setRequestMethod("GET");
                 urlConn.connect();
                 InputStream in = urlConn.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                 responseCode = urlConn.getResponseCode();
                 JSONProcessor jsonProcessor = new JSONProcessor();
-                game = jsonProcessor.GetGameBean(reader.readLine());
+
+                gameDetail = jsonProcessor.GetGameDetailSingleBean(reader.readLine());
+
+
                 switch (operation) {
                     case "wishList":
                         urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId;
@@ -311,6 +324,7 @@ public class FragmentGameDetail extends Fragment{
                         urlStr = serverUrl+"api/user/" + userId + "/offerlist/" + gameDetailId;
                         url = new URL(urlStr);
                         urlConn = (HttpURLConnection) url.openConnection();
+                        urlConn.setRequestProperty("Authorization", authorizedHeader);
                         urlConn.setRequestMethod("GET");
                         urlConn.connect();
                         in = urlConn.getInputStream();
@@ -321,7 +335,8 @@ public class FragmentGameDetail extends Fragment{
                         credits = String.valueOf(myList.getPoints());
                         break;
                     case "browse":
-                        credits = String.valueOf(game.evaluatePoint);
+                        // credits = String.valueOf(game.evaluatePoint);
+                        credits = "0";
                         break;
                     default:
                         break;
@@ -338,18 +353,23 @@ public class FragmentGameDetail extends Fragment{
         }
         @Override
         protected void onPostExecute(String result) {
+            setGameDetail(gameDetail.getTitle(),String.valueOf(((int)gameDetail.getPopularity())), gameDetail.getSummary());
+
             // setGameDetail(game.title, game.platform, game.language, game.genre, credits);
+
             super.onPostExecute(result);
         }
     }
 
 
-    private void setGameDetail(String title, String platform, String language, String genre, String credits) {
+    private void setGameDetail(String title, String popularity, String text/*String language, String genre, String credits*/) {
         gameTitleView.setText(title);
-        gameCategoryPlatform.setText(platform);
-        gameCategoryLanguage.setText(language);
-        gameCategoryGenre.setText(genre);
-        gameCreditView.setText(credits);
+        gamePopularity.setText(popularity);
+        gameTextView.setText(text);
+        //gameCategoryPlatform.setText(platform);
+        //gameCategoryLanguage.setText(language);
+        //gameCategoryGenre.setText(genre);
+        //gameCreditView.setText(credits);
     }
 
 

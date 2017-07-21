@@ -2,6 +2,7 @@ package com.example.ye.gametrade_in;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -190,7 +191,16 @@ public class AddressOperationActivity extends AppCompatActivity{
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + userId + "/address/"+ addressId;
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath(String.valueOf(userId))
+                        .appendPath("address")
+                        .appendPath(addressId);
+
+
+                urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestProperty("Authorization", authorizedHeader);
@@ -237,18 +247,29 @@ public class AddressOperationActivity extends AppCompatActivity{
         protected String doInBackground(JSONObject... params) {
             postJson = params[0];
             HttpURLConnection urlConn;
+            Uri.Builder builder = new Uri.Builder();
             try {
                 switch (addressOperation) {
                     case "add":
-                        operationUrl = "/address";
+                        builder.appendPath("api")
+                                .appendPath("user")
+                                .appendPath(String.valueOf(userId))
+                                .appendPath("address");
+                        // operationUrl = "/address";
                         break;
                     case "modify":
-                        operationUrl = "/address/" + addressId;
+                        builder.appendPath("api")
+                                .appendPath("user")
+                                .appendPath(String.valueOf(userId))
+                                .appendPath("address")
+                                .appendPath(addressId);
+                        // operationUrl = "/address/" + addressId;
                         break;
                     default:
                         break;
                 }
-                urlStr = serverUrl + "api/user/" + userId + operationUrl ;
+                // urlStr = serverUrl + "api/user/" + userId + operationUrl ;
+                urlStr = serverUrl +builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);
