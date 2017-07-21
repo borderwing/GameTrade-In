@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.user;
 
 /**
  * Created by homepppp on 2017/7/6.
  */
-public class createAddressJsonItem {
+public class CreateAddressJson {
     private String receiver;
     private String phone;
     private String address;

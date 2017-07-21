@@ -1,17 +1,16 @@
 package com.bankrupted.tradein.service;
 
 import com.bankrupted.tradein.model.GameEntity;
+import com.bankrupted.tradein.model.OfferEntity;
 import com.bankrupted.tradein.model.UserEntity;
 import com.bankrupted.tradein.model.WishEntity;
-import com.bankrupted.tradein.model.json.ModifyWishJsonItem;
-import com.bankrupted.tradein.model.json.WishJsonItem;
+import com.bankrupted.tradein.model.json.wish.ModifyWishJson;
+import com.bankrupted.tradein.model.json.wish.CreateWishJson;
 import com.bankrupted.tradein.repository.WishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.sql.Timestamp;
 
 /**
@@ -59,7 +58,7 @@ public class WishService {
             return null;
     }
 
-    public WishEntity saveWishInAdd(WishJsonItem wishItem,UserEntity user,GameEntity game,Timestamp time){
+    public WishEntity saveWishInAdd(CreateWishJson wishItem, UserEntity user, GameEntity game, Timestamp time){
         WishEntity wish=new WishEntity();
         wish.setPoints(wishItem.getPoints());
         wish.setStatus(1);
@@ -85,7 +84,7 @@ public class WishService {
         return isAvailable;
     }
 
-    public boolean modifyWishItem(UserEntity user, GameEntity game, ModifyWishJsonItem modifyItem){
+    public boolean modifyWishItem(UserEntity user, GameEntity game, ModifyWishJson modifyItem){
         boolean isAvailable=false;
         List<WishEntity> wishlist=wishRepo.findByUserAndGame(user,game);
         Iterator<WishEntity> iter=wishlist.iterator();
@@ -114,5 +113,18 @@ public class WishService {
 
     public List<WishEntity> getWishGame(int wantPoint,long gameid){
         return wishRepo.getWishGame(wantPoint,gameid);
+    }
+
+    public Map<Long,Integer> getGamePointsById(int userid){
+        List<WishEntity> UserOffer=findByUserId(userid);
+        Map<Long,Integer> UserOfferPoints=new HashMap<>();
+        for(int i =0;i<UserOffer.size();i++){
+            UserOfferPoints.put(UserOffer.get(i).getWishEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
+        }
+        return UserOfferPoints;
+    }
+
+    public List<Object[]> getPotentialChanges(){
+        return wishRepo.getPotientialChanges();
     }
 }

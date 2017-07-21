@@ -118,7 +118,18 @@ public class GameController {
         return new ResponseEntity<GameDetailJson>(game,HttpStatus.OK);
     }
 
-
+    @RequestMapping(value = "/{igdbId}/evaluate",method=RequestMethod.GET)
+    public ResponseEntity<Integer> getEvaluatePoint(@RequestParam(value = "platformId",required = true)int platformId,
+                                                    @RequestParam(value = "regionId",required = true)int regionId,
+                                                    @PathVariable(value="igdbId")Long igdbId){
+        GameEntity game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
+        if(game==null){
+            gameService.addIgdbToDB(igdbId,platformId,regionId);
+            game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
+            return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);
+        }
+        return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);
+    }
     //find game by key words
    /* @RequestMapping(value="/params",method=RequestMethod.POST)
     public ResponseEntity<Page<GameEntity>> searchGame(@RequestBody SearchGameJsonItem GameInfo,
