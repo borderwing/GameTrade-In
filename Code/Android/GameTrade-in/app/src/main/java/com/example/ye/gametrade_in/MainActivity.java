@@ -94,11 +94,12 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
-        toolbar.findViewById(R.id.action_search);
-        toolbar.findViewById(R.id.action_add);
 
-        toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
-        toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
+        View view1 = toolbar.findViewById(R.id.action_search);
+        View view2 = toolbar.findViewById(R.id.action_add);
+
+        //toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
+        //toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
 
 
 
@@ -371,6 +372,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+
+
+    /*****************************************************************************************/
+    /* Part for gameImage detail */
+
     private class GameTileImageTask extends AsyncTask<String, Integer, String> {
         private String status, urlStr;
         private int responseCode = -1;
@@ -438,6 +445,12 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+
+    /*****************************************************************************************/
+    /* Function for game detail */
+
+
+
     public void GetGameTileDetail(){
         MainActivity.GameTileDetailTask gameTileDetailTask = new MainActivity.GameTileDetailTask();
         try {
@@ -452,45 +465,14 @@ public class MainActivity extends AppCompatActivity {
         for(k = 0; k < limit; k++)
         {
             try {
-
                 String CoverUrl = gameTileBeanList[k].getCoverUrl();
                 MainActivity.GameTileImageTask gameTileImageTask = new MainActivity.GameTileImageTask();
-                // gameTileImageTask.execute(CoverUrl);
-                // asyncTasks.add(gameTileImageTask);
-
-                //Log.d("log", "thread:"+String.valueOf(k)+"start");
-
-                //new GameTileImageTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, CoverUrl);
-
-                // Log.d("log", "thread:"+String.valueOf(k)+"out");
-
-                // new GameTileImageTask().execute(CoverUrl);
-                // gameTileImageTask.execute(CoverUrl);
-
                 String test = gameTileImageTask.execute(CoverUrl).get();
-
-                // countDownLatch.await();
-
             }
             catch (Exception exc){
                 showDialog(exc.toString());
             }
         }
-
-        /*try{
-            Log.d("log","main wait");
-            countDownLatch.await();
-        }
-        catch (Exception exc){
-            showDialog(exc.toString());
-        }
-        Log.d("log","main continue");*/
-        // workCounter.getRunningTasks();
-
-        //while (workCounter.getRunningTasks()!= 0){
-
-        //}
-
     }
 
 
@@ -568,6 +550,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu)
     {
         getMenuInflater().inflate(R.menu.toolbar, menu);
+        menu.findItem(R.id.action_search).setVisible(true);
         return true;
     }
 
@@ -597,8 +580,8 @@ public class MainActivity extends AppCompatActivity {
 
                     // intent.setClass(MainActivity.this, OrderDetailActivity.class);
 
-                    startActivity(intent);
-                    MainActivity.this.finish();
+                    // startActivity(intent);
+                    // MainActivity.this.finish();
                     break;
                 case R.id.action_settings:
                     message += "Click setting";

@@ -104,9 +104,7 @@ public class AddressActivity extends AppCompatActivity {
                     listView.setOnItemClickListener(onAddressItemClickListener);
                     break;
                 case "browse":
-                    // addressOperationButton.setVisibility(View.VISIBLE);
                     listView.setOnItemClickListener(onAddressItemBrowseClickListener);
-                    toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
                     break;
                 default:
                     break;
