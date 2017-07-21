@@ -3,16 +3,21 @@ package com.example.ye.gametrade_in;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
@@ -40,6 +45,8 @@ public class FragmentGameDetail extends Fragment{
     String serverUrl;
     String authorizedHeader;
     public GameTradeInApplication gameTradeInApplication;
+    BitmapBean bitmapBean;
+    Bitmap bitmap;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
@@ -47,9 +54,17 @@ public class FragmentGameDetail extends Fragment{
         authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
         Bundle bundle = getArguments();
-        gameDetailId = bundle.getString("gameId");
+        gameDetailId = bundle.getString("igdbId");
         userId = bundle.getString("userId");
         operation = bundle.getString("operation");
+        try {
+            // bitmapBean = (BitmapBean) bundle.get("bitmapBean");
+            bitmap = bundle.getParcelable("bitmap");
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
+
         GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
         return inflater.inflate(R.layout.fragment_gamedetail, container, false);
@@ -58,6 +73,14 @@ public class FragmentGameDetail extends Fragment{
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        try {
+            ImageView gameImageView = (ImageView) getView().findViewById(R.id.gameImage);
+            gameImageView.setImageBitmap(bitmap);
+        }
+        catch (Exception exc){
+            showDialog(exc.toString());
+        }
         gameTitleView = (TextView) getView().findViewById(R.id.gameTitle);
         gameTextView = (TextView) getView().findViewById(R.id.gameText);
         gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
@@ -250,7 +273,13 @@ public class FragmentGameDetail extends Fragment{
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/game/" + gameDetailId;
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("game");
+
+                urlStr = serverUrl + builder.build().toString()+ gameDetailId;
+
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
@@ -309,7 +338,7 @@ public class FragmentGameDetail extends Fragment{
         }
         @Override
         protected void onPostExecute(String result) {
-            setGameDetail(game.title, game.platform, game.language, game.genre, credits);
+            // setGameDetail(game.title, game.platform, game.language, game.genre, credits);
             super.onPostExecute(result);
         }
     }

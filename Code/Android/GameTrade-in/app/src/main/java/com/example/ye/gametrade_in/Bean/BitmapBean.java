@@ -1,14 +1,17 @@
 package com.example.ye.gametrade_in.Bean;
 
 import android.graphics.Bitmap;
+import android.os.Parcelable;
+
+import java.io.Serializable;
 
 /**
  * Created by ye on 2017/7/19.
  */
 
-public class BitmapBean {
+public class  BitmapBean {
 
-    public Bitmap bitmap;
+    transient public Bitmap bitmap;
 
     public Bitmap getBitmap() {
         return bitmap;
