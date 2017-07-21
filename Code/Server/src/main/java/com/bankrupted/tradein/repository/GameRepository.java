@@ -23,6 +23,10 @@ import java.util.Collection;
 public interface GameRepository extends JpaRepository<GameEntity,Long>{
     List<GameEntity> findByTitle(String title);
 
+
+    @Query("select p from GameEntity p where p.igdbId=:igdbId and p.platformId=:platformId and p.regionId=:regionId")
+    GameEntity getGame(@Param("igdbId")Long igdbId,@Param("platformId")int platform,@Param("regionId")int regionId);
+
    /* @Modifying
     @Transactional
     @Query("update GameEntity us set us.title=:qtitle,us.platform=:qplatform,us.evaluatePoint=:qevaluatePoint,us.language=:qlanguage,us.genre=:qgenre,us.wishes=:qwishes,us.offers=:qoffers,us.tradeGames=:qtradeGames where us.gameId=:qgameid")

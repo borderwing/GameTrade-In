@@ -1,5 +1,6 @@
 package com.bankrupted.tradein.service;
 
+import com.bankrupted.tradein.model.GameEntity;
 import com.bankrupted.tradein.model.json.game.GameDetailJson;
 import com.bankrupted.tradein.model.json.game.GameReleaseJson;
 import com.bankrupted.tradein.model.json.game.GameTileJson;
@@ -8,6 +9,8 @@ import com.bankrupted.tradein.model.json.igdb.IgdbImage;
 import com.bankrupted.tradein.model.json.igdb.IgdbPlatform;
 import com.bankrupted.tradein.model.json.igdb.IgdbRelease;
 import com.bankrupted.tradein.model.json.igdb.meta.IgdbGenre;
+import com.bankrupted.tradein.repository.GameRepository;
+import com.bankrupted.tradein.script.pythonGetEvaluatePoint;
 import com.bankrupted.tradein.utility.IgdbUtility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,8 @@ public class GameService {
     IgdbUtility igdbUtility;
     @Autowired
     GameAsyncService gameAsyncService;
+    @Autowired
+    GameRepository gameRepo;
 
     public List<GameTileJson> getTrendingGameTileList(int limit, int offset) {
         List<IgdbGame> igdbGames = igdbUtility.getTrendingIgdbGames(limit, offset);
@@ -128,7 +133,6 @@ public class GameService {
         return gameDetail;
     }
 
-
     private  List<GameTileJson> convertToGameTiles(Collection<IgdbGame> igdbGames){
         List<GameTileJson> gameTiles = new LinkedList<>();
 
@@ -155,7 +159,7 @@ public class GameService {
 
             GameTileJson gameTile = new GameTileJson();
             gameTile.setTitle(igdbGame.getName());
-            if (igdbGame.getCover() != null) gameTile.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big_2x"));
+            if (igdbGame.getCover() != null) gameTile.setCoverUrl(igdbGame.getCover().getUrlBySize("cover_big"));
             gameTile.setIgdbId(igdbGame.getId());
             gameTile.setPlatforms(gamePlatformNames);
             gameTile.setPopularity(igdbGame.getPopularity());
@@ -176,4 +180,39 @@ public class GameService {
         );
     }
 
+
+    //game Repository operation
+    public GameEntity fetchOneGame(Long gameid){
+        return gameRepo.findOne(gameid);
+    }
+
+    public void addIgdbToDB(Long igdbId,int platformId,int regionId){
+        GameEntity game=new GameEntity();
+        game.setIgdbId(igdbId);
+        game.setPlatformId(platformId);
+        game.setRegionId(regionId);
+        GameDetailJson gameDetail=getIgdbGame(igdbId);
+
+        String platform=null;
+        List<GameReleaseJson> gameRelease=gameDetail.getReleases();
+        Iterator<GameReleaseJson> iter=gameRelease.iterator();
+        while(iter.hasNext()){
+            GameReleaseJson release=iter.next();
+            if(release.getPlatformId()==platformId){
+                platform=release.getPlatform();
+                break;
+            }
+        }
+
+        String point= pythonGetEvaluatePoint.getPoints(gameDetail.getTitle(),platform);
+        float floatPoint=Float.parseFloat(point)*100;
+
+        game.setEvaluatePoint((int)floatPoint);
+
+        gameRepo.saveAndFlush(game);
+    }
+
+    public GameEntity findGameByIgdbId(Long igdbId,int platformId,int regionId){
+        return gameRepo.getGame(igdbId,platformId,regionId);
+    }
 }

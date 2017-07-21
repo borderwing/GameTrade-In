@@ -3,17 +3,14 @@ package com.bankrupted.tradein.service;
 import com.bankrupted.tradein.model.GameEntity;
 import com.bankrupted.tradein.model.OfferEntity;
 import com.bankrupted.tradein.model.UserEntity;
-import com.bankrupted.tradein.model.json.ModifyOfferJsonItem;
-import com.bankrupted.tradein.model.json.ModifyWishJsonItem;
-import com.bankrupted.tradein.model.json.OfferJsonItem;
+import com.bankrupted.tradein.model.json.offer.ModifyOfferJson;
+import com.bankrupted.tradein.model.json.offer.CreateOfferJson;
 import com.bankrupted.tradein.repository.OfferRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by homepppp on 2017/7/18.
@@ -60,7 +57,7 @@ public class OfferService {
         return offerRepo.findByUserAndGame(user,game);
     }
 
-    public OfferEntity saveOfferInAdd(OfferJsonItem offerGame,UserEntity user,GameEntity game,Timestamp time){
+    public OfferEntity saveOfferInAdd(CreateOfferJson offerGame, UserEntity user, GameEntity game, Timestamp time){
         OfferEntity offer=new OfferEntity();
         offer.setPoints(offerGame.getPoints());
         offer.setStatus(1);
@@ -86,7 +83,7 @@ public class OfferService {
         return isAvailable;
     }
 
-    public boolean modifyOfferItem(UserEntity user, GameEntity game, ModifyOfferJsonItem modifyPoints){
+    public boolean modifyOfferItem(UserEntity user, GameEntity game, ModifyOfferJson modifyPoints){
         List<OfferEntity> offerList = offerRepo.findByUserAndGame(user,game);
         boolean isAvailable=false;
         Iterator<OfferEntity> iter=offerList.iterator();
@@ -115,5 +112,14 @@ public class OfferService {
 
     public List<OfferEntity> getOfferGames(int wantPoint,long gameid){
         return offerRepo.getOfferGame(wantPoint,gameid);
+    }
+
+    public Map<Long,Integer> getGamePointsById(int userid){
+        List<OfferEntity> UserOffer=findByUserId(userid);
+        Map<Long,Integer> UserOfferPoints=new HashMap<>();
+        for(int i =0;i<UserOffer.size();i++){
+            UserOfferPoints.put(UserOffer.get(i).getOfferEntityPK().getGame().getGameId(),UserOffer.get(i).getPoints());
+        }
+        return UserOfferPoints;
     }
 }

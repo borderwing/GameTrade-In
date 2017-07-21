@@ -1,7 +1,7 @@
 package com.bankrupted.tradein.service;
 
 import com.bankrupted.tradein.model.*;
-import com.bankrupted.tradein.model.json.ConfirmOrderJsonItem;
+import com.bankrupted.tradein.model.json.offer.ConfirmMatchJson;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderGamesItem;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderItem;
 import com.bankrupted.tradein.repository.AddressRepository;
@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by homepppp on 2017/7/18.
@@ -27,6 +28,10 @@ public class OrderService {
     TradeGameRepository tradeGameRepo;
     @Autowired
     AddressRepository addressRepo;
+
+    public List<TradeOrderEntity> getALlTradeOrder(){
+        return tradeOrderRepo.findAll();
+    }
 
     public TradeOrderEntity getTradeOrderById(int orderid){
         return tradeOrderRepo.findOne(orderid);
@@ -129,7 +134,7 @@ public class OrderService {
         return ShowResult;
     }
 
-    public void confirmAsReceiver(TradeGameEntity tradeGame, ConfirmOrderJsonItem address,int orderid){
+    public void confirmAsReceiver(TradeGameEntity tradeGame, ConfirmMatchJson address, int orderid){
         int tradeGameId=tradeGame.getTradeGameId();
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmByReceiver(tradeGameId,Address);
@@ -139,7 +144,7 @@ public class OrderService {
         }
     }
 
-    public void confirmAsSender(TradeGameEntity tradeGame,ConfirmOrderJsonItem address,int orderid){
+    public void confirmAsSender(TradeGameEntity tradeGame, ConfirmMatchJson address, int orderid){
         int tradeGameId=tradeGame.getTradeGameId();
         AddressEntity Address=addressRepo.findOne(address.getAddressId());
         tradeGameRepo.ConfirmBySender(tradeGameId,Address);
@@ -177,32 +182,47 @@ public class OrderService {
     }
 
     public TradeGameEntity setSenderTradeGame(AddressEntity address, UserEntity user, GameEntity sendGame,UserEntity targetUser,int orderId){
-        TradeGameEntity tradeGameOne=new TradeGameEntity();
-        tradeGameOne.setFromAddress(address);
-        tradeGameOne.setSender(user);
-        tradeGameOne.setGame(sendGame);
-        tradeGameOne.setReceiver(targetUser);
-        tradeGameOne.setSenderStatus(0);
-        tradeGameOne.setReceiverStatus(1);
-        tradeGameOne.setStatus(1);
-        tradeGameOne.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameRepo.saveAndFlush(tradeGameOne);
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setFromAddress(address);
+        tradeGame.setSender(user);
+        tradeGame.setGame(sendGame);
+        tradeGame.setReceiver(targetUser);
+        tradeGame.setSenderStatus(0);
+        tradeGame.setReceiverStatus(1);
+        tradeGame.setStatus(1);
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGameRepo.saveAndFlush(tradeGame);
 
-        return tradeGameOne;
+        return tradeGame;
     }
 
     public TradeGameEntity setReceiverTradeGame(AddressEntity address,UserEntity user,GameEntity receiveGame,UserEntity targetUser,int orderId){
-        TradeGameEntity tradeGameTwo=new TradeGameEntity();
-        tradeGameTwo.setTradeOrder(tradeOrderRepo.findOne(orderId));
-        tradeGameTwo.setStatus(1);
-        tradeGameTwo.setReceiverStatus(0);
-        tradeGameTwo.setSenderStatus(1);
-        tradeGameTwo.setReceiver(user);
-        tradeGameTwo.setSender(targetUser);
-        tradeGameTwo.setGame(receiveGame);
-        tradeGameTwo.setToAddress(address);
-        tradeGameRepo.saveAndFlush(tradeGameTwo);
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGame.setStatus(1);
+        tradeGame.setReceiverStatus(0);
+        tradeGame.setSenderStatus(1);
+        tradeGame.setReceiver(user);
+        tradeGame.setSender(targetUser);
+        tradeGame.setGame(receiveGame);
+        tradeGame.setToAddress(address);
+        tradeGameRepo.saveAndFlush(tradeGame);
 
-        return tradeGameTwo;
+        return tradeGame;
     }
+
+    public TradeGameEntity setUnconfirmTradeGame(GameEntity game,UserEntity OfferUser,UserEntity ReceiveUser,int orderId){
+        TradeGameEntity tradeGame=new TradeGameEntity();
+        tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
+        tradeGame.setStatus(2);
+        tradeGame.setSender(OfferUser);
+        tradeGame.setSenderStatus(1);
+        tradeGame.setReceiver(ReceiveUser);
+        tradeGame.setReceiverStatus(1);
+        tradeGame.setGame(game);
+        tradeGameRepo.saveAndFlush(tradeGame);
+
+        return tradeGame;
+    }
+
 }
