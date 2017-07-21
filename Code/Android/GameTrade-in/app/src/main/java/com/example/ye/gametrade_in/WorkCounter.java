@@ -9,7 +9,7 @@ import android.support.v4.content.LocalBroadcastManager;
  */
 
 public class WorkCounter {
-    private int runningTasks;
+    private static int runningTasks;
     //private final Context ctx;
 
     public void setRunningTasks(int num){
