@@ -86,13 +86,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
         setSupportActionBar(toolbar);
+
         toolbar.inflateMenu(R.menu.toolbar);
+
         toolbar.setNavigationIcon(R.drawable.nav);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+
+        toolbar.findViewById(R.id.action_search);
+        toolbar.findViewById(R.id.action_add);
+
+        toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
+
 
 
         // this part is for notification
@@ -206,6 +213,9 @@ public class MainActivity extends AppCompatActivity {
         catch (Exception exc){
             showDialog(exc.toString());
         }
+
+
+
     }
 
     /*****************************************************************************************/
@@ -227,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> arg0,View arg1, int arg2, long arg3){
             Intent intent;
             intent = new Intent();
-            intent.putExtra("igdbId", gameTileBeanList[arg2].getIgdbId());
+            intent.putExtra("igdbId", String.valueOf(gameTileBeanList[arg2].getIgdbId()));
             intent.putExtra("operation", "browse");
             intent.putExtra("gameBitmap",(Bitmap) bitmapBeanList[arg2].getBitmap());
             intent.setClass(MainActivity.this, GameDetailActivity.class);
@@ -509,7 +519,11 @@ public class MainActivity extends AppCompatActivity {
         protected  String doInBackground(String... params){
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + params[0];
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath("");
+                urlStr = serverUrl + builder.build().toString() + params[0];
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
@@ -579,7 +593,12 @@ public class MainActivity extends AppCompatActivity {
                     MainActivity.this.finish();
                     break;
                 case R.id.action_search:
-                    message += "Click search";
+                    intent = new Intent();
+
+                    // intent.setClass(MainActivity.this, OrderDetailActivity.class);
+
+                    startActivity(intent);
+                    MainActivity.this.finish();
                     break;
                 case R.id.action_settings:
                     message += "Click setting";

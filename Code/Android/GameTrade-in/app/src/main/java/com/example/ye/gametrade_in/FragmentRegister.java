@@ -2,6 +2,7 @@ package com.example.ye.gametrade_in;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -137,7 +138,11 @@ public class FragmentRegister extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/register/";
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("register")
+                        .appendPath("");
+                urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);

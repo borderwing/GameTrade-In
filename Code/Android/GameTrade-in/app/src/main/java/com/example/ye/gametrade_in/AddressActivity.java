@@ -2,6 +2,7 @@ package com.example.ye.gametrade_in;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -68,13 +69,8 @@ public class AddressActivity extends AppCompatActivity {
         gameId = intentReceiver.getStringExtra("gameId");
         targetUserId = intentReceiver.getStringExtra("targetUserId");
         gameDetailId = intentReceiver.getStringExtra("gameDetailId");
-
         operation = intentReceiver.getStringExtra("operation");
-
-
         listView = (ListView) findViewById(R.id.addressListView);
-
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.addressToolBar);
         setSupportActionBar(toolbar);
@@ -111,8 +107,6 @@ public class AddressActivity extends AppCompatActivity {
                     // addressOperationButton.setVisibility(View.VISIBLE);
                     listView.setOnItemClickListener(onAddressItemBrowseClickListener);
                     toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
-                    int i = 1;
-
                     break;
                 default:
                     break;
@@ -269,7 +263,14 @@ public class AddressActivity extends AppCompatActivity {
         protected String doInBackground(String... params) {
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + userId + "/address";
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath(String.valueOf(userId))
+                        .appendPath("address");
+
+                urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setRequestProperty("Authorization", authorizedHeader);
@@ -339,7 +340,19 @@ public class AddressActivity extends AppCompatActivity {
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId + "/match/confirm";
+
+
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("user")
+                        .appendPath(String.valueOf(userId))
+                        .appendPath("wishlist")
+                        .appendPath(gameDetailId)
+                        .appendPath("match")
+                        .appendPath("confirm");
+
+
+                urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
                 urlConn.setDoOutput(true);

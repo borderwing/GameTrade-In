@@ -1,6 +1,7 @@
 package com.example.ye.gametrade_in;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -218,7 +219,11 @@ public class LoginActivity extends AppCompatActivity {
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = serverUrl + "api/login/";
+                Uri.Builder builder = new Uri.Builder();
+                builder.appendPath("api")
+                        .appendPath("login")
+                        .appendPath("");
+                urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
