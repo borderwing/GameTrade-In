@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.wish;
 
 /**
  * Created by homepppp on 2017/7/4.
  */
-public class ModifyWishJsonItem {
+public class ModifyWishJson {
     private int points;
 
     public int getPoints() {

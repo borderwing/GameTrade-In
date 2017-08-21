@@ -26,6 +26,8 @@ def getEvaluatePoint(gameName,platform):
         url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D14210751&field-keywords='+gameName
     elif(platform=="XBOX 360"):
         url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D14220161&field-keywords='+gameName
+    else:
+        url='https://www.amazon.com/s/ref=nb_sb_noss?url=node%3D4924894011&field-keywords='+gameName
 
     print(url)
 
@@ -39,13 +41,28 @@ def getEvaluatePoint(gameName,platform):
     myPage=myResponse.read()
     soup = BeautifulSoup(myPage,"html.parser")
     print(url)
-    rightContent = soup.findAll('span',attrs={"class":"a-size-base a-color-base"})
+    rightContent = soup.findAll('span', attrs={"class": "sx-price-whole"})
+    print(rightContent)
+    if(len(rightContent)==0):
+        rightContent = soup.findAll('span', attrs={"class": "a-size-base a-color-base"})
+        sum = 0
+        cnt = 1
+        print(url)
+        for price in rightContent:
+            priceDetail = price.get_text()
+            priceDetail=priceDetail[1:]
+            print(priceDetail)
+            sum = sum + float(priceDetail)
+            if (cnt == 5):
+                break
+            cnt += 1
+
+        return (sum / cnt)
     sum = 0
     cnt = 1
     print(url)
     for price in rightContent:
         priceDetail = price.get_text()
-        priceDetail = priceDetail[1:]
         print(priceDetail)
         sum = sum+float(priceDetail)
         if(cnt == 5):
@@ -53,4 +70,3 @@ def getEvaluatePoint(gameName,platform):
         cnt += 1
 
     return(sum/cnt)
-

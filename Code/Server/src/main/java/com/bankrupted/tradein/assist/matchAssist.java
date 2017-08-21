@@ -25,6 +25,25 @@ public class matchAssist {
         return gameIdList;
     }
 
+
+    //get the user who owns the game you want and match the points
+    public List<Integer> getUsersOwnsWantingGames(List<OfferEntity> OfferWantedGameList,List<Long> YouWantGameList,List<Integer> OfferRange){
+        Map<Integer,Integer> AvailablePersonMap=getAvailablePerson(OfferWantedGameList,YouWantGameList);
+
+        List<Integer> targetUserId=new ArrayList<>();
+        Iterator<Map.Entry<Integer,Integer>> iter=AvailablePersonMap.entrySet().iterator();
+
+        while(iter.hasNext()){
+            Map.Entry<Integer,Integer> offerPoints=iter.next();
+            int points=offerPoints.getValue();
+            if(points>OfferRange.get(0) && points<OfferRange.get(1)){
+                targetUserId.add(offerPoints.getKey());
+            }
+        }
+        return targetUserId;
+    }
+
+
     //get the availPerson
     //return map<userid,points>
     public Map<Integer,Integer> getAvailablePerson(List<OfferEntity> offerList,List<Long> youWantList){
@@ -100,9 +119,11 @@ public class matchAssist {
             }
         }
 
+        //get a evaluate number for a certain point
+        //all the setting points in wish list and offer list should divided by the point range
         int divide=maxpoint-minpoint;
         int target=maxpoint/divide;
-        System.out.println(target);
+
 
         Iterator<Map.Entry<Long,Integer>> iter= TargetWishPoints.entrySet().iterator();
         while(iter.hasNext()){
@@ -116,7 +137,7 @@ public class matchAssist {
         Iterator<Map.Entry<Long,Integer>> OneGameIterator=TargetWishPoints.entrySet().iterator();
         while(OneGameIterator.hasNext()){
             Map.Entry<Long,Integer> WishItem=OneGameIterator.next();
-            if(WishItem.getValue()==target){
+            if((WishItem.getValue()==target)||(WishItem.getValue()==(target-1))){
                 List<Long> temp=new ArrayList<>();
                 temp.add(WishItem.getKey());
                 resultLong.add(temp);
@@ -135,6 +156,13 @@ public class matchAssist {
                 temp.add(item.getKey());
                 resultLong.add(temp);
                 result.add(Long.toString(map.get(target-item.getValue()))+","+Long.toString(item.getKey()));
+            }
+            else if(map.containsKey(target-item.getValue()-1)){
+                List<Long> temp=new ArrayList<>();
+                temp.add(map.get(target-item.getValue()-1));
+                temp.add(item.getKey());
+                resultLong.add(temp);
+                result.add(Long.toString(map.get(target-item.getValue()-1))+","+Long.toString(item.getKey()));
             }
             else{
                 map.put(item.getValue(),item.getKey());

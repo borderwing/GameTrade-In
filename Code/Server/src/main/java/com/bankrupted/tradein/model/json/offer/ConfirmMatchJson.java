@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.offer;
 
 /**
  * Created by homepppp on 2017/7/6.
  */
-public class ConfirmOrderJsonItem {
+public class ConfirmMatchJson {
     private int addressId;
 
     public int getAddressId() {

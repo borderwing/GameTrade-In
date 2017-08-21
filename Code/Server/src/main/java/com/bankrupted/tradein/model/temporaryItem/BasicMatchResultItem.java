@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Created by homepppp on 2017/7/13.
  */
-public class WishListMatchResultItem {
+public class BasicMatchResultItem {
     private String YouOfferGame;
     private int TargetUserId;
     private String YouWantGame;

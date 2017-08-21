@@ -4,6 +4,9 @@ import com.bankrupted.tradein.model.*;
 import com.bankrupted.tradein.model.temporaryItem.PotentialChangesItem;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderGamesItem;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderItem;
+import com.bankrupted.tradein.service.OrderService;
+import com.bankrupted.tradein.service.UserService;
+import com.bankrupted.tradein.service.WishService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.data.domain.Page;
@@ -24,37 +27,29 @@ import java.util.*;
 @RequestMapping("/api/admin/")
 public class AdminController {
     @Autowired
-    UserRepository userRepo;
+    UserService userService;
     @Autowired
-    GameRepository gameRepo;
+    WishService wishService;
     @Autowired
-    PendingGameRepository pendingGameRepo;
-    @Autowired
-    TradeOrderRepository tradeOrderRepo;
-    @Autowired
-    TradeGameRepository tradeGameRepo;
-    @Autowired
-    WishRepository wishRepo;
-
+    OrderService orderService;
 
     //Fetch All Users
     @RequestMapping(value="{adminid}/user/params",method= RequestMethod.GET)
-    public ResponseEntity<Page<UserEntity>> ListAllUser(@RequestParam(value="page",defaultValue="0")Integer page,
-                                                        @RequestParam(value="size",defaultValue="5")Integer size){
-        System.out.println("Fetch All Users...");
+    public ResponseEntity<List<UserEntity>> ListAllUser(@RequestParam(value="offset",defaultValue="0")Integer offset,
+                                                        @RequestParam(value="limit",defaultValue="5")Integer limit){
+        System.out.println("get all users...");
 
-        Pageable pageable=new PageRequest(page,size);
+        List<UserEntity> userList=userService.getAllUser();
 
-        Page<UserEntity> user=userRepo.findAll(pageable);
-        if(user==null){
-            System.out.println("can't find any user");
-            return new ResponseEntity<Page<UserEntity>>(user,HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<Page<UserEntity>>(user,HttpStatus.OK);
+        PagedListHolder<UserEntity> pagedUserList= new PagedListHolder<>(userList);
+        pagedUserList.setPage(offset/limit);
+        pagedUserList.setPageSize(limit);
+
+        return new ResponseEntity<List<UserEntity>>(pagedUserList.getPageList(),HttpStatus.OK);
     }
 
 
-    //Fetch All Games
+    /*//Fetch All Games
     @RequestMapping(value="{adminid}/game/params",method=RequestMethod.GET)
     public ResponseEntity<Page<GameEntity>> ListAllGame(@RequestParam(value="page",defaultValue = "0")Integer page,
                                                         @RequestParam(value="size",defaultValue = "5")Integer size){
@@ -68,11 +63,11 @@ public class AdminController {
             return new ResponseEntity<Page<GameEntity>>(game,HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<Page<GameEntity>>(game,HttpStatus.OK);
-    }
+    }*/
 
 
     //Fetch All PendingGames
-    @RequestMapping(value="{adminid}/pendingGame/params",method=RequestMethod.GET)
+   /* @RequestMapping(value="{adminid}/pendingGame/params",method=RequestMethod.GET)
     public ResponseEntity<Page<PendingGameEntity>> ListAllPendingGame(@RequestParam(value = "page",defaultValue = "0")Integer page,
                                                                       @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("Fetch All PendingGame...");
@@ -153,14 +148,12 @@ public class AdminController {
 
         //set the evaluate point
         String point=pythonGetEvaluatePoint.getPoints(game.getTitle(),game.getPlatform());
-        System.out.println("------------------------------------------");
-        System.out.println(point);
         float floatPoint=Float.parseFloat(point)*100;
         newGame.setEvaluatePoint((int)floatPoint);
 
         gameRepo.saveAndFlush(newGame);
         return new ResponseEntity<PendingGameEntity>(game,HttpStatus.OK);
-    }
+    }*/
 
 
     //fetch all the orders
@@ -170,13 +163,13 @@ public class AdminController {
                                                            @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("fetch all orders...");
 
-        UserEntity user=userRepo.findOne(adminid);
+        UserEntity user=userService.getUserById(adminid);
         if(user==null){
             System.out.println("can't find admin...");
             return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
-        List<TradeOrderEntity> tradeOrderList=tradeOrderRepo.findAll();
+        List<TradeOrderEntity> tradeOrderList=orderService.getALlTradeOrder();
 
         if(tradeOrderList.isEmpty()){
             System.out.println("can't find any order...");
@@ -197,7 +190,7 @@ public class AdminController {
 
 
         //set the information needed
-        List<TradeGameEntity> tradeGameList=tradeGameRepo.findAllTradeGame();
+        List<TradeGameEntity> tradeGameList=orderService.getAllTradeGames();
         Iterator<TradeGameEntity> iterGame=tradeGameList.iterator();
         while(iterGame.hasNext()){
             TradeGameEntity tradeGame=iterGame.next();
@@ -240,14 +233,14 @@ public class AdminController {
                                                                     @RequestParam(value = "size",defaultValue = "5")Integer size){
         System.out.println("get all changes...");
 
-        UserEntity user=userRepo.findOne(adminid);
+        UserEntity user=userService.getUserById(adminid);
         if(user==null){
             System.out.println("can't find the user...");
             return new ResponseEntity<List<PotentialChangesItem>>(HttpStatus.NOT_FOUND);
         }
 
         List<PotentialChangesItem> PotentialChangesList=new ArrayList<>();
-        List<Object[]> map=wishRepo.getPotientialChanges();
+        List<Object[]> map=wishService.getPotentialChanges();
 
         if(map.isEmpty()){
             System.out.println("can't find any order...");

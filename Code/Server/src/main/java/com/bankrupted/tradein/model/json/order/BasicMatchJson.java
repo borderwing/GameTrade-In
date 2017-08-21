@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.order;
 
 /**
  * Created by homepppp on 2017/7/13.
  */
-public class ManyToManyTradeJsonItem {
+public class BasicMatchJson {
     /*
            {
                 "youWantGames":"gameid1,gameid2,"

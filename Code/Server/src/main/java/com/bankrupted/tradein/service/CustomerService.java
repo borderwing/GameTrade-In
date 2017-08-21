@@ -20,4 +20,16 @@ public class CustomerService {
         return customer;
     }
 
+    public void UpdateRating(int targetUserId,int rating){
+        CustomerEntity customer=customerRepo.findOne(targetUserId);
+        int ratingNum;
+        if(customer.getRatingUserNum()==null){
+            ratingNum=0;
+        }
+        else{
+            ratingNum=customer.getRatingUserNum();
+        }
+        int newRating=((customer.getRating()*ratingNum)+rating)/(ratingNum+1);
+        customerRepo.updateRating(newRating,targetUserId);
+    }
 }

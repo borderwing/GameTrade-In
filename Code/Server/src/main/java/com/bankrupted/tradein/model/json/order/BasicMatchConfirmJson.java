@@ -1,9 +1,9 @@
-package com.bankrupted.tradein.model.json;
+package com.bankrupted.tradein.model.json.order;
 
 /**
  * Created by homepppp on 2017/7/18.
  */
-public class MatchConfirmJsonItem {
+public class BasicMatchConfirmJson {
     private String youWantGames;
     private String youOfferGames;
     private int targetUserId;
