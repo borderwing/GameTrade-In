@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
-        View view1 = toolbar.findViewById(R.id.action_search);
-        View view2 = toolbar.findViewById(R.id.action_add);
+        // View view1 = toolbar.findViewById(R.id.action_search);
+        // View view2 = toolbar.findViewById(R.id.action_add);
 
         //toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
         //toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
@@ -577,11 +577,6 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case R.id.action_search:
                     intent = new Intent();
-
-                    // intent.setClass(MainActivity.this, OrderDetailActivity.class);
-
-                    // startActivity(intent);
-                    // MainActivity.this.finish();
                     break;
                 case R.id.action_settings:
                     message += "Click setting";
