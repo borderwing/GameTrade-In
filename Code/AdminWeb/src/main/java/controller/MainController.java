@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import repository.OfferRepository;
 import repository.TradeGameRepository;
 import repository.UserRepository;
@@ -122,13 +123,41 @@ public class MainController {
                 TradeAsSender.add(TradeAsReceiver1.get(i));
             }
         }
-        System.out.println(TradeAsReceiver.size());
-        System.out.println(TradeAsSender.size());
         modelMap.addAttribute("TradeAsReceiver",TradeAsReceiver);
         modelMap.addAttribute("TradeAsSender",TradeAsSender);
         modelMap.addAttribute("userId",userId);
         String userName=user.getUsername();
         modelMap.addAttribute("username",userName);
         return "/Order";
+    }
+
+
+    @RequestMapping(value="/index/orders/delete/{userid}/{tradeid}",method = RequestMethod.GET)
+    public String deleteTrade(@PathVariable("userid")int userId,@PathVariable("tradeid")int tradeid,ModelMap modelMap,RedirectAttributes model){
+        tradeGameRepo.deleteTrade(tradeid);
+        /*UserEntity user=userRepo.findOne(userId);
+        List<TradeGameEntity> TradeAsReceiver1=tradeGameRepo.findAll();
+        List<TradeGameEntity> TradeAsReceiver =new ArrayList<>();
+        List<TradeGameEntity> TradeAsSender=new ArrayList<>();
+        System.out.println(TradeAsReceiver1.size());
+        Iterator<TradeGameEntity> iterGame=TradeAsReceiver1.iterator();
+        while(iterGame.hasNext()){
+            TradeGameEntity tradeGame=iterGame.next();
+            if(tradeGame.getReceiver().getUserId()==userId){
+                TradeAsReceiver.add(tradeGame);
+            }
+        }
+        for(int i =0;i<TradeAsReceiver1.size();i++){
+            if(TradeAsReceiver1.get(i).getSender().getUserId()==userId){
+                TradeAsSender.add(TradeAsReceiver1.get(i));
+            }
+        }
+        modelMap.addAttribute("TradeAsReceiver",TradeAsReceiver);
+        modelMap.addAttribute("TradeAsSender",TradeAsSender);
+        modelMap.addAttribute("userId",userId);
+        String userName=user.getUsername();
+        modelMap.addAttribute("username",userName);*/
+        model.addFlashAttribute("userid",userId);
+        return "redirect:/index/orders/{userid}";
     }
 }

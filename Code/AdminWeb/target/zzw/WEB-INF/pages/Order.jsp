@@ -25,32 +25,38 @@
         <th>fromAddress</th>
         <th>toAddress</th>
         <th>gameId</th>
+        <th>Status</th>
         <th>points</th>
+        <th>operation</th>
     </tr>
     <c:forEach items="${TradeAsReceiver}" var="receive">
         <tr>
             <td>${receive.trade_gameid}</td>
             <td>${receive.receiver.username}</td>
-            <td>${receive.receiver_status}</td>
+            <td><c:if test="${receive.receiver_status==2}">reject</c:if><c:if test="${receive.receiver_status==1}">unconfirmed</c:if><c:if test="${receive.receiver_status==0}">confirmed</c:if> </td>
             <td>${receive.sender.username}</td>
-            <td>${receive.sender_status}</td>
+            <td><c:if test="${receive.sender_status==2}">reject</c:if><c:if test="${receive.sender_status==1}">unconfirmed</c:if><c:if test="${receive.sender_status==0}">confirmed</c:if></td>
             <td>${receive.from_addressid.address}</td>
             <td>${receive.to_addressid.address}</td>
             <td>${receive.game.gameId}</td>
+            <td><c:if test="${receive.status==0}">confirmed</c:if><c:if test="${receive.status==-1}">canceled</c:if><c:if test="${receive.status!=0 and receive.status!=-1}">unconfirmed</c:if></td>
             <td>${receive.points}</td>
+            <td><a type="button" href="/index/orders/delete/${userId}/${receive.trade_gameid}">delete</a></td>
         </tr>
     </c:forEach>
     <c:forEach items="${TradeAsSender}" var="send">
         <tr>
             <td>${send.trade_gameid}</td>
             <td>${send.receiver.username}</td>
-            <td>${send.receiver_status}</td>
+            <td><c:if test="${send.receiver_status==2}">reject</c:if><c:if test="${send.receiver_status==1}">unconfirmed</c:if><c:if test="${send.receiver_status==0}">confirmed</c:if></td>
             <td>${send.sender.username}</td>
-            <td>${send.sender_status}</td>
+            <td><c:if test="${send.sender_status==2}">reject</c:if><c:if test="${send.sender_status==1}">unconfirmed</c:if><c:if test="${send.sender_status==0}">confirmed</c:if></td>
             <td>${send.from_addressid.address}</td>
             <td>${send.to_addressid.address}</td>
             <td>${send.game.gameId}</td>
+            <td><c:if test="${send.status==0}">confirmed</c:if><c:if test="${send.status==-1}">canceled</c:if><c:if test="${send.status!=0 and send.status!=-1}">unconfirmed</c:if></td>
             <td>${send.points}</td>
+            <td><a type="button" href="/index/orders/delete/${userId}/${send.trade_gameid}">delete</a></td>
         </tr>
     </c:forEach>
 </table>
