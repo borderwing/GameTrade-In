@@ -11,6 +11,10 @@ import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class JSONProcessor {
     Gson gson = new Gson();
 
@@ -81,11 +85,11 @@ public class JSONProcessor {
         return userDetail;
     }
 
-    // Get gameTile list Bean
-    public GameTileBean[] GetGameTileListBean(String gameTileDetail){
 
-        GameTileBean[] gameTile = gson.fromJson(gameTileDetail, GameTileBean[].class);
-        return gameTile;
+    // Get gameTile list Bean
+    public List<GameTileBean> GetGameTileListBean(String gameTileDetail){
+        GameTileBean[] gameArray = gson.fromJson(gameTileDetail, GameTileBean[].class);
+        return new ArrayList<>(Arrays.asList(gameArray));
     }
 
     // Get gameDetail single Bean

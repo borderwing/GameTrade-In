@@ -78,7 +78,7 @@ public class OfferListActivity extends AppCompatActivity{
             ListImageItem.add(map);
         }
         SimpleAdapter homeGameItems =  new SimpleAdapter
-                (this, ListImageItem, R.layout.item, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.gameItemImage, R.id.gameItemText});
+                (this, ListImageItem, R.layout.item_game_tile, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.item_tile_image, R.id.item_tile_text});
         myListGridView.setAdapter(homeGameItems);
         myListGridView.setOnItemClickListener(new gameItemClickListener());
     }

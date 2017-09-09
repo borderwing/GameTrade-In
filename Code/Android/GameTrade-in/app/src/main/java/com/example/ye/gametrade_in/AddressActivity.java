@@ -166,7 +166,7 @@ public class AddressActivity extends AppCompatActivity {
 
 
     /*****************************************************************************************/
-    /* ListView item click settings */
+    /* ListView item_game_tile click settings */
 
 
 
