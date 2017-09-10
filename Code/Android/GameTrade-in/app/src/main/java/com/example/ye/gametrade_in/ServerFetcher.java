@@ -23,7 +23,7 @@ public class ServerFetcher {
     private static final String TAG = "ServerFetcher";
 
     private static final Uri ENDPOINT = Uri
-            .parse("http://192.168.199.131:8080")
+            .parse("http://192.168.1.110:8080")
             .buildUpon()
             .appendPath("api")
             .build();
