@@ -1,4 +1,5 @@
 package com.example.ye.gametrade_in;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -165,7 +166,22 @@ public class MainActivity extends AppCompatActivity {
 
         // set userId
         try{
-            userId = gameTradeInApplication.GetLoginUser().getUserId();
+
+            // userId = gameTradeInApplication.GetLoginUser().getUserId();
+
+            if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
+                UserBean userDefault = new UserBean();
+                userDefault.setUserId(0);
+                gameTradeInApplication.SetUserLogin(userDefault);
+                userId = 0;
+            }
+
+            else {
+
+                authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
+                userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
+            }
+            // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
                 UserBean userDefault = new UserBean();
@@ -173,12 +189,14 @@ public class MainActivity extends AppCompatActivity {
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
             }
+
             if(userId != 0){
-                authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+                // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
                 SetMenuHeaderUserDetailed();
                 UserDetailTask userDetailTask = new UserDetailTask();
                 userDetailTask.execute(userId.toString());
             }
+
             else if(userId == 0){
                 SetMenuHeaderDefault();
             }
@@ -322,6 +340,9 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
+
+            QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
+
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -395,17 +416,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
     /*****************************************************************************************/
     /* Part for user detail */
 
@@ -454,11 +464,13 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+
         @Override
         protected void onProgressUpdate(Integer... progresses)
         {
             super.onProgressUpdate(progresses);
         }
+
         @Override
         protected  void onPostExecute(String result)
         {

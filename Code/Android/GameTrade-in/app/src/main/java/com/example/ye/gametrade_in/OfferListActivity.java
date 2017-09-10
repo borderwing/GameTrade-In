@@ -46,8 +46,8 @@ public class OfferListActivity extends AppCompatActivity{
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
         serverUrl = gameTradeInApplication.getServerUrl();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
@@ -124,7 +124,12 @@ public class OfferListActivity extends AppCompatActivity{
         @Override
         protected  void onPostExecute(String result)
         {
-            showList(offerList.length);
+            if (offerList == null){
+                showDialog("No game in your offer list.");
+            }
+            else {
+                showList(offerList.length);
+            }
             super.onPostExecute(result);
         }
     }
