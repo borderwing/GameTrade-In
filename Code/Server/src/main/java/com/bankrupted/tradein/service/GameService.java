@@ -163,6 +163,7 @@ public class GameService {
             gameTile.setIgdbId(igdbGame.getId());
             gameTile.setPlatforms(gamePlatformNames);
             gameTile.setPopularity(igdbGame.getPopularity());
+            gameTile.setSummary(igdbGame.getSummary());
 
             gameTiles.add(gameTile);
         }

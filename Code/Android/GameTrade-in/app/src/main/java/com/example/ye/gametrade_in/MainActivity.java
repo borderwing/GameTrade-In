@@ -3,11 +3,13 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.res.ResourcesCompat;
@@ -16,7 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -29,6 +33,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -39,6 +45,10 @@ import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
+import com.example.ye.gametrade_in.api.GameTradeApi;
+import com.example.ye.gametrade_in.api.GameTradeService;
+import com.example.ye.gametrade_in.utils.PaginationAdapterCallback;
+import com.example.ye.gametrade_in.utils.PaginationScrollListener;
 import com.squareup.picasso.Picasso;
 
 import java.io.BufferedReader;
@@ -50,8 +60,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
 
-public class MainActivity extends AppCompatActivity {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MainActivity extends AppCompatActivity implements PaginationAdapterCallback {
+
+    public final String TAG = "MainActivity";
 
     public Integer userId ;
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
@@ -78,9 +95,34 @@ public class MainActivity extends AppCompatActivity {
 
     String authorizedHeader;
 
-    private RecyclerView mGameTileRecyclerView;
-    private GridLayoutManager mLayoutManager;
-    private List<GameTileBean> mGameTiles = new ArrayList<>();
+
+    /*
+        Fields for RecyclerView & error UI
+     */
+    private TilePaginationAdapter mAdapter;
+    private LinearLayoutManager mLayoutManager;
+
+    RecyclerView rv;
+    ProgressBar progressBar;
+    LinearLayout errorLayout;
+    Button btnRetry;
+    TextView txtError;
+
+    /*
+        Fields for pagination & API fetching
+     */
+    private static final int PAGE_START = 0;
+    private static final int TOTAL_PAGES = 5;
+    private static final int PAGE_SIZE = 10;
+
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+
+    private int currentPage = PAGE_START;
+
+    private GameTradeService mGameTradeService;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,14 +149,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
-        // View view1 = toolbar.findViewById(R.id.action_search);
-        // View view2 = toolbar.findViewById(R.id.action_add);
-
-        //toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
-        //toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
-
-
-
         // this part is for notification
         notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         PendingIntent contentIntent = PendingIntent.getActivity(
@@ -130,14 +164,60 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(i, notification);
 
 
-        // Initialize RecyclerView
-        mGameTileRecyclerView = (RecyclerView) findViewById(R.id.game_recycler_view);
-        mLayoutManager = new GridLayoutManager(MainActivity.this, 2);
-        mGameTileRecyclerView.setLayoutManager(mLayoutManager);
+        /*
+            setup recyclerView & pagination
+        */
+        rv = (RecyclerView) findViewById(R.id.main_recycler);
+        progressBar = (ProgressBar) findViewById(R.id.main_progress);
+        errorLayout = (LinearLayout) findViewById(R.id.error_layout);
+        btnRetry = (Button) findViewById(R.id.error_btn_retry);
+        txtError = (TextView) findViewById(R.id.error_txt_cause);
 
-        updateItems();
+        mAdapter = new TilePaginationAdapter(this);
 
-        setupAdapter();
+        mLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rv.setLayoutManager(mLayoutManager);
+
+        rv.setItemAnimator(new DefaultItemAnimator());
+
+        rv.setAdapter(mAdapter);
+
+        rv.addOnScrollListener(new PaginationScrollListener(mLayoutManager) {
+            @Override
+            protected void loadMoreItems() {
+                isLoading = true;
+                currentPage += 1;
+
+                loadNextPage();
+            }
+
+            @Override
+            public int getTotalPageCount() {
+                return TOTAL_PAGES;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+        });
+
+        //init service and load data
+        mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+
+        loadFirstPage();
+
+        btnRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadFirstPage();
+            }
+        });
 
 
 
@@ -209,79 +289,136 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void updateItems(){
-        // TODO: implement paging
-        new FetchGameTilesTask().execute(0);
-//        currentPage++;
+    private void loadFirstPage() {
+        Log.d(TAG, "loadFirstPage: ");
+
+        // To ensure list is visible when retry button in error view is clicked
+        hideErrorView();
+
+        callTrendingGamesApi().enqueue(new Callback<List<GameTileBean>>() {
+            @Override
+            public void onResponse(Call<List<GameTileBean>> call, Response<List<GameTileBean>> response) {
+                // Got data. Send it to adapter
+
+                hideErrorView();
+
+                List<GameTileBean> results = fetchResults(response);
+                progressBar.setVisibility(View.GONE);
+                mAdapter.addAll(results);
+
+                if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
+                else isLastPage = true;
+            }
+
+            @Override
+            public void onFailure(Call<List<GameTileBean>> call, Throwable t) {
+                t.printStackTrace();
+                showErrorView(t);
+            }
+        });
     }
 
-    private void setupAdapter(){
-        mGameTileRecyclerView.setAdapter(new GameTileAdapter(mGameTiles));
+    /**
+     * @param response extracts List<{@link GameTileBean>} from response
+     * @return
+     */
+    private List<GameTileBean> fetchResults(Response<List<GameTileBean>> response) {
+        return response.body();
     }
 
-    private class GameTileHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private CardView mCardView;
-        private ImageView mCoverImage;
-        private TextView mTitle;
+    private void loadNextPage() {
+        Log.d(TAG, "loadNextPage: " + currentPage);
 
-        private long mIgdbId;
+        callTrendingGamesApi().enqueue(new Callback<List<GameTileBean>>() {
+            @Override
+            public void onResponse(Call<List<GameTileBean>> call, Response<List<GameTileBean>> response) {
+                mAdapter.removeLoadingFooter();
+                isLoading = false;
+
+                List<GameTileBean> results = fetchResults(response);
+                mAdapter.addAll(results);
+
+                if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
+                else isLastPage = true;
+            }
+
+            @Override
+            public void onFailure(Call<List<GameTileBean>> call, Throwable t) {
+                t.printStackTrace();
+                mAdapter.showRetry(true, fetchErrorMessage(t));
+            }
+        });
+    }
 
 
-        public GameTileHolder(View itemView) {
-            super(itemView);
-            mCardView = (CardView)itemView.findViewById(R.id.item_tile);
-            mCoverImage = (ImageView)itemView.findViewById(R.id.item_tile_image);
-            mTitle = (TextView)itemView.findViewById(R.id.item_tile_text);
-        }
+    /**
+     * Performs a Retrofit call to the top rated movies API.
+     * Same API call for Pagination.
+     * As {@link #currentPage} will be incremented automatically
+     * by @{@link PaginationScrollListener} to load next page.
+     */
+    private Call<List<GameTileBean>> callTrendingGamesApi() {
+        return mGameTradeService.getTrendingGames(
+                PAGE_SIZE,
+                currentPage * PAGE_SIZE
+        );
+    }
 
-        public void bindGameTile(GameTileBean gameTile){
-            mTitle.setText(gameTile.getTitle());
-            mIgdbId = gameTile.getIgdbId();
 
-            Picasso.with(MainActivity.this)
-                    .load(gameTile.getCoverUrl())
-                    .placeholder(R.drawable.cover_placeholder)
-                    .into(mCoverImage);
-        }
+    @Override
+    public void retryPageLoad() {
+        loadNextPage();
+    }
 
-//        public void bindCoverDrawable(Drawable drawable){
-//            mCoverImage.setImageDrawable(drawable);
-//        }
-//        public void bindTitle(String title){
-//            mTitle.setText(title);
-//        }
 
-        @Override
-        public void onClick(View v) {
-            // TODO: implement onClick behaviour for game tiles
+    /**
+     * @param throwable required for {@link #fetchErrorMessage(Throwable)}
+     * @return
+     */
+    private void showErrorView(Throwable throwable) {
+
+        if (errorLayout.getVisibility() == View.GONE) {
+            errorLayout.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+
+            txtError.setText(fetchErrorMessage(throwable));
         }
     }
 
-    private class GameTileAdapter extends RecyclerView.Adapter<GameTileHolder>{
+    /**
+     * @param throwable to identify the type of error
+     * @return appropriate error message
+     */
+    private String fetchErrorMessage(Throwable throwable) {
+        String errorMsg = getResources().getString(R.string.error_msg_unknown);
 
-        private List<GameTileBean> mGameTiles;
-
-        public GameTileAdapter(List<GameTileBean> gameTiles){
-            mGameTiles = gameTiles;
+        if (!isNetworkConnected()) {
+            errorMsg = getResources().getString(R.string.error_msg_no_internet);
+        } else if (throwable instanceof TimeoutException) {
+            errorMsg = getResources().getString(R.string.error_msg_timeout);
         }
 
-        @Override
-        public GameTileHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View view = inflater.inflate(R.layout.item_game_tile, parent, false);
-            return new GameTileHolder(view);
-        }
+        return errorMsg;
+    }
 
-        @Override
-        public void onBindViewHolder(GameTileHolder holder, int position) {
-            GameTileBean gameTile = mGameTiles.get(position);
-            holder.bindGameTile(gameTile);
-        }
+    // Helpers -------------------------------------------------------------------------------------
 
-        @Override
-        public int getItemCount() {
-            return mGameTiles.size();
+
+    private void hideErrorView() {
+        if (errorLayout.getVisibility() == View.VISIBLE) {
+            errorLayout.setVisibility(View.GONE);
+            progressBar.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Remember to add android.permission.ACCESS_NETWORK_STATE permission.
+     *
+     * @return
+     */
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 
 
@@ -379,40 +516,6 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-
-    /*****************************************************************************************/
-    /* Part for gameTile detail */
-
-
-    private class FetchGameTilesTask extends AsyncTask<Integer, Void, List<GameTileBean>> {
-
-        private String status, urlStr;
-        private int responseCode = -1;
-        public Boolean finish = false;
-
-
-
-        @Override
-        protected List<GameTileBean> doInBackground(Integer... params){
-            if(params == null){
-                return new ArrayList<>();
-            } else {
-                return new ServerFetcher(authorizedHeader).fetchPopularGameTiles(params[0]);
-            }
-        }
-
-
-        @Override
-        protected void onPostExecute(List<GameTileBean> items)
-        {
-            // TODO: update recycler view and private fields to reflect the fetch
-            super.onPostExecute(items);
-            mGameTiles = items;
-
-            setupAdapter();
-        }
-    }
 
 
 
