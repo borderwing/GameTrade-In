@@ -73,7 +73,8 @@ public class FragmentGameDetail extends Fragment{
         regionIdList = new ArrayList<Integer>();
 
         gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
 
         Bundle bundle = getArguments();
 
