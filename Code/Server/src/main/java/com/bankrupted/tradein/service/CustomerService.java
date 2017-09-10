@@ -16,7 +16,11 @@ public class CustomerService {
 
     public CustomerEntity getCustomerById(int customerid){
         CustomerEntity customer=new CustomerEntity();
-        customer=customerRepo.getOne(customerid);
+        try {
+            customer = customerRepo.getOne(customerid);
+        } catch (ClassCastException cce) {
+            customer = null;
+        }
         return customer;
     }
 

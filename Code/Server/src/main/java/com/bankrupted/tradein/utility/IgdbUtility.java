@@ -60,7 +60,7 @@ public class IgdbUtility {
     );
 
     private List<String> tileFields = Arrays.asList(
-            "name","release_dates","cover", "popularity"
+            "name","release_dates","cover", "popularity", "summary"
     );
 
     private static HttpHeaders headers;
@@ -221,9 +221,6 @@ public class IgdbUtility {
     public CompletableFuture<List<IgdbKeyword>> getFutureIgdbKeywords(Collection<Long> keywordIdList){
         return CompletableFuture.completedFuture(getIgdbKeywords(keywordIdList));
     }
-
-
-
 
 
     private UriComponentsBuilder constructBuilder(String entry, List<Pair<String, Object>> queryParams){

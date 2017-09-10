@@ -53,8 +53,8 @@ public class AddressOperationActivity extends AppCompatActivity{
             gameTradeInApplication = (GameTradeInApplication) getApplication();
             serverUrl = gameTradeInApplication.getServerUrl();
             userId = gameTradeInApplication.GetLoginUser().getUserId();
-            authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-
+            //authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+            authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
 
             setContentView(R.layout.activity_address_detail);
             receiverEdit = (EditText) findViewById(R.id.addressDetailReceiver);

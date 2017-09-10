@@ -68,7 +68,7 @@ public class MatchActivity extends AppCompatActivity {
 
 
     /*****************************************************************************************/
-    /* ListView item click settings */
+    /* ListView item_game_tile click settings */
 
 
     private AdapterView.OnItemClickListener onMatchItemClickListener = new AdapterView.OnItemClickListener() {

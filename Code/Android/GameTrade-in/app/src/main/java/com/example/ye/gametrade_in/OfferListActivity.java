@@ -46,8 +46,8 @@ public class OfferListActivity extends AppCompatActivity{
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
         serverUrl = gameTradeInApplication.getServerUrl();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
@@ -78,7 +78,7 @@ public class OfferListActivity extends AppCompatActivity{
             ListImageItem.add(map);
         }
         SimpleAdapter homeGameItems =  new SimpleAdapter
-                (this, ListImageItem, R.layout.item, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.gameItemImage, R.id.gameItemText});
+                (this, ListImageItem, R.layout.item_game_tile, new String[]{"gameItemImage","gameItemText"}, new int[]{R.id.item_tile_image, R.id.item_tile_text});
         myListGridView.setAdapter(homeGameItems);
         myListGridView.setOnItemClickListener(new gameItemClickListener());
     }
@@ -124,7 +124,12 @@ public class OfferListActivity extends AppCompatActivity{
         @Override
         protected  void onPostExecute(String result)
         {
-            showList(offerList.length);
+            if (offerList == null){
+                showDialog("No game in your offer list.");
+            }
+            else {
+                showList(offerList.length);
+            }
             super.onPostExecute(result);
         }
     }

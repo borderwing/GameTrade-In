@@ -14,46 +14,69 @@
         android:id="@+id/myViewpager"
         android:layout_weight="7"
         android:clickable="true"
-        android:focusable="true"
-        />
-    <RelativeLayout
+        android:focusable="true"/>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolBar"
             android:layout_height="?attr/actionBarSize"
             android:layout_width="match_parent"
-            android:background="?attr/colorPrimary"
-            >
+            android:background="?attr/colorPrimary">
 
-        <TextView
-            android:id = "@+id/title"
+            <TextView
+                android:id = "@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="Home Page"/>
+
+        </android.support.v7.widget.Toolbar>
+
+    <!--<GridView-->
+        <!--android:id="@+id/gameGridView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_below="@+id/toolBar"-->
+        <!--android:columnWidth="90dp"-->
+        <!--android:verticalSpacing="10dp"-->
+        <!--android:horizontalSpacing="10dp"-->
+        <!--android:numColumns="2"-->
+        <!--android:stretchMode="columnWidth"-->
+        <!--android:layout_marginLeft="10dp"-->
+        <!--android:layout_marginRight="10dp"-->
+        <!--android:layout_marginTop="80dp"-->
+        <!--/>-->
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <!--RecyclerView for Game Grids-->
+        <android.support.v7.widget.RecyclerView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/main_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.example.ye.gametrade_in.MainActivity" />
+
+        <ProgressBar
+            android:id="@+id/main_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:text="Home Page"
-            />
-    </android.support.v7.widget.Toolbar>
+            android:layout_gravity="center"/>
 
-    <GridView
-        android:id="@+id/gameGridView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolBar"
-        android:columnWidth="90dp"
-        android:verticalSpacing="10dp"
-        android:horizontalSpacing="10dp"
-        android:numColumns="2"
-        android:stretchMode="columnWidth"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="80dp"
-         />
+        <include layout="@layout/error_layout"/>
 
-    </RelativeLayout>
+        </FrameLayout>
+
+    </LinearLayout>
 
     <include
         layout = "@layout/drawer_main"
