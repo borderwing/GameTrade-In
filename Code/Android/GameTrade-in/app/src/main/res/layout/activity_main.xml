@@ -53,17 +53,28 @@
         <!--android:layout_marginTop="80dp"-->
         <!--/>-->
 
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
         <!--RecyclerView for Game Grids-->
         <android.support.v7.widget.RecyclerView
             xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/game_recycler_view"
+            android:id="@+id/main_recycler"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:context="com.example.ye.gametrade_in.MainActivity">
+            tools:context="com.example.ye.gametrade_in.MainActivity" />
 
-        </android.support.v7.widget.RecyclerView>
+        <ProgressBar
+            android:id="@+id/main_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+        <include layout="@layout/error_layout"/>
+
+        </FrameLayout>
 
     </LinearLayout>
 

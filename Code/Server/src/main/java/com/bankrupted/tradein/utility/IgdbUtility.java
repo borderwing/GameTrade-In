@@ -60,7 +60,7 @@ public class IgdbUtility {
     );
 
     private List<String> tileFields = Arrays.asList(
-            "name","release_dates","cover", "popularity"
+            "name","release_dates","cover", "popularity", "summary"
     );
 
     private static HttpHeaders headers;
