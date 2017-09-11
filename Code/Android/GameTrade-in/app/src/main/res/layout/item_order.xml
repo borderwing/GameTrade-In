@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="@dimen/activity_margin"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_margin"
+        android:paddingTop="@dimen/activity_margin_half">
+
+
+        <TextView
+            android:id="@+id/item_order_status"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin_quarter"
+            android:maxLines="2"
+            android:gravity="center"
+            tools:text="Status"/>
+
+        <TextView
+            android:id="@+id/item_order_wish_game_title"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin_quarter"
+            android:maxLines="2"
+
+            android:gravity="center"
+            tools:text="The Legend of Zelda: Breath of the Wild"/>
+
+        <TextView
+            android:id="@+id/item_order_wish_game_points"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/activity_margin_half"
+            android:ellipsize="end"
+            android:maxLines="3"
+            tools:text=" 100"/>
+
+        <TextView
+            android:id="@+id/item_order_offer_game_title"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin_quarter"
+            android:maxLines="2"
+
+            android:gravity="center"
+            tools:text="The Legend of Zelda: Breath of the Wild"/>
+
+        <TextView
+            android:id="@+id/item_order_offer_game_points"
+            style="@style/TextAppearance.AppCompat.Caption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/activity_margin_half"
+            android:ellipsize="end"
+            android:maxLines="3"
+            tools:text=" 100"/>
+    </LinearLayout>
+
+</FrameLayout>

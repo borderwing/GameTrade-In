@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +43,8 @@ public class FragmentRegister extends Fragment{
         registerPhoneText = (EditText) getView().findViewById(R.id.registerPhNum);
         registerPasswordText = (EditText) getView().findViewById(R.id.registerPassword);
 
+        registerPasswordText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
         registerButton = (Button) getView().findViewById(R.id.registerButton);
         registerButton.setOnClickListener(onRegisterListener);
     }
@@ -72,7 +75,6 @@ public class FragmentRegister extends Fragment{
     /*****************************************************************************************/
     /* Button settings */
 
-
     private View.OnClickListener onRegisterListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -84,12 +86,8 @@ public class FragmentRegister extends Fragment{
         }
     };
 
-
-
     /*****************************************************************************************/
     /* Function for json */
-
-
 
     private JSONObject formatJSON(String registerName, String registerEmail, String registerPhone, String registerPassword){
         final JSONObject root = new JSONObject();
@@ -118,12 +116,10 @@ public class FragmentRegister extends Fragment{
     /*****************************************************************************************/
     /* Part for register */
 
-
     private void Register(String registerName, String registerEmail, String registerPhone, String registerPassword){
         final JSONObject postJson = formatJSON(registerName, registerEmail, registerPhone, registerPassword);
         new RegisterTask().execute(postJson);
     }
-
 
     private class RegisterTask extends AsyncTask<JSONObject, Integer, String> {
         private String status,urlStr;
@@ -182,8 +178,6 @@ public class FragmentRegister extends Fragment{
             super.onPostExecute(result);
         }
     }
-
-
 
     /*****************************************************************************************/
 }
