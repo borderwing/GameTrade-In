@@ -54,25 +54,29 @@
         <!--/>-->
 
         <FrameLayout
+            android:id="@+id/main_fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <!--RecyclerView for Game Grids-->
-        <android.support.v7.widget.RecyclerView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/main_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:context="com.example.ye.gametrade_in.MainActivity" />
+        <!--&lt;!&ndash;RecyclerView for Game Grids&ndash;&gt;-->
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+            <!--xmlns:tools="http://schemas.android.com/tools"-->
+            <!--android:id="@+id/main_recycler"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--tools:context="com.example.ye.gametrade_in.MainActivity" />-->
 
-        <ProgressBar
-            android:id="@+id/main_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+        <!--<ProgressBar-->
+            <!--android:id="@+id/main_progress"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"/>-->
 
-        <include layout="@layout/error_layout"/>
+        <!--<include layout="@layout/error_layout"/>-->
+
+            <!--using Fragment instead-->
+
 
         </FrameLayout>
 

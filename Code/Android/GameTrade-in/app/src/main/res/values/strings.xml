@@ -2,9 +2,12 @@
     <string name="app_name">Game Trade</string>
     <string name="action_settings">Settings</string>
     <string name="action_search">Search</string>
+    
+    <string name="results_activity_label">Search Results</string>
+    <string name="search_hint">Enter game title...</string>
 
     <string name="grid_default_name">Loading Game</string>
-    <string name="error_msg">Sorry! Couldn\'t fetch movies.</string>
+    <string name="error_msg">Sorry! Couldn\'t fetch games.</string>
     <string name="btn_retry">Retry</string>
     <string name="error_msg_no_internet">Not connected to internet</string>
     <string name="error_msg_timeout">The server took too long to respond</string>

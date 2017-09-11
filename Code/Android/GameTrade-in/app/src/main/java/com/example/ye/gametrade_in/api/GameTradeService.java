@@ -18,4 +18,11 @@ public interface GameTradeService {
             @Query("limit") int limit,
             @Query("offset") int offset
     );
+
+    @GET("game/search")
+    Call<List<GameTileBean>> getSearchedGames(
+            @Query("keyword") String keyword,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
 }

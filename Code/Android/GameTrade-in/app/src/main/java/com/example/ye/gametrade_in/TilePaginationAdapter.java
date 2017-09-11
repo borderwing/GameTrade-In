@@ -3,7 +3,6 @@ package com.example.ye.gametrade_in;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -22,7 +21,6 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.utils.PaginationAdapterCallback;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -122,6 +120,8 @@ public class TilePaginationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         return (position == mGameTiles.size() - 1 && isLoadingAdded) ? LOADING : ITEM;
     }
 
+
+
     protected class GameTileHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private Long mIgdbId;
 
@@ -203,6 +203,13 @@ public class TilePaginationAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             mGameTiles.remove(position);
             notifyItemRemoved(position);
         }
+    }
+
+    public void clear(){
+        int oldSize = mGameTiles.size();
+        isLoadingAdded = false;
+        mGameTiles.clear();
+        notifyItemRangeRemoved(0, oldSize - 1);
     }
 
     public void addLoadingFooter() {
