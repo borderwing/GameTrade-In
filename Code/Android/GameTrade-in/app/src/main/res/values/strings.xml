@@ -11,7 +11,7 @@
 
 
     <string name="grid_default_name">Loading Game</string>
-    <string name="error_msg">Sorry! Couldn\'t fetch games.</string>
+    <string name="error_msg">Sorry! Couldn\'t fetch content.</string>
     <string name="btn_retry">Retry</string>
     <string name="error_msg_no_internet">Not connected to internet</string>
     <string name="error_msg_timeout">The server took too long to respond</string>

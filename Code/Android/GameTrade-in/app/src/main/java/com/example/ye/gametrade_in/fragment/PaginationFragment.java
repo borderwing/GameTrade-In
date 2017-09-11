@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.ye.gametrade_in.Bean.GameTileBean;
+import com.example.ye.gametrade_in.QueryPreferences;
 import com.example.ye.gametrade_in.R;
 import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
@@ -83,8 +84,15 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
-
+        String authorizedHeader =
+                QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+        if(authorizedHeader == null) {
+            mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+        } else {
+            mGameTradeService = GameTradeApi
+                    .getClient(authorizedHeader)
+                    .create(GameTradeService.class);
+        }
 
     }
 
@@ -267,7 +275,6 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         if (noResultLayout.getVisibility() == View.GONE) {
             noResultLayout.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.GONE);
-
         }
     }
 

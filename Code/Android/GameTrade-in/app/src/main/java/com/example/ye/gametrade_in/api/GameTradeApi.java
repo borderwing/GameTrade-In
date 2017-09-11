@@ -15,6 +15,14 @@ public class GameTradeApi {
     private static Retrofit retrofitAuth = null;
     private static Retrofit retrofitNoAuth = null;
 
+    private static OkHttpClient buildClient(String credentials){
+        return new OkHttpClient
+                .Builder()
+                .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                .addInterceptor(new BasicAuthInterceptor(credentials))
+                .build();
+    }
+
     private static OkHttpClient buildClient(String username, String password){
         return new OkHttpClient
                 .Builder()
@@ -23,11 +31,22 @@ public class GameTradeApi {
                 .build();
     }
 
+
     private static OkHttpClient buildClient(){
         return new OkHttpClient
                 .Builder()
                 .addInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
                 .build();
+    }
+
+    public static Retrofit getClient(String credentials){
+        retrofitAuth = new Retrofit.Builder()
+                .client(buildClient(credentials))
+                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl(ENDPOINT)
+                .build();
+
+        return retrofitAuth;
     }
 
     public static Retrofit getClient(String username, String password){

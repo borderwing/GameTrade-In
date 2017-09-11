@@ -96,6 +96,7 @@ public class AddressActivity extends AppCompatActivity {
                 new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
         );
 
+
         listView.setAdapter(adapter);
 
         // addressOperationButton = (Button) findViewById(R.id.itemAddressOperationButton);
@@ -118,6 +119,37 @@ public class AddressActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        GetAddress();
+
+        SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
+                new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
+                new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
+        );
+
+
+        listView.setAdapter(adapter);
+
+        try {
+            switch (operation) {
+                case "match":
+                    listView.setOnItemClickListener(onAddressItemClickListener);
+                    break;
+                case "browse":
+                    listView.setOnItemClickListener(onAddressItemBrowseClickListener);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception exc){
+            Log.d("error", exc.toString());
+        }
+
+    }
 
     /*****************************************************************************************/
     /* Function for toolbar */

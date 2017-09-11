@@ -1,11 +1,14 @@
 package com.example.ye.gametrade_in.api;
 
+import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 /**
@@ -24,5 +27,10 @@ public interface GameTradeService {
             @Query("keyword") String keyword,
             @Query("limit") int limit,
             @Query("offset") int offset
+    );
+
+    @GET("game/{igdbId}")
+    Call<GameDetailBean> getDetailGame(
+            @Path("igdbId") Long igdbId
     );
 }

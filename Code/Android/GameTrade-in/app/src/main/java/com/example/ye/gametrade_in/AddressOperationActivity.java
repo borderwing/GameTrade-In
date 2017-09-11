@@ -333,10 +333,11 @@ public class AddressOperationActivity extends AppCompatActivity{
             @Override
             public void onClick(DialogInterface dialog, int id){
                 if(canJmp){
-                    Intent intent = new Intent();
-                    intent.putExtra("operation","browse");
-                    intent.setClass(AddressOperationActivity.this, AddressActivity.class);
-                    startActivity(intent);
+//                    Intent intent = new Intent();
+//                    intent.putExtra("operation","browse");
+//                    intent.setClass(AddressOperationActivity.this, AddressActivity.class);
+//                    startActivity(intent);
+                    finish();
                 }
                 else{
 
