@@ -5,16 +5,24 @@ package com.example.ye.gametrade_in.Bean;
  */
 
 public class GameTransportBean {
-    public int igdbId;
+    public Long igdbId;
     public int platformId;
     public int regionId;
     public int points;
 
-    public int getIgdbId() {
+
+    public GameTransportBean(Long igdbId, int platformId, int regionId, int points) {
+        this.igdbId = igdbId;
+        this.platformId = platformId;
+        this.regionId = regionId;
+        this.points = points;
+    }
+
+    public Long getIgdbId() {
         return igdbId;
     }
 
-    public void setIgdbId(int igdbId) {
+    public void setIgdbId(Long igdbId) {
         this.igdbId = igdbId;
     }
 
@@ -40,5 +48,15 @@ public class GameTransportBean {
 
     public void setPoints(int points) {
         this.points = points;
+    }
+
+    @Override
+    public String toString() {
+        return "GameTransportBean{" +
+                "igdbId=" + igdbId +
+                ", platformId=" + platformId +
+                ", regionId=" + regionId +
+                ", points=" + points +
+                '}';
     }
 }

@@ -2,11 +2,15 @@ package com.example.ye.gametrade_in.api;
 
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
+import com.example.ye.gametrade_in.Bean.GameTransportBean;
 
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
@@ -33,4 +37,13 @@ public interface GameTradeService {
     Call<GameDetailBean> getDetailGame(
             @Path("igdbId") Long igdbId
     );
+
+    @POST("user/{userId}/wishlist")
+    Call<POST> saveWishItem(
+            @Path("userId") Long userId,
+            @Body GameTransportBean gameTransport
+    );
+
+
+
 }

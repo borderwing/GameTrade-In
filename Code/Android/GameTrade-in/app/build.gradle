@@ -40,4 +40,6 @@ dependencies {
 
     // apache common collections for multimap
     compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+
+    compile 'com.github.travijuu:numberpicker:1.0.7'
 }

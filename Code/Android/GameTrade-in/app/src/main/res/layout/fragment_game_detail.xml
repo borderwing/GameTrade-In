@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             xmlns:app="http://schemas.android.com/apk/res-auto"
-             xmlns:tools="http://schemas.android.com/tools"
-             android:layout_below="@id/gameDetailToolBar">
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:fillViewport="true"
+            xmlns:numberpicker="http://schemas.android.com/apk/res-auto">
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+
+             android:paddingTop="36dp"
+             android:paddingBottom="36dp"
+
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_below="@id/gameDetailToolBar"
+>
+
+
 
     <ProgressBar
         android:id="@+id/detail_progress"
@@ -168,20 +176,44 @@
                 android:layout_toEndOf="@id/creditIcon"
                 tools:text="2000" />
 
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
-                android:id="@+id/detail_credit"
-                android:layout_alignParentEnd="true"
-                android:gravity="bottom"
-                />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="50dp"
+            <!--<EditText-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:id="@+id/detail_credit"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:gravity="bottom"-->
+                <!--/>-->
+            <LinearLayout
+                android:id="@+id/dummy_id"
+                android:orientation="vertical"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+
+            <com.travijuu.numberpicker.library.NumberPicker
+                android:id="@+id/detail_credit_picker"
+
                 android:gravity="center"
-                android:layout_toLeftOf="@id/detail_credit"
-                android:text = "Points:"
-                android:id="@+id/textView2"/>
+                android:layout_alignParentEnd="true"
+
+                android:layout_width="130dp"
+                android:layout_height="40dp"
+                numberpicker:min="100"
+                numberpicker:value="1000"
+                numberpicker:unit="100"
+                numberpicker:focusable="true"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_toStartOf="@id/detail_credit_picker"
+                android:gravity="center"
+                android:lineSpacingExtra="18sp"
+                android:text="Points:"
+                android:textColor="@android:color/black"/>
 
         </RelativeLayout>
 
@@ -235,6 +267,5 @@
 
     </LinearLayout>
 
-</ScrollView>
-
 </FrameLayout>
+</ScrollView>
