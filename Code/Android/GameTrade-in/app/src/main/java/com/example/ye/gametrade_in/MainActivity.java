@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
@@ -72,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                   menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
 
     public GameTradeInApplication gameTradeInApplication;
-
+    public DrawerLayout mainDrawerLayout;
     int limit;
     String serverUrl;
     GameTileBean[] gameTileBeanList;
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar.setNavigationIcon(R.drawable.nav);
 
+
          //toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
@@ -161,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton = (Button) findViewById(R.id.menuMyListButton);
         menuMyOfferListButton = (Button) findViewById(R.id.menuMyOfferListButton);
         menuMyAddressButton = (Button) findViewById(R.id.menuMyAddressButton);
+        mainDrawerLayout = (DrawerLayout) findViewById(R.id.main);
 
         menuRegisterButton.setOnClickListener(menuRegisterOnClickListener);
         menuLoginButton.setOnClickListener(menuLoginOnClickListener);
@@ -168,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
         menuMyAddressButton.setOnClickListener(menuMyAddressButtonOnClickListener);
-
+        toolbar.setNavigationOnClickListener(navigationOnClickListener);
 
         // set userId
         try{
@@ -310,7 +314,12 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
+    private View.OnClickListener navigationOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            mainDrawerLayout.openDrawer(Gravity.LEFT);
+        }
+    };
 
 
     /*****************************************************************************************/

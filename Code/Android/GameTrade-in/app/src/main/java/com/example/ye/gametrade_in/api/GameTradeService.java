@@ -6,6 +6,7 @@ import com.example.ye.gametrade_in.Bean.GameTileBean;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Field;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -33,4 +34,5 @@ public interface GameTradeService {
     Call<GameDetailBean> getDetailGame(
             @Path("igdbId") Long igdbId
     );
+
 }
