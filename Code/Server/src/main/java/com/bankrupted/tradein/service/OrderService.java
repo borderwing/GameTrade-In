@@ -57,6 +57,7 @@ public class OrderService {
         ShowGameItem.setToAddress(tradeGame.getToAddress());
         ShowGameItem.setTrackingNumber(tradeGame.getTrackingNumber());
         ShowGameItem.setTradeGameId(tradeGame.getTradeGameId());
+        ShowGameItem.setPoints(tradeGame.getPoints());
 
         return ShowGameItem;
     }
@@ -181,7 +182,7 @@ public class OrderService {
         return orderId;
     }
 
-    public TradeGameEntity setSenderTradeGame(AddressEntity address, UserEntity user, GameEntity sendGame,UserEntity targetUser,int orderId){
+    public TradeGameEntity setSenderTradeGame(AddressEntity address, UserEntity user, GameEntity sendGame,UserEntity targetUser,int orderId,int points){
         TradeGameEntity tradeGame=new TradeGameEntity();
         tradeGame.setFromAddress(address);
         tradeGame.setSender(user);
@@ -190,13 +191,14 @@ public class OrderService {
         tradeGame.setSenderStatus(0);
         tradeGame.setReceiverStatus(1);
         tradeGame.setStatus(1);
+        tradeGame.setPoints(points);
         tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
         tradeGameRepo.saveAndFlush(tradeGame);
 
         return tradeGame;
     }
 
-    public TradeGameEntity setReceiverTradeGame(AddressEntity address,UserEntity user,GameEntity receiveGame,UserEntity targetUser,int orderId){
+    public TradeGameEntity setReceiverTradeGame(AddressEntity address,UserEntity user,GameEntity receiveGame,UserEntity targetUser,int orderId,int points){
         TradeGameEntity tradeGame=new TradeGameEntity();
         tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
         tradeGame.setStatus(1);
@@ -206,6 +208,7 @@ public class OrderService {
         tradeGame.setSender(targetUser);
         tradeGame.setGame(receiveGame);
         tradeGame.setToAddress(address);
+        tradeGame.setPoints(points);
         tradeGameRepo.saveAndFlush(tradeGame);
 
         return tradeGame;
