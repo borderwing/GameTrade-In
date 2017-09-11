@@ -4,6 +4,7 @@ import com.example.ye.gametrade_in.Bean.AddressPostBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
+import com.example.ye.gametrade_in.Bean.OrderDetailBean;
 
 import java.util.List;
 
@@ -26,6 +27,14 @@ public interface GameTradeService_modified {
             @Query("limit") int limit,
             @Query("offset") int offset
     );
+
+    @GET("user/{userid}/order")
+    Call<List<OrderDetailBean>> getOrder(
+            @Path("userid") int userId,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
 
     @GET("game/search")
     Call<List<GameTileBean>> getSearchedGames(
