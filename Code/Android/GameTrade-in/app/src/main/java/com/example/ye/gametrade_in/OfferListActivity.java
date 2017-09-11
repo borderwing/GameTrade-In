@@ -51,6 +51,7 @@ public class OfferListActivity extends AppCompatActivity{
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);

@@ -54,6 +54,7 @@ public class MyListActivity extends AppCompatActivity{
         myListDetailTask.execute(userId.toString());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);

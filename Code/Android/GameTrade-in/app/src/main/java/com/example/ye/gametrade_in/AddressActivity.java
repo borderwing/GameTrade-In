@@ -60,8 +60,9 @@ public class AddressActivity extends AppCompatActivity {
 
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
-        userId =  gameTradeInApplication.GetLoginUser().getUserId();
+        // userId =  gameTradeInApplication.GetLoginUser().getUserId();
         // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
         authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         setContentView(R.layout.activity_address);
 
@@ -78,6 +79,7 @@ public class AddressActivity extends AppCompatActivity {
 
 
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.setTitle("");
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -302,9 +304,10 @@ public class AddressActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if(!canChoose){
-                showDialog(status);
+                if((status == null)== false) {
+                    showDialog(status);
+                }
             }
-            //showDialog(status);
             super.onPostExecute(result);
         }
     }
@@ -387,7 +390,11 @@ public class AddressActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-            showDialog(status);
+            if ((status == null) == false) {
+                showDialog(status);
+            }
+            else{
+            }
             super.onPostExecute(result);
         }
     }
@@ -408,14 +415,20 @@ public class AddressActivity extends AppCompatActivity {
     private List<Map<String, Object>> getAddressData(AddressBean[] addressBean){
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
-        for(int i = 0; i < addressBean.length; i++){
-            map = new HashMap<String, Object>();
-            map.put("itemAddressDetailAddressId", addressBean[i].getAddressId());
-            map.put("itemAddressDetailReceiver", addressBean[i].getReceiver());
-            map.put("itemAddressDetailPhone", addressBean[i].getPhone());
-            map.put("itemAddressDetailAddress", addressBean[i].getAddress());
-            map.put("itemAddressDetailRegion", addressBean[i].getRegion());
-            list.add(map);
+
+        if(addressBean == null){
+            showDialog("no address, please add one");
+        }
+        else{
+            for (int i = 0; i < addressBean.length; i++) {
+                map = new HashMap<String, Object>();
+                map.put("itemAddressDetailAddressId", addressBean[i].getAddressId());
+                map.put("itemAddressDetailReceiver", addressBean[i].getReceiver());
+                map.put("itemAddressDetailPhone", addressBean[i].getPhone());
+                map.put("itemAddressDetailAddress", addressBean[i].getAddress());
+                map.put("itemAddressDetailRegion", addressBean[i].getRegion());
+                list.add(map);
+            }
         }
         return list;
     }

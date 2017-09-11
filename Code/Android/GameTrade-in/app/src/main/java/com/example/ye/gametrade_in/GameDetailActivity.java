@@ -78,6 +78,7 @@ public class GameDetailActivity extends AppCompatActivity {
             transaction.commit();
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.gameDetailToolBar);
+            toolbar.setTitle("");
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             toolbar.inflateMenu(R.menu.toolbar);

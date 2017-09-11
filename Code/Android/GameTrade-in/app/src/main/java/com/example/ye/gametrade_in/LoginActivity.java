@@ -75,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
         /*gameTradeInApplication = (GameTradeInApplication) getApplication();*/
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);

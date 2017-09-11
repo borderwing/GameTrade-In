@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         toolbar.inflateMenu(R.menu.toolbar);
