@@ -60,8 +60,9 @@ public class AddressActivity extends AppCompatActivity {
 
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
-        userId =  gameTradeInApplication.GetLoginUser().getUserId();
+        // userId =  gameTradeInApplication.GetLoginUser().getUserId();
         // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
         authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         setContentView(R.layout.activity_address);
 
