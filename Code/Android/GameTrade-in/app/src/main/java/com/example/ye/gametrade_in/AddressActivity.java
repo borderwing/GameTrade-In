@@ -78,6 +78,7 @@ public class AddressActivity extends AppCompatActivity {
 
 
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.setTitle("");
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override

@@ -45,6 +45,7 @@ public class MatchActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.matchListView);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.matchToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);

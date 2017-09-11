@@ -141,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         toolbar.inflateMenu(R.menu.toolbar);

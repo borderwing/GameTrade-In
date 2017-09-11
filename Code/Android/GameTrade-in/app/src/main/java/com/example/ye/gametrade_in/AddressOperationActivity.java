@@ -72,6 +72,7 @@ public class AddressOperationActivity extends AppCompatActivity{
 
 
             Toolbar toolbar = (Toolbar) findViewById(R.id.addressDetailToolBar);
+            toolbar.setTitle("");
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
