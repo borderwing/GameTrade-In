@@ -47,11 +47,17 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     protected LinearPaginationAdapter<T> mAdapter;
     protected LinearLayoutManager mLayoutManager;
 
+
+    // Views for error layout
     RecyclerView rv;
     ProgressBar progressBar;
     LinearLayout errorLayout;
     Button btnRetry;
     TextView txtError;
+
+    // Views for no result layout
+    LinearLayout noResultLayout;
+    Button btnRetryNoResult;
 
     /*
         Fields for pagination & API fetching
@@ -90,12 +96,15 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         /*
             setup recyclerView & pagination
         */
-
         rv = (RecyclerView) v.findViewById(R.id.main_recycler);
         progressBar = (ProgressBar) v.findViewById(R.id.main_progress);
         errorLayout = (LinearLayout) v.findViewById(R.id.error_layout);
         btnRetry = (Button) v.findViewById(R.id.error_btn_retry);
         txtError = (TextView) v.findViewById(R.id.error_txt_cause);
+
+        noResultLayout = (LinearLayout) v.findViewById(R.id.no_result);
+        btnRetryNoResult = (Button) v.findViewById(R.id.no_result_btn_retry);
+
 
         mAdapter = getNewAdapter(this);
 
@@ -139,6 +148,12 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
                 loadFirstPage();
             }
         });
+        btnRetryNoResult.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
 
         return v;
     }
@@ -146,6 +161,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     protected void loadFirstPage(){
         // To ensure list is visible when retry button in error view is clicked
         hideErrorView();
+        hideNoResultView();
 
         callApi().enqueue(new Callback<List<T>>() {
             @Override
@@ -156,10 +172,15 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
                 List<T> results = response.body();
                 progressBar.setVisibility(View.GONE);
-                mAdapter.addAll(results);
 
-                if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
-                else isLastPage = true;
+                if(results.size() > 0) {
+                    mAdapter.addAll(results);
+                    if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
+                    else isLastPage = true;
+                } else{
+                    currentPage --;
+                    showNoResultView();
+                }
             }
 
             @Override
@@ -239,6 +260,20 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         if (errorLayout.getVisibility() == View.VISIBLE) {
             errorLayout.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void showNoResultView(){
+        if (noResultLayout.getVisibility() == View.GONE) {
+            noResultLayout.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+
+        }
+    }
+
+    private void hideNoResultView(){
+        if(noResultLayout.getVisibility() == View.VISIBLE){
+            noResultLayout.setVisibility(View.GONE);
         }
     }
 

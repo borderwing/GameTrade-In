@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class GameTradeApi {
-    public static final String ENDPOINT = "http://10.182.253.110:8080/api/";
+    public static final String ENDPOINT = "http://192.168.1.110:8080/api/";
 
     private static Retrofit retrofitAuth = null;
     private static Retrofit retrofitNoAuth = null;

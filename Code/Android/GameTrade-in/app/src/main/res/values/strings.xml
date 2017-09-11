@@ -6,6 +6,10 @@
     <string name="results_activity_label">Search Results</string>
     <string name="search_hint">Enter game title...</string>
 
+    <string name="no_result_msg">No result found.</string>
+    <string name="no_result_hint">Try a different keyword</string>
+
+
     <string name="grid_default_name">Loading Game</string>
     <string name="error_msg">Sorry! Couldn\'t fetch games.</string>
     <string name="btn_retry">Retry</string>
