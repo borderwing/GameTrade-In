@@ -1,8 +1,10 @@
 package com.example.ye.gametrade_in.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -14,6 +16,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
+import com.example.ye.gametrade_in.GameDetailActivity;
 import com.example.ye.gametrade_in.R;
 
 /**
@@ -46,7 +49,7 @@ public class GameTilePaginationAdapter extends LinearPaginationAdapter<GameTileB
         return R.layout.item_game;
     }
 
-    private class GameTileHolder extends ItemHolder{
+    private class GameTileHolder extends ItemHolder {
         private Long mIgdbId;
 
         private TextView mTitle;
@@ -102,7 +105,9 @@ public class GameTilePaginationAdapter extends LinearPaginationAdapter<GameTileB
 
         @Override
         public void onClick(View v) {
-            // TODO: implement onClick behaviour for game tiles
+            Log.d("Adapter", "clicked");
+            Intent intent = GameDetailActivity.newInent(context, mIgdbId);
+            context.startActivity(intent);
         }
     }
 }

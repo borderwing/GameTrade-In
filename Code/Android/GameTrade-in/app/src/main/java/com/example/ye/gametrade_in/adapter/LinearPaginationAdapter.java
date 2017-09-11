@@ -69,10 +69,11 @@ public abstract class LinearPaginationAdapter<T> extends RecyclerView.Adapter<Re
 
         public ItemHolder(View itemView){
             super(itemView);
+            itemView.setOnClickListener(this);
         }
 
-
         public abstract void bind(T item);
+
     }
 
     protected abstract int getItemLayout();

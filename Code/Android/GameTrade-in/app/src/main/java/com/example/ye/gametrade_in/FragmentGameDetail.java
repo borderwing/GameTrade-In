@@ -1,7 +1,6 @@
 package com.example.ye.gametrade_in;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,8 +9,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,13 +27,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameReleaseJson;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
+import com.example.ye.gametrade_in.Bean.utils.PlatformBean;
+import com.example.ye.gametrade_in.Bean.utils.RegionBean;
 import com.example.ye.gametrade_in.api.GameTradeApi;
 import com.example.ye.gametrade_in.api.GameTradeService;
+import com.example.ye.gametrade_in.utils.GameDetailUtility;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,12 +60,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class FragmentGameDetail extends Fragment{
+public class FragmentGameDetail extends Fragment {
+
+    public static final String TAG = "FragmentGameDetail";
 
     public static final String ARG_IGDB_ID =
             "com.example.ye.gametrade_in.igdb_id";
 
     Long mIgdbId;
+    PlatformBean mSelectedPlatform;
+    RegionBean mSelectedRegion;
+
 
     LinearLayout mDetailLayout;
     ProgressBar mDetailProgress;
@@ -79,7 +93,7 @@ public class FragmentGameDetail extends Fragment{
 
     GameTradeService mGameTradeService;
 
-    public FragmentGameDetail newInstance(Long igdbId){
+    public static FragmentGameDetail newInstance(Long igdbId){
         Bundle args = new Bundle();
         args.putLong(ARG_IGDB_ID, igdbId);
 
@@ -90,6 +104,8 @@ public class FragmentGameDetail extends Fragment{
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "entered FragmentGameDetail");
+
         super.onCreate(savedInstanceState);
 
         String authorizedHeader = QueryPreferences
@@ -137,6 +153,10 @@ public class FragmentGameDetail extends Fragment{
         hideAllLayout();
 
         //TODO: finish binding buttons
+        setProgressLayout();
+
+        loadGameDetail();
+
 
         return v;
     }
@@ -146,45 +166,31 @@ public class FragmentGameDetail extends Fragment{
         setProgressLayout();
 
         // TODO: finish loadGameDetail()
-//        callApi().enqueue(new Callback<GameDetailBean>() {
-//            @Override
-//            public void onResponse(Call<GameDetailBean> call, Response<GameDetailBean> response) {
-//                // Got data. Send it to adapter
-//
-//                setDetailLayout();
-//
-//                GameDetailBean result = response.body();
-//
-//                if(result != null) {
-//
-//
-//                    mAdapter.addAll(results);
-//                    if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
-//                    else isLastPage = true;
-//                } else{
-//                    currentPage --;
-//                    showNoResultView();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<GameDetailBean> call, Throwable t) {
-//                t.printStackTrace();
-//                showErrorView(t);
-//            }
-//        });
+        callApi().enqueue(new Callback<GameDetailBean>() {
+            @Override
+            public void onResponse(Call<GameDetailBean> call, Response<GameDetailBean> response) {
+                // Got data. Send it to adapter
+
+                setDetailLayout();
+                GameDetailBean result = response.body();
+
+                if(result != null) {
+                    bindGameDetail(result);
+                } else{
+                    setErrorLayout();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GameDetailBean> call, Throwable t) {
+                t.printStackTrace();
+                setErrorLayout();
+            }
+        });
 
     }
 
-    @TargetApi(Build.VERSION_CODES.N)
-    public Locale getCurrentLocale(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-            return getResources().getConfiguration().getLocales().get(0);
-        } else{
-            //noinspection deprecation
-            return getResources().getConfiguration().locale;
-        }
-    }
+
 
     protected void bindGameDetail(GameDetailBean gameDetail){
 
@@ -193,6 +199,69 @@ public class FragmentGameDetail extends Fragment{
 
         Locale locale = getCurrentLocale();
         mPopularity.setText(String.format(locale, "%.1f", gameDetail.getPopularity()));
+
+        Glide
+                .with(getActivity())
+                .load(gameDetail.getCoverUrl())
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        // TODO: 08/11/16 handle failure
+                        mCoverProgress.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        // image ready, hide progress now
+                        mCoverProgress.setVisibility(View.GONE);
+                        return false;   // return false if you want Glide to handle everything else.
+                    }
+                })
+                .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                .centerCrop()
+                .crossFade()
+                .into(mCoverImage);
+
+        final GameDetailUtility detailUtility = new GameDetailUtility(gameDetail);
+
+        List<PlatformBean> platforms = detailUtility.getPlatforms();
+
+        if(platforms.size() == 0){
+            mPlatformSpinner.setEnabled(false);
+            mRegionSpinner.setEnabled(false);
+            mOfferButton.setEnabled(false);
+            mWishButton.setEnabled(false);
+            return;
+        }
+
+        List<RegionBean> regions = detailUtility.getRegionsWithPlatform(platforms.get(0));
+
+        ArrayAdapter<PlatformBean> platformAdapter = new ArrayAdapter<PlatformBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, platforms
+        );
+        ArrayAdapter<RegionBean> regionAdapter = new ArrayAdapter<RegionBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, regions
+        );
+
+        mPlatformSpinner.setAdapter(platformAdapter);
+
+
+        mPlatformSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                PlatformBean selectedPlatform =
+                        (PlatformBean)parent.getItemAtPosition(position);
+                mSelectedPlatform = selectedPlatform;
+
+                resetRegionSpinner(detailUtility.getRegionsWithPlatform(selectedPlatform));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
 
 //
@@ -274,6 +343,35 @@ public class FragmentGameDetail extends Fragment{
 
             mDetailProgress.setVisibility(View.GONE);
             mDetailLayout.setVisibility(View.GONE);
+        }
+    }
+
+    public void disableButtons(){
+        mOfferButton.setEnabled(false);
+        mWishButton.setEnabled(false);
+    }
+
+    public void enableButtons(){
+        mOfferButton.setEnabled(true);
+        mWishButton.setEnabled(true);
+    }
+
+    public void resetRegionSpinner(List<RegionBean> regions){
+
+        ArrayAdapter<RegionBean> regionAdapter = new ArrayAdapter<RegionBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, regions
+        );
+
+        mRegionSpinner.setAdapter(regionAdapter);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    public Locale getCurrentLocale(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return getResources().getConfiguration().getLocales().get(0);
+        } else{
+            //noinspection deprecation
+            return getResources().getConfiguration().locale;
         }
     }
 
