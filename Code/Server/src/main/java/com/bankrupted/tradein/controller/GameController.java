@@ -124,6 +124,7 @@ public class GameController {
                                                     @PathVariable(value="igdbId")Long igdbId){
         GameEntity game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
         if(game==null){
+
             gameService.addIgdbToDB(igdbId,platformId,regionId);
             game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
             return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);

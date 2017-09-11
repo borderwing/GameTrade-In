@@ -223,9 +223,6 @@ public class IgdbUtility {
     }
 
 
-
-
-
     private UriComponentsBuilder constructBuilder(String entry, List<Pair<String, Object>> queryParams){
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + entry + "/");
         for(Pair<String, Object> paramPair : queryParams){

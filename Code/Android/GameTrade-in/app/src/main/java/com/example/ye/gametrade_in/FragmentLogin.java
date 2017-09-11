@@ -98,7 +98,9 @@ public class FragmentLogin extends Fragment{
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-                urlStr = "http://192.168.1.27:8080/api/login/";
+                urlStr = "http://10.0.2.2:8080/api/login/";
+                // NOTE: commented out Ye's path
+                //urlStr = "http://192.168.1.27:8080/api/login/";
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
 
