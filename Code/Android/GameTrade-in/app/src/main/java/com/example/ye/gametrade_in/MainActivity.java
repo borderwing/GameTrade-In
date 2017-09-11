@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.Menu;
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
 
     public Integer userId ;
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
+    public DrawerLayout mainDrawerLayout;
     public TextView menuUserName;
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton,
                   menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
@@ -147,6 +150,9 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         toolbar.inflateMenu(R.menu.toolbar);
 
         toolbar.setNavigationIcon(R.drawable.nav);
+
+
+
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
@@ -154,15 +160,18 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         PendingIntent contentIntent = PendingIntent.getActivity(
                 this, 0, new Intent(this, RegisterActivity.class), 0);
-        NotificationCompat.Builder builder =
-                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.nav)
-                .setContentTitle("Test")
-                .setContentText("Please register!")
-                .setContentIntent(contentIntent)
-                .setAutoCancel(true);
-        notification = builder.build();
-        notificationManager.notify(i, notification);
+        if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null) {
+            NotificationCompat.Builder builder =
+                    (NotificationCompat.Builder) new NotificationCompat.Builder(this)
+                            .setSmallIcon(R.drawable.nav)
+                            .setContentTitle("Game Trade notification")
+                            .setContentText("Please register or log in!!!")
+                            .setContentIntent(contentIntent)
+                            .setAutoCancel(true);
+            notification = builder.build();
+            notificationManager.notify(i, notification);
+        }
+
 
 
         /*
@@ -226,6 +235,7 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         // gameGridView.setOnScrollListener(autoLoadListener);
 
         // Declaration
+        mainDrawerLayout = (DrawerLayout) findViewById(R.id.main);
         menuUserDetailedHeader = (RelativeLayout) findViewById(R.id.menuUserDetailedHeader);
         menuDefaultHeader = (RelativeLayout) findViewById(R.id.menuDefaultHeader);
         mainMenuDetail = (RelativeLayout) findViewById(R.id.mainMenuDetail);
@@ -244,25 +254,21 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
         menuMyAddressButton.setOnClickListener(menuMyAddressButtonOnClickListener);
 
+        toolbar.setNavigationOnClickListener(onNavigationClickListener);
+
 
         // set userId
         try{
-
-            // userId = gameTradeInApplication.GetLoginUser().getUserId();
-
             if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
                 UserBean userDefault = new UserBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
             }
-
             else {
-
                 authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
                 userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
             }
-            // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
                 UserBean userDefault = new UserBean();
@@ -432,7 +438,6 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
 
         public void execute() {
             showDialog("Bottom");
-
         }
     };
 
@@ -478,9 +483,7 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
             Intent intent = new Intent();
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
-
             QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
-
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -517,12 +520,15 @@ public class MainActivity extends AppCompatActivity implements PaginationAdapter
         }
     };
 
-
-
+    private View.OnClickListener onNavigationClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            mainDrawerLayout.openDrawer(Gravity.LEFT);
+        }
+    };
 
     /*****************************************************************************************/
     /* Part for user detail */
-
 
     private void SetUserDetailedLayout(String userName){
         menuUserName.setText(userName);

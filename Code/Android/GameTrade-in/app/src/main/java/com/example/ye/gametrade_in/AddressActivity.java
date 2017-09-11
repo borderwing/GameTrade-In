@@ -56,12 +56,15 @@ public class AddressActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // matchBean = (MatchBean[]) getIntent().getSerializableExtra("matchBean");
 
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
+
         // userId =  gameTradeInApplication.GetLoginUser().getUserId();
         // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+
         userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
         authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         setContentView(R.layout.activity_address);
@@ -76,7 +79,6 @@ public class AddressActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.addressToolBar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
         toolbar.setTitle("");
@@ -341,8 +343,6 @@ public class AddressActivity extends AppCompatActivity {
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-
-
                 Uri.Builder builder = new Uri.Builder();
                 builder.appendPath("api")
                         .appendPath("user")
@@ -351,8 +351,6 @@ public class AddressActivity extends AppCompatActivity {
                         .appendPath(gameDetailId)
                         .appendPath("match")
                         .appendPath("confirm");
-
-
                 urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
@@ -367,7 +365,6 @@ public class AddressActivity extends AppCompatActivity {
                 out.write(postJson.toString().getBytes());
                 out.flush();
                 out.close();
-
                 responseCode = urlConn.getResponseCode();
                 if (responseCode == 200) {
                     status = "Match confirmed";

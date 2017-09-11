@@ -337,6 +337,7 @@ public class AddressOperationActivity extends AppCompatActivity{
                     intent.putExtra("operation","browse");
                     intent.setClass(AddressOperationActivity.this, AddressActivity.class);
                     startActivity(intent);
+
                 }
                 else{
 
