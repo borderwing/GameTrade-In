@@ -17,6 +17,15 @@ public class ShowOrderGamesItem {
     private int receiverStatus;
     private int status;
     private long gameId;
+    private int points;
+
+    public int getPoints() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = points;
+    }
 
     public UserEntity getSender() {
         return sender;
