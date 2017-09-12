@@ -21,10 +21,10 @@ import retrofit2.Call;
  * Created by lykav on 9/12/2017.
  */
 
-public class OrderPaginationFragment extends PaginationFragment<WishBean> {
+public class OrderPaginationFragment /*extends PaginationFragment<WishBean> */{
+/*
 
-
-    /*public static OrderPaginationFragment newInstance() {
+    *//*public static OrderPaginationFragment newInstance() {
 
         Bundle args = new Bundle();
         args.putSerializable(WishOfferPaginationAdapter.ARG_TYPE,
@@ -32,15 +32,15 @@ public class OrderPaginationFragment extends PaginationFragment<WishBean> {
         OrderPaginationFragment fragment = new OrderPaginationFragment();
         fragment.setArguments(args);
         return fragment;
-    };*/
+    };*//*
 
 
-/*    @Override
+*//*    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v= super.onCreateView(inflater, container, savedInstanceState);
 //        initOfferListView(v);
         return v;
-    };*/
+    };*//*
 
     @Override
     protected Call<List<WishBean>> callApi() {
@@ -56,15 +56,15 @@ public class OrderPaginationFragment extends PaginationFragment<WishBean> {
 
         return new OrderPaginationAdapter(fragment) {
 
-            /*@Override
+            *//*@Override
             public int getAdapterType() {
                 return WishOfferPaginationAdapter.TYPE_ORDER;
-            }*/
+            }*//*
 
             @Override
             public GameTradeService getGameTradeService() {
                 return mGameTradeService;
             }
         };
-    }
+    }*/
 }

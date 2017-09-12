@@ -33,14 +33,14 @@ import retrofit2.Response;
  * Created by lykav on 9/12/2017.
  */
 
-public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<WishBean> {
-
-    /*public static final String ARG_TYPE = "WishOfferPaginationAdapter.type";
+public abstract class OrderPaginationAdapter /*extends LinearPaginationAdapter<WishBean> */{
+/*
+    *//*public static final String ARG_TYPE = "WishOfferPaginationAdapter.type";
     public static final int TYPE_OFFER = 1;
-    public static final int TYPE_WISH = 2;*/
+    public static final int TYPE_WISH = 2;*//*
 
 
-    /*public abstract int getAdapterType();*/
+    *//*public abstract int getAdapterType();*//*
 
     private Fragment mFragment;
 
@@ -128,7 +128,7 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Wis
 
 
             mOrderWishContentLayout = (LinearLayout) itemView.findViewById(R.id.item_order_wish_content);
-            mOrderOfferContentLayout = (LinearLayout) itemView.findViewById(R.id.item_order_offer_content)
+            mOrderOfferContentLayout = (LinearLayout) itemView.findViewById(R.id.item_order_offer_content);
 
             mErrorLayout = (LinearLayout) itemView.findViewById(R.id.error_layout);
             mRetryButton = (Button) itemView.findViewById(R.id.error_btn_retry);
@@ -137,6 +137,8 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Wis
             mOrderCancelButton = (Button) itemView.findViewById(R.id.item_order_button_cancel);
 
         }
+    }
+*//*
 
         public void bind(WishBean wish){
 
@@ -157,16 +159,20 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Wis
 
         // TODO: NEWBINDCONTENT INCLUDING ORDERBEAN
         private void bindContents(WishBean wish, GameDetailBean gameDetail){
-            mWishTitle.setText(orderDetail.getwishTitle());
-            mOfferTitle.setText(orderDetail.getofferTitle());
+            *//*
+*//*mWishTitle.setText(orderDetail.getwishTitle());
+            mOfferTitle.setText(orderDetail.getofferTitle());*//**//*
+
 
 
 
 
             // TODO: move it to string.xml implementation
             // mCredit.setText(String.valueOf(wish.getPoints()) + " pts");
-            mWishPoints.setText(String.valueOf(order.getWishPoints()+"pts"));
+            *//*
+*//*mWishPoints.setText(String.valueOf(order.getWishPoints()+"pts"));
             mOfferPoints.setText(String.valueOf(order.getOrderPoints()+"pts"));
+*//**//*
 
 
 
@@ -181,7 +187,9 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Wis
             String platform = utility.getPlatformString(wish.getGame().getPlatformId());
             String region = utility.getRegionString(wish.getGame().getRegionId());
 
-            mMeta.setText(platform + " | " + region);
+            *//*
+*//*mMeta.setText(platform + " | " + region);*//**//*
+
 
             Glide
                     .with(context)
@@ -278,5 +286,6 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Wis
     private Call<GameDetailBean> callGameDetailApi(Long igdbId){
         return getGameTradeService().getDetailGame(igdbId);
     }
-
+*//*
+    }*/
 }
