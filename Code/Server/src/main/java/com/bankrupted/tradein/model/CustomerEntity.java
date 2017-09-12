@@ -12,6 +12,7 @@ public class CustomerEntity extends UserEntity {
     private String phone;
     private Integer rating;
     private Integer ratingUserNum=0;
+    private Integer points=0;
 
     @Basic
     @Column(name = "email", nullable = true, length = 255)
@@ -23,6 +24,15 @@ public class CustomerEntity extends UserEntity {
         this.email = email;
     }
 
+    @Basic
+    @Column(name="points",nullable = true, length = 255)
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
+    }
 
     @Basic
     @Column

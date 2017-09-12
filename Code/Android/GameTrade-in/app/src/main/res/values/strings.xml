@@ -23,4 +23,9 @@
     <string name="login_prompt">Please login before performing this action.</string>
     <string name="in_wish_list">In Wish List</string>
     <string name="in_offer_list">In Offer List</string>
+    <string name="button_match">Match</string>
+    <string name="button_edit">Edit</string>
+    <string name="button_reload">Reload</string>
+    <string name="match_succeeded">Match Succeeded</string>
+
 </resources>

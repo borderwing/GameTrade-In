@@ -9,7 +9,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="bottom"
+        android:layout_gravity="bottom|right"
         android:layout_marginTop="@dimen/activity_margin"
         android:background="@android:color/white"
         android:orientation="vertical"
@@ -66,6 +66,31 @@
                 android:textStyle="bold"
                 tools:text="2500 pts"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/item_wish_match"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_edit"
+                    android:layout_marginLeft="@dimen/activity_margin_content"
+                    android:layout_marginStart="@dimen/activity_margin_content"/>
+
+                <Space
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+
+                <Button
+                    android:id="@+id/item_wish_edit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_match"
+                    />
+
+            </LinearLayout>
 
         </LinearLayout>
 

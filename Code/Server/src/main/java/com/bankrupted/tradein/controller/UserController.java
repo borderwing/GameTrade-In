@@ -725,7 +725,8 @@ public class UserController {
 
     //match game in wish list
     @RequestMapping(value="/{userId}/wishlist/{gameId}/match",method=RequestMethod.GET)
-    public ResponseEntity<List<ReceiverOrderItem>> matchWistList(@PathVariable("userId")int userid,
+    public ResponseEntity<List<ReceiverOrderItem>> matchWistList(
+            @RequestParam(name = "scale",defaultValue = "200")Integer scale,@PathVariable("userId")int userid,
                                                             @PathVariable("gameId")long gameid){
         System.out.println("match game...");
 
@@ -753,9 +754,8 @@ public class UserController {
                 break;
             }
         }
-
         //get the list of userid
-        List<OfferEntity> offerList=offerService.getOfferGames(wantPoint,gameid);
+        List<OfferEntity> offerList=offerService.getOfferGames(wantPoint,gameid,scale);
 
         Iterator<OfferEntity> iterOfferList=offerList.iterator();
         List<Integer> offerUserid=new ArrayList<>();
@@ -766,16 +766,18 @@ public class UserController {
                 offerUserid.add(UserId);
             }
         }
-
         List<Long> sendingGame;
         List<ReceiverOrderItem> resultOrder=new ArrayList<>();
         for(int i =0;i<offerUserid.size();i++){
-            sendingGame=wishService.getSameGame(offerUserid.get(i),userid,wantPoint);
+            sendingGame=wishService.getSameGame(offerUserid.get(i),userid,wantPoint,scale);
             for(int j =0;j<sendingGame.size();j++){
                 ReceiverOrderItem orderItem=new ReceiverOrderItem();
-                orderItem.setGetGameId(gameid);
-                orderItem.setOfferGameId(sendingGame.get(j));
+                GameEntity OfferGame=gameService.fetchOneGame(sendingGame.get(j));
+                orderItem.setOfferGame(OfferGame);
+                orderItem.setWishGame(game);
                 orderItem.setSenderId(offerUserid.get(i));
+                WishEntity wish=wishService.getOneWishByUserAndGame(userService.getUserById(offerUserid.get(i)),OfferGame);
+                orderItem.setOfferPoint(wish.getPoints());
                 resultOrder.add(orderItem);
             }
         }
@@ -840,7 +842,9 @@ public class UserController {
 
     //match game in offer list
     @RequestMapping(value="/{userid}/offerlist/{gameid}/match",method=RequestMethod.GET)
-    public ResponseEntity<List<SenderOrderItem>> matchOfferList(@PathVariable("userid")int userid,
+    public ResponseEntity<List<SenderOrderItem>> matchOfferList(
+            @RequestParam(name = "scale",defaultValue = "200")Integer scale,
+                                                                @PathVariable("userid")int userid,
                                                                 @PathVariable("gameid")long gameid){
         System.out.println("match the game in offer list...");
 

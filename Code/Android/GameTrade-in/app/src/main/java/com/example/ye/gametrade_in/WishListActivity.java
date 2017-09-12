@@ -18,7 +18,6 @@ import com.example.ye.gametrade_in.utils.SingleFragmentActivity;
 public class WishListActivity extends SingleFragmentActivity {
     private static final String TAG = "SearchResultsActivity";
 
-    private String mQuery;
 
     @Override
     protected Fragment createFragment() {
