@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * Created by ye on 2017/7/11.
@@ -90,18 +93,16 @@ public class AddressActivity extends AppCompatActivity {
             }
         });
         toolbar.findViewById(R.id.action_add);
+        // addressOperationButton = (Button) findViewById(R.id.itemAddressOperationButton);
 
         GetAddress();
-
-        SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
+        /*SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
                 new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
                 new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
         );
 
 
         listView.setAdapter(adapter);
-
-        // addressOperationButton = (Button) findViewById(R.id.itemAddressOperationButton);
 
         try {
             switch (operation) {
@@ -117,7 +118,8 @@ public class AddressActivity extends AppCompatActivity {
         }
         catch (Exception exc){
             Log.d("error", exc.toString());
-        }
+        }*/
+
     }
 
 
@@ -153,8 +155,33 @@ public class AddressActivity extends AppCompatActivity {
 
     }
 
+
+
     /*****************************************************************************************/
     /* Function for toolbar */
+
+    protected void setList(){
+        SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
+                new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
+                new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
+        );
+        listView.setAdapter(adapter);
+        try {
+            switch (operation) {
+                case "match":
+                    listView.setOnItemClickListener(onAddressItemClickListener);
+                    break;
+                case "browse":
+                    listView.setOnItemClickListener(onAddressItemBrowseClickListener);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception exc){
+            Log.d("error", exc.toString());
+        }
+    }
 
 
     @Override
@@ -341,6 +368,7 @@ public class AddressActivity extends AppCompatActivity {
                 if((status == null)== false) {
                     showDialog(status);
                 }
+                mHandler.sendEmptyMessage(0);
             }
             super.onPostExecute(result);
         }
@@ -350,13 +378,25 @@ public class AddressActivity extends AppCompatActivity {
         AddressDetailTask addressDetailTask = new AddressDetailTask();
         try {
             String test = addressDetailTask.execute().get();
+            // addressDetailTask.execute();
         }
         catch (Exception exc){
             showDialog(exc.toString());
         }
     }
 
-
+    Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg){
+            switch (msg.what){
+                case 0:
+                    setList();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     /*****************************************************************************************/
     /* Part for confirm match task */
