@@ -87,19 +87,22 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         super.onCreate(savedInstanceState);
 
         String authorizedHeader =
-                QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+                    QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
 
-        mUserId = Integer.parseInt(
-                QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
-        );
-
-        if(authorizedHeader == null) {
-            mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
-        } else {
-            mGameTradeService = GameTradeApi
-                    .getClient(authorizedHeader)
-                    .create(GameTradeService.class);
+        if(QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext()) != null){
+            mUserId = Integer.parseInt(
+                        QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
+                );
         }
+
+
+        if (authorizedHeader == null) {
+                mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+            } else {
+                mGameTradeService = GameTradeApi
+                        .getClient(authorizedHeader)
+                        .create(GameTradeService.class);
+            }
 
     }
 

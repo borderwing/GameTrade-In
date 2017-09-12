@@ -59,4 +59,11 @@ public interface GameTradeService {
     );
 
 
+    @GET("user/{userId}/offerlist/params")
+    Call<List<WishBean>> getOfferList(
+            @Path("userId") int userId,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
 }
