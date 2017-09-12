@@ -47,8 +47,8 @@ public class OfferPaginationFragment extends PaginationFragment<WishBean> {
     protected Call<List<WishBean>> callApi() {
         return mGameTradeService.getOfferList(
                 mUserId,
-                PAGE_SIZE,
-                PAGE_SIZE * currentPage
+                currentPage,
+                PAGE_SIZE
         );
     }
 

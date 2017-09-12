@@ -8,8 +8,8 @@ public class MatchedOfferBean {
     private Integer offerPoint;
 
     private UserBean sender;
-    private WishBean wishGame;
-    private WishBean offerGame;
+    private GameBean wishGame;
+    private GameBean offerGame;
 
     public Integer getOfferPoint() {
         return offerPoint;
@@ -27,19 +27,19 @@ public class MatchedOfferBean {
         this.sender = sender;
     }
 
-    public WishBean getWishGame() {
+    public GameBean getWishGame() {
         return wishGame;
     }
 
-    public void setWishGame(WishBean wishGame) {
+    public void setWishGame(GameBean wishGame) {
         this.wishGame = wishGame;
     }
 
-    public WishBean getOfferGame() {
+    public GameBean getOfferGame() {
         return offerGame;
     }
 
-    public void setOfferGame(WishBean offerGame) {
+    public void setOfferGame(GameBean offerGame) {
         this.offerGame = offerGame;
     }
 
