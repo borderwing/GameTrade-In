@@ -26,6 +26,8 @@
     <string name="button_match">Match</string>
     <string name="button_edit">Edit</string>
     <string name="button_reload">Reload</string>
+    <string name="button_confirm">Confirm</string>
+    <string name="button_cancel">Cancel</string>
     <string name="match_succeeded">Match Succeeded</string>
 
 </resources>

@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +20,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.fragment.OfferPaginationFragment;
+import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
+import com.example.ye.gametrade_in.utils.SingleFragmentActivity;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -27,8 +32,32 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class OfferListActivity extends AppCompatActivity{
+public class OfferListActivity extends SingleFragmentActivity {
 
+    private static final String TAG = "SearchResultsActivity";
+
+    private String mQuery;
+
+    @Override
+    protected Fragment createFragment() {
+        return new OfferPaginationFragment();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+
+}
+
+
+
+
+
+
+
+/*
     TextView offerListTitle;
     GameTradeInApplication gameTradeInApplication;
     Integer userId;
@@ -66,8 +95,12 @@ public class OfferListActivity extends AppCompatActivity{
         myOfferListDetailTask.execute(userId.toString());
     }
 
-    /*****************************************************************************************/
-    /* Offer list Task */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Offer list Task *//*
+
 
     public void showList(Integer showNum){
         GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
@@ -138,8 +171,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* Helper Function */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Helper Function *//*
+
 
 
 
@@ -157,8 +194,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* Button Listener Settings */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Button Listener Settings *//*
+
 
 
     private class gameItemClickListener implements AdapterView.OnItemClickListener {
@@ -184,8 +225,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* ToolBar Settings */
+    */
+/*****************************************************************************************//*
+
+    */
+/* ToolBar Settings *//*
+
 
 
     @Override
@@ -221,6 +266,5 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-
-}
+    */
+/*****************************************************************************************/

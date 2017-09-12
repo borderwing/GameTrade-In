@@ -18,6 +18,16 @@
         android:layout_alignParentLeft="true"
          />
 
+        <TextView
+            android:id="@+id/itemAddressDetailAddressTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Address:"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/itemAddressDetailAddressId"
+            />
     <!-- Address -->
     <TextView
         android:id="@+id/itemAddressDetailAddress"
@@ -26,33 +36,74 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@id/itemAddressDetailAddressId"
+        android:layout_toRightOf="@id/itemAddressDetailAddressTitle"
         />
     </RelativeLayout>
 
 
     <RelativeLayout
+        android:id="@+id/itemRegionReceiver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/itemAddressIdAddress">
-    <!-- Region -->
-    <TextView
-        android:id="@+id/itemAddressDetailRegion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:layout_alignParentLeft="true"
-         />
-        <!-- Receiver -->
+
         <TextView
-            android:id="@+id/itemAddressDetailReceiver"
+            android:id="@+id/itemAddressDetailRegionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/itemAddressDetailRegion"
+            android:text="Region:"
+            android:layout_alignParentLeft="true"
+            />
+        <!-- Region -->
+            <TextView
+                android:id="@+id/itemAddressDetailRegion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/itemAddressDetailRegionTitle"
+             />
+
+            <TextView
+                android:id="@+id/itemAddressDetailReceiverTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Receiver:"
+                android:layout_marginLeft="20dp"
+                android:layout_toRightOf="@id/itemAddressDetailRegion"
+                />
+        <!-- Receiver -->
+            <TextView
+                android:id="@+id/itemAddressDetailReceiver"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/itemAddressDetailReceiverTitle"
+                />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/itemPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/itemRegionReceiver">
+        <TextView
+            android:id="@+id/itemAddressDetailPhoneTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="Phone:"
+            android:layout_alignParentLeft="true"
             />
         <!-- Phone -->
         <TextView
@@ -62,7 +113,7 @@
             android:layout_gravity="center"
             android:gravity="center"
             android:layout_marginLeft="10dp"
-            android:layout_toRightOf="@id/itemAddressDetailReceiver"
+            android:layout_toRightOf="@id/itemAddressDetailPhoneTitle"
             />
     </RelativeLayout>
 
