@@ -1,23 +1,23 @@
 package com.bankrupted.tradein.model.temporaryItem;
 
 import com.bankrupted.tradein.model.GameEntity;
+import com.bankrupted.tradein.model.UserEntity;
 
 /**
  * Created by homepppp on 2017/7/4.
  */
 public class ReceiverOrderItem {
-    private int senderId;
+    private UserEntity sender;
     private GameEntity wishGame;
     private GameEntity offerGame;
     private int offerPoint;
 
-
-    public int getSenderId() {
-        return senderId;
+    public UserEntity getSender() {
+        return sender;
     }
 
-    public void setSenderId(int senderId) {
-        this.senderId = senderId;
+    public void setSender(UserEntity sender) {
+        this.sender = sender;
     }
 
     public GameEntity getWishGame() {
