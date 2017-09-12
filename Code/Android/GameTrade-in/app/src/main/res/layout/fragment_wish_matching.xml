@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
+              xmlns:numberpicker="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="12dp"
+
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginTop="@dimen/activity_margin"
+            android:background="@android:color/white"
+            android:orientation="vertical"
+            android:paddingBottom="@dimen/activity_margin"
+            android:paddingEnd="@dimen/activity_margin"
+            android:paddingLeft="@dimen/poster_thumb_width"
+            android:paddingRight="@dimen/activity_margin"
+            android:paddingStart="@dimen/poster_thumb_width"
+            android:paddingTop="@dimen/activity_margin_half">
+
+            <LinearLayout
+                android:id="@+id/item_wish_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/item_wish_meta"
+                    style="@style/TextAppearance.AppCompat.Caption"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_margin_content"
+                    android:layout_marginStart="@dimen/activity_margin_content"
+                    android:gravity="end"
+                    android:maxLines="1"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    tools:text="PS4 | WorldWide"/>
+
+                <TextView
+                    android:id="@+id/item_wish_title"
+                    style="@style/TextAppearance.AppCompat.Subhead"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/activity_margin_content"
+                    android:layout_marginStart="@dimen/activity_margin_content"
+                    android:layout_marginTop="@dimen/activity_margin_quarter"
+                    android:maxLines="2"
+                    tools:text="The Legend of Zelda: Breath of the Wild"/>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/item_wish_credit"
+                        style="@style/TextAppearance.AppCompat.Caption"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/activity_margin_half"
+                        android:layout_marginLeft="@dimen/activity_margin_content"
+                        android:layout_marginStart="@dimen/activity_margin_content"
+                        android:layout_marginTop="@dimen/activity_margin_half"
+                        android:ellipsize="end"
+                        android:gravity="end|center_vertical"
+                        android:maxLines="3"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        tools:text="2500 pts"/>
+
+                    <!--<ProgressBar-->
+                    <!--android:id="@+id/item_wish_progress"-->
+                    <!--android:layout_marginEnd="36dp"-->
+                    <!--style="@style/Widget.AppCompat.ProgressBar"-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_gravity="end"-->
+                    <!--android:theme="@style/CircularProgress"/>-->
+                    <!---->
+
+                </FrameLayout>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="@dimen/activity_margin_content"
+
+                        android:text="@string/button_reload"/>
+
+
+                    <com.travijuu.numberpicker.library.NumberPicker
+                        android:id="@+id/detail_credit_picker"
+
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+
+                        android:gravity="end|center_vertical"
+                        numberpicker:focusable="true"
+                        numberpicker:min="100"
+                        numberpicker:unit="100"
+
+                        numberpicker:value="1000"/>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/dummy_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:orientation="vertical"/>
+
+            </LinearLayout>
+
+
+        </FrameLayout>
+
+        <android.support.v7.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/activity_margin_half"
+            app:cardBackgroundColor="@color/placeholder_grey"
+            app:cardCornerRadius="3dp"
+            app:cardPreventCornerOverlap="false">
+
+            <ImageView
+                android:id="@+id/item_wish_cover"
+                android:layout_width="@dimen/poster_thumb_width"
+                android:layout_height="@dimen/poster_thumb_height"/>
+
+            <ProgressBar
+                android:id="@+id/item_cover_progress"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/activity_margin"
+                android:layout_gravity="center"
+                android:theme="@style/CircularProgress"/>
+
+        </android.support.v7.widget.CardView>
+
+    </android.support.v7.widget.CardView>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight=""
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/main_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/activity_margin_content"
+            android:paddingTop="@dimen/activity_margin_content"/>
+
+        <ProgressBar
+            android:id="@+id/main_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"/>
+
+        <include layout="@layout/error_layout"/>
+        <include layout="@layout/no_result_layout"/>
+
+    </FrameLayout>
+
+
+
+</LinearLayout>

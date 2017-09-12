@@ -38,6 +38,8 @@ import retrofit2.http.Path;
 
 public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter<WishBean> {
 
+
+
     private Fragment mFragment;
 
     public abstract GameTradeService getGameTradeService();
@@ -84,6 +86,9 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         private LinearLayout mErrorLayout;
         private Button mRetryButton;
 
+        private Button mEditButton;
+        private Button mMatchButton;
+
 
         public WishOfferHolder(View itemView) {
             super(itemView);
@@ -103,6 +108,8 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             mErrorLayout = (LinearLayout) itemView.findViewById(R.id.error_layout);
             mRetryButton = (Button) itemView.findViewById(R.id.error_btn_retry);
 
+            mEditButton = (Button) itemView.findViewById(R.id.item_wish_edit);
+            mMatchButton = (Button) itemView.findViewById(R.id.item_wish_match);
 
         }
 
