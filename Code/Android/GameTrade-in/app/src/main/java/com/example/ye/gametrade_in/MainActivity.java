@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
+import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.example.ye.gametrade_in.Bean.UserLoginBean;
@@ -179,41 +180,56 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(navigationOnClickListener);
 
         // set userId
+
         try{
 
-            // userId = gameTradeInApplication.GetLoginUser().getUserId();
-
             if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
+
                 UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
+
+                SetMenuHeaderDefault();
+
+               /* if(userId == null){
+                    UserLoginBean userDefault = new UserLoginBean();
+                    userDefault.setUserId(0);
+                    gameTradeInApplication.SetUserLogin(userDefault);
+                    userId = 0;
+
+
+                if(userId != 0){
+                    // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+                    SetMenuHeaderUserDetailed();
+                    UserDetailTask userDetailTask = new UserDetailTask();
+                    userDetailTask.execute(userId.toString());
+                }
+
+                else if(userId == 0){
+                    SetMenuHeaderDefault();
+                }
+                */
+
+                // QueryPreferences.setStoredQuery(getApplicationContext(), "0", null); */
+
             }
 
             else {
-
+                UserLoginBean userLoginBean = new UserLoginBean();
+                // UserAuthenticationBean userAuthenticationBean = new UserAuthenticationBean();
                 authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
                 userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
-            }
-            // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
+                userLoginBean.setUserId(userId);
+                gameTradeInApplication.SetUserLogin(userLoginBean);
 
-            if(userId == null){
-                UserLoginBean userDefault = new UserLoginBean();
-                userDefault.setUserId(0);
-                gameTradeInApplication.SetUserLogin(userDefault);
-                userId = 0;
-            }
-
-            if(userId != 0){
-                // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
                 SetMenuHeaderUserDetailed();
                 UserDetailTask userDetailTask = new UserDetailTask();
                 userDetailTask.execute(userId.toString());
             }
+            // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
-            else if(userId == 0){
-                SetMenuHeaderDefault();
-            }
+
         }
         catch (Exception exc){
             showDialog(exc.toString());
@@ -277,8 +293,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
+
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
+
             QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);

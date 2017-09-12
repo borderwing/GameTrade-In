@@ -35,7 +35,7 @@ import static java.security.AccessController.getContext;
 
 public class MatchOfferActivity extends AppCompatActivity {
 
-    private static final String EXTRA_WISH = "MatchOfferActivity.wish";
+    /*private static final String EXTRA_WISH = "MatchOfferActivity.wish";
     private static final String EXTRA_GAME_DETAIL = "MatchOfferActivity.game_detail";
 
 
@@ -179,5 +179,5 @@ public class MatchOfferActivity extends AppCompatActivity {
 
             return gameTransport;
         }
-    }
+    }*/
 }
