@@ -1039,6 +1039,42 @@ public class UserController {
         return new ResponseEntity<List<OrderResult>>(pagedShowResult.getPageList(),HttpStatus.OK);
     }
 
+    //fetch one order
+    @RequestMapping(value="/{userid}/order/{orderId}",method=RequestMethod.GET)
+    public ResponseEntity<OrderResult> getOneOrder(@PathVariable("userid")int userid,@PathVariable("orderId")int orderId){
+        System.out.println("get one order...");
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<OrderResult>(HttpStatus.NOT_FOUND);
+        }
+
+        TradeOrderEntity order=orderService.getTradeOrderById(orderId);
+        List<TradeGameEntity> TradeGames=orderService.getTradeGamesById(orderId);
+        OrderResult result=new OrderResult();
+        if(TradeGames.get(0).getReceiver().getUserId()==userid){
+            result.setTargetAddress(TradeGames.get(0).getFromAddress());
+            result.setYouAddress(TradeGames.get(0).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(1).getGame());
+            result.setWishGame(TradeGames.get(0).getGame());
+            result.setOfferPoints(TradeGames.get(1).getPoints());
+            result.setWishPoints(TradeGames.get(0).getPoints());
+        }
+        else{
+            result.setTargetAddress(TradeGames.get(1).getFromAddress());
+            result.setYouAddress(TradeGames.get(1).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(0).getGame());
+            result.setWishGame(TradeGames.get(1).getGame());
+            result.setWishPoints(TradeGames.get(1).getPoints());
+            result.setOfferPoints(TradeGames.get(0).getPoints());
+        }
+        return new ResponseEntity<OrderResult>(result,HttpStatus.OK);
+    }
+
     //fetch unconfirmed order
     @RequestMapping(value="/{userid}/order/unconfirmed",method=RequestMethod.GET)
     public ResponseEntity<List<ShowOrderItem>> getUnconfirmOrders(@PathVariable("userid")int userid){
