@@ -680,6 +680,12 @@ public class UserController {
                                                     @PathVariable("userid")int userid){
         System.out.println("creating new address");
 
+        //check whether all blanks are filled
+        if(addressItem.getAddress()==""||addressItem.getPhone()==""||addressItem.getReceiver()==""||addressItem.getRegion()==""){
+            System.out.println("dont't fill all the blanks...");
+            return new ResponseEntity<AddressEntity>(HttpStatus.BAD_REQUEST);
+        }
+
         UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find the user");
@@ -741,7 +747,6 @@ public class UserController {
             System.out.println("can't find game...");
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
         }
-
 
         //get the wanted points
         int wantPoint=0;
@@ -1018,6 +1023,7 @@ public class UserController {
                     showResult.setWishPoints(item.getGameDetail().get(1).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(0).getPoints());
                 }
+                showResult.setOrderId(item.getTradeOrderId());
                 showResult.setStatus(item.getStatus());
                 resultList.add(showResult);
             }

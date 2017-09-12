@@ -3,11 +3,20 @@ package com.bankrupted.tradein.model.temporaryItem;
 import com.bankrupted.tradein.model.GameEntity;
 
 public class OrderResult {
+    private int orderId;
     private GameEntity wishGame;
     private GameEntity offerGame;
     private int wishPoints;
     private int offerPoints;
     private int status;
+
+    public int getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(int orderId) {
+        this.orderId = orderId;
+    }
 
     public GameEntity getWishGame() {
         return wishGame;
