@@ -14,6 +14,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -54,7 +55,7 @@ public interface GameTradeService {
 
     @GET("user/{userId}/wishlist/params")
     Call<List<WishBean>> getWishList(
-            @Path("userId") int userId,
+            @Path("userId") Long userId,
             @Query("limit") int limit,
             @Query("offset") int offset
     );
@@ -62,7 +63,7 @@ public interface GameTradeService {
 
     @GET("user/{userId}/offerlist/params")
     Call<List<WishBean>> getOfferList(
-            @Path("userId") int userId,
+            @Path("userId") Long userId,
             @Query("limit") int limit,
             @Query("offset") int offset
     );
@@ -73,5 +74,8 @@ public interface GameTradeService {
             @Path("gameId") Long gameId,
             @Query("scale") int scale
     );
+
+    @PUT("user/{userId}/wishlist/{gameId}/modify")
+    
 
 }

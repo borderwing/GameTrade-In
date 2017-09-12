@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -192,6 +193,8 @@ public class GameService {
         return gameRepo.findOne(gameid);
     }
 
+
+    @Transactional
     public GameEntity getGameNonBlocked(Long igdbId,int platformId,int regionId){
         GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
         if(game != null) {
@@ -202,6 +205,7 @@ public class GameService {
         }
     }
 
+    @Transactional
     public GameEntity getGameBlocked(Long igdbId,int platformId,int regionId){
         GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
         if(game == null) {
