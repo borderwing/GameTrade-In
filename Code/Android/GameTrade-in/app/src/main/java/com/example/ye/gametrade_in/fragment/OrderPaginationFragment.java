@@ -6,11 +6,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import com.example.ye.gametrade_in.Bean.WishBean;
-import com.example.ye.gametrade_in.R;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
+import com.example.ye.gametrade_in.adapter.OrderPaginationAdapter;
 import com.example.ye.gametrade_in.adapter.WishOfferPaginationAdapter;
 import com.example.ye.gametrade_in.api.GameTradeService;
 
@@ -22,30 +21,30 @@ import retrofit2.Call;
  * Created by lykav on 9/12/2017.
  */
 
-public class OfferPaginationFragment extends PaginationFragment<WishBean> {
+public class OrderPaginationFragment /*extends PaginationFragment<WishBean> */{
+/*
 
-
-    public static OfferPaginationFragment newInstance() {
+    *//*public static OrderPaginationFragment newInstance() {
 
         Bundle args = new Bundle();
         args.putSerializable(WishOfferPaginationAdapter.ARG_TYPE,
                 WishOfferPaginationAdapter.TYPE_OFFER);
-        OfferPaginationFragment fragment = new OfferPaginationFragment();
+        OrderPaginationFragment fragment = new OrderPaginationFragment();
         fragment.setArguments(args);
         return fragment;
-    };
+    };*//*
 
 
-    @Override
+*//*    @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v= super.onCreateView(inflater, container, savedInstanceState);
 //        initOfferListView(v);
         return v;
-    };
+    };*//*
 
     @Override
     protected Call<List<WishBean>> callApi() {
-        return mGameTradeService.getOfferList(
+        return mGameTradeService.getOrderList(
                 mUserId,
                 PAGE_SIZE,
                 PAGE_SIZE * currentPage
@@ -55,17 +54,17 @@ public class OfferPaginationFragment extends PaginationFragment<WishBean> {
     @Override
     protected LinearPaginationAdapter<WishBean> getNewAdapter(Fragment fragment, Bundle bundle) {
 
-        return new WishOfferPaginationAdapter(fragment) {
+        return new OrderPaginationAdapter(fragment) {
 
-            @Override
+            *//*@Override
             public int getAdapterType() {
-                return WishOfferPaginationAdapter.TYPE_OFFER;
-            }
+                return WishOfferPaginationAdapter.TYPE_ORDER;
+            }*//*
 
             @Override
             public GameTradeService getGameTradeService() {
                 return mGameTradeService;
             }
         };
-    }
+    }*/
 }

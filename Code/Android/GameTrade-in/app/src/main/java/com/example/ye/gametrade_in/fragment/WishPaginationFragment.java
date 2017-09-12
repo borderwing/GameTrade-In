@@ -1,5 +1,6 @@
 package com.example.ye.gametrade_in.fragment;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.example.ye.gametrade_in.Bean.WishBean;
@@ -26,12 +27,18 @@ public class WishPaginationFragment extends PaginationFragment<WishBean> {
     }
 
     @Override
-    protected LinearPaginationAdapter<WishBean> getNewAdapter(Fragment fragment) {
+    protected LinearPaginationAdapter<WishBean> getNewAdapter(Fragment fragment, Bundle bundle) {
         return new WishOfferPaginationAdapter(fragment) {
+            @Override
+            public int getAdapterType() {
+                return WishOfferPaginationAdapter.TYPE_WISH;
+            }
+
             @Override
             public GameTradeService getGameTradeService() {
                 return mGameTradeService;
             }
         };
     }
+
 }

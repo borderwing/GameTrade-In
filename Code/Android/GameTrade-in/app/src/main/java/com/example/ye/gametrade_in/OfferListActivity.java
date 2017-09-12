@@ -40,7 +40,10 @@ public class OfferListActivity extends SingleFragmentActivity {
 
     @Override
     protected Fragment createFragment() {
-        return new OfferPaginationFragment();
+        Bundle args = new Bundle();
+        OfferPaginationFragment offerPaginationFragment = new OfferPaginationFragment();
+        return offerPaginationFragment;
+        // return new OfferPaginationFragment();
     }
 
     @Override

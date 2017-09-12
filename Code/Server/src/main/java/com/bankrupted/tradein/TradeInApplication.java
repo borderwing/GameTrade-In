@@ -129,13 +129,13 @@ public class TradeInApplication implements CommandLineRunner {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder){
 
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+//        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+//
+//        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 1081));
+//        requestFactory.setProxy(proxy);
+//
+//        return new RestTemplate(requestFactory);
 
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 1081));
-        requestFactory.setProxy(proxy);
-
-        return new RestTemplate(requestFactory);
-
-        // return builder.build();
+         return builder.build();
     }
 }
