@@ -13,10 +13,13 @@ import com.bankrupted.tradein.repository.RoleRepository;
 import com.bankrupted.tradein.repository.UserRepository;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -125,6 +128,14 @@ public class TradeInApplication implements CommandLineRunner {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder){
-        return builder.build();
+
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 1081));
+        requestFactory.setProxy(proxy);
+
+        return new RestTemplate(requestFactory);
+
+        // return builder.build();
     }
 }

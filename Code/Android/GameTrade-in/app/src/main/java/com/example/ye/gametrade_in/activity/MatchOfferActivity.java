@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -14,18 +17,33 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
+import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
 import com.example.ye.gametrade_in.MainActivity;
 import com.example.ye.gametrade_in.QueryPreferences;
 import com.example.ye.gametrade_in.R;
+import com.example.ye.gametrade_in.api.GameTradeApi;
+import com.example.ye.gametrade_in.api.GameTradeService;
 import com.example.ye.gametrade_in.fragment.MatchedOfferReloadableFragment;
 import com.example.ye.gametrade_in.utils.GameDetailUtility;
 import com.google.gson.Gson;
 import com.travijuu.numberpicker.library.NumberPicker;
 
 import org.w3c.dom.Text;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import static java.security.AccessController.getContext;
 
@@ -38,6 +56,11 @@ public class MatchOfferActivity extends AppCompatActivity {
     private static final String EXTRA_WISH = "MatchOfferActivity.wish";
     private static final String EXTRA_GAME_DETAIL = "MatchOfferActivity.game_detail";
 
+    MatchedOfferReloadableFragment mMatchOfferReloadableFragment;
+
+    private Long mUserId;
+
+    private GameTradeService mGameTradeService;
 
     // fields for the upper area view
     private WishBean mWish;
@@ -93,14 +116,41 @@ public class MatchOfferActivity extends AppCompatActivity {
 
 
     Fragment createFragment(){
-        return new MatchedOfferReloadableFragment();
+        mMatchOfferReloadableFragment = new MatchedOfferReloadableFragment();
+        return mMatchOfferReloadableFragment;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
+
+        mUserId = Long.parseLong(QueryPreferences.getStoredAuthorizedQuery(
+                this.getApplicationContext()
+        ));
+
+        String authorizedHeader = QueryPreferences
+                .getStoredAuthorizedQuery(this.getApplicationContext());
+        if(authorizedHeader == null) {
+            mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+        } else {
+            mGameTradeService = GameTradeApi
+                    .getClient(authorizedHeader)
+                    .create(GameTradeService.class);
+        }
+
         setContentView(R.layout.activity_wish_matching);
+
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
+
+
+        if(fragment == null){
+            fragment = createFragment();
+            fm.beginTransaction()
+                    .add(R.id.fragment_container, fragment)
+                    .commit();
+        }
+
 
         mWish = getWishFromIntent(getIntent());
         mGameDetail = getGameDetailFromIntent(getIntent());
@@ -132,27 +182,86 @@ public class MatchOfferActivity extends AppCompatActivity {
         mButtonReload.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                mButtonReload.setEnabled(false);
+                ModifyWishOfferBean modifyWishOffer = verifyNewPoint();
+                if(modifyWishOffer != null){
+                    callModifyWishApi(modifyWishOffer).enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            mMatchOfferReloadableFragment.reloadPage(new Callback<List<MatchedOfferBean>>() {
+                                @Override
+                                public void onResponse(Call<List<MatchedOfferBean>> call, Response<List<MatchedOfferBean>> response) {
+                                    mButtonReload.setEnabled(true);
+                                }
 
+                                @Override
+                                public void onFailure(Call<List<MatchedOfferBean>> call, Throwable t) {
+                                    mButtonReload.setEnabled(true);
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            mButtonReload.setEnabled(true);
+                        }
+                    });
+                }
             }
         });
 
+        mNumberPicker.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    //Clear focus here from credit picker
+                    mNumberPicker.clearFocus();
+                    InputMethodManager imm = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mNumberPicker.getWindowToken(), 0);
+                    return true;
+                }
+
+                return false;
+            }
+
+        });
 
 
+        Glide
+                .with(this)
+                .load(mGameDetail.getCoverUrl())
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        // TODO: 08/11/16 handle failure{
+                            mCoverProgress.setVisibility(View.GONE);
+                        return false;
+                    }
 
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.fragment_container);
-
-
-        if(fragment == null){
-            fragment = createFragment();
-            fm.beginTransaction()
-                    .add(R.id.fragment_container, fragment)
-                    .commit();
-        }
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        // image ready, hide progress now
+                        mCoverProgress.setVisibility(View.GONE);
+                        return false;   // return false if you want Glide to handle everything else.
+                    }
+                })
+                .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                .fitCenter()
+                .crossFade()
+                .into(mCover);
     }
 
 
-    protected GameTransportBean verifyNewPoint(){
+    Call<String> callModifyWishApi(ModifyWishOfferBean bean){
+        return mGameTradeService.modifyWishItem(
+                mUserId, mWish.getGame().getGameId(), bean
+        );
+    }
+
+
+    protected ModifyWishOfferBean verifyNewPoint(){
         int editedCredit = mNumberPicker.getValue();
         String userIdStr = QueryPreferences.
                 getStoredUserIdQuery(getApplicationContext());
@@ -170,14 +279,13 @@ public class MatchOfferActivity extends AppCompatActivity {
                     R.string.invalid_credit, Toast.LENGTH_SHORT).show();
             return null;
         } else {
-            GameTransportBean gameTransport =
-                    new GameTransportBean(
-                            mIgdbId,
-                            mSelectedPlatform.getPlatformId(),
-                            mSelectedRegion.getRegionId(),
-                            editedCredit);
-
-            return gameTransport;
+            return new ModifyWishOfferBean(editedCredit);
         }
+    }
+
+    private void clearPickerFocus(){
+        mNumberPicker.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mNumberPicker.getWindowToken(), 0);
     }
 }

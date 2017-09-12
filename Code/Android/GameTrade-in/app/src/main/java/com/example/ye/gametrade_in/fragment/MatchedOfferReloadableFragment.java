@@ -38,10 +38,7 @@ public class MatchedOfferReloadableFragment extends ReloadableFragment<MatchedOf
 
     public static MatchedOfferReloadableFragment newInstance
             (long gameId) {
-
         Bundle args = new Bundle();
-
-
 
         args.putLong(ARG_GAME_ID, gameId);
 

@@ -300,11 +300,7 @@ public class FragmentGameDetail extends Fragment {
                     imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
                     return true;
                 }
-                if (event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_SOFT_LEFT) {
-                    // make the action you wan't for the back key here
-                    Log.d("KEY", "DOWNKEYBOARD");
-                    return false;
-                }
+
                 return false;
             }
 

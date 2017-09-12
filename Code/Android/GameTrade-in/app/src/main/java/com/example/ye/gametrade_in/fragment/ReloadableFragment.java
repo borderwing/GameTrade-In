@@ -171,7 +171,9 @@ public abstract class ReloadableFragment<T> extends Fragment implements Paginati
         });
     }
 
-    public void reloadPage(){
+
+
+    public void reloadPage(final Callback<List<T>> callback){
         hideErrorView();
         hideNoResultView();
         mAdapter.clear();
@@ -192,6 +194,9 @@ public abstract class ReloadableFragment<T> extends Fragment implements Paginati
                 } else{
                     showNoResultView();
                 }
+
+                callback.onResponse(call, response);
+
             }
 
             @Override
@@ -199,6 +204,9 @@ public abstract class ReloadableFragment<T> extends Fragment implements Paginati
                 if(!isAdded())  return;
                 t.printStackTrace();
                 showErrorView(t);
+
+                callback.onFailure(call,t);
+
             }
         });
     }

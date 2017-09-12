@@ -5,6 +5,7 @@ import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
 import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
 
 import java.util.List;
 
@@ -76,6 +77,10 @@ public interface GameTradeService {
     );
 
     @PUT("user/{userId}/wishlist/{gameId}/modify")
-    
+    Call<String> modifyWishItem(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId,
+            @Body ModifyWishOfferBean bean
+    );
 
 }
