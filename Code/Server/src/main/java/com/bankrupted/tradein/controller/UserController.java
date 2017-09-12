@@ -762,7 +762,7 @@ public class UserController {
         while(iterOfferList.hasNext()){
             OfferEntity offerentity=iterOfferList.next();
             int UserId=offerentity.getOfferEntityPK().getUser().getUserId();
-            if(UserId!=userid){      
+            if(UserId!=userid){
                 offerUserid.add(UserId);
             }
         }
