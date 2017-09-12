@@ -816,6 +816,13 @@ public class UserController {
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
+        //check whether the order is already exist
+        if(orderService.DuplicatedOrder(gameid,userid)){
+            System.out.println("have order already...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.CONFLICT);
+        }
+
+
         //create TradeOrder
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
@@ -832,6 +839,7 @@ public class UserController {
         OfferEntity TargetOffer=offerService.getOneOfferByUserAndGame(targetUser,receiveGame);
         int receivePoints=(UserWish.getPoints()+TargetOffer.getPoints())/2;
         int offerPoints=(UserOffer.getPoints()+TargetWish.getPoints())/2;
+
         //create the send game order
         TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId,offerPoints);
 
@@ -997,20 +1005,16 @@ public class UserController {
                 int targetUserId;
                 if (item.getGameDetail().get(0).getReceiver().getUserId() == userid) {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
-                    String name = gameWish.getTitle();
                     GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
-                    String name2 = gameOffer.getTitle();
-                    showResult.setWishGameTitle(name);
-                    showResult.setOfferGameTitle(name2);
+                    showResult.setWishGame(gameWish);
+                    showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(0).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(1).getPoints());
                 } else {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
-                    String name = gameWish.getTitle();
-                    showResult.setWishGameTitle(name);
+                    showResult.setWishGame(gameWish);
                     GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
-                    String name2 = gameOffer.getTitle();
-                    showResult.setOfferGameTitle(name2);
+                    showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(1).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(0).getPoints());
                 }

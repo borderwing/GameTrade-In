@@ -1,26 +1,28 @@
 package com.bankrupted.tradein.model.temporaryItem;
 
+import com.bankrupted.tradein.model.GameEntity;
+
 public class OrderResult {
-    private String wishGameTitle;
-    private String offerGameTitle;
+    private GameEntity wishGame;
+    private GameEntity offerGame;
     private int wishPoints;
     private int offerPoints;
     private int status;
 
-    public String getWishGameTitle() {
-        return wishGameTitle;
+    public GameEntity getWishGame() {
+        return wishGame;
     }
 
-    public void setWishGameTitle(String wishGameTitle) {
-        this.wishGameTitle = wishGameTitle;
+    public void setWishGame(GameEntity wishGame) {
+        this.wishGame = wishGame;
     }
 
-    public String getOfferGameTitle() {
-        return offerGameTitle;
+    public GameEntity getOfferGame() {
+        return offerGame;
     }
 
-    public void setOfferGameTitle(String offerGameTitle) {
-        this.offerGameTitle = offerGameTitle;
+    public void setOfferGame(GameEntity offerGame) {
+        this.offerGame = offerGame;
     }
 
     public int getWishPoints() {
