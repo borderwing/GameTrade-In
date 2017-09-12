@@ -19,6 +19,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
     public TextView menuUserName;
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton,
-                  menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
+                  menuMyListButton, menuMyOfferListButton, menuMyAddressButton, menuMyOrderButton;
 
     public GameTradeInApplication gameTradeInApplication;
     public DrawerLayout mainDrawerLayout;
@@ -165,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton = (Button) findViewById(R.id.menuMyListButton);
         menuMyOfferListButton = (Button) findViewById(R.id.menuMyOfferListButton);
         menuMyAddressButton = (Button) findViewById(R.id.menuMyAddressButton);
+        menuMyOrderButton = (Button) findViewById(R.id.menuMyOrderButton);
         mainDrawerLayout = (DrawerLayout) findViewById(R.id.main);
 
         menuRegisterButton.setOnClickListener(menuRegisterOnClickListener);
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
         menuMyAddressButton.setOnClickListener(menuMyAddressButtonOnClickListener);
+        menuMyOrderButton.setOnClickListener(menuMyOrderButtonClickListener);
         toolbar.setNavigationOnClickListener(navigationOnClickListener);
 
         // set userId
@@ -276,9 +279,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
-
             QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
-
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -319,6 +320,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             mainDrawerLayout.openDrawer(Gravity.LEFT);
+        }
+    };
+
+    private View.OnClickListener menuMyOrderButtonClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            Intent intent = new Intent();
+            // TODO: jump to order activity
         }
     };
 
