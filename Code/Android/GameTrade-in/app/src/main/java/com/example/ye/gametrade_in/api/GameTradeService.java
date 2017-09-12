@@ -75,7 +75,14 @@ public interface GameTradeService {
             @Query("scale") int scale
     );
 
-    @PUT("user/{userId}/wishlist/{gameId}/modify")
+    @GET("user/{userId}/order/params")
+    Call<List<WishBean>> getOrderList(
+            @Path("userId") Long userId,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
+
+    // @PUT("user/{userId}/wishlist/{gameId}/modify")
     
 
 }
