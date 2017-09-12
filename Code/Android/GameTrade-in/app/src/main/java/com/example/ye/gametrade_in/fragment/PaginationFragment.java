@@ -68,6 +68,8 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     protected static final int TOTAL_PAGES = 5;
     protected static final int PAGE_SIZE = 10;
 
+
+
     protected boolean isLoading = false;
     protected boolean isLastPage = false;
 
@@ -79,13 +81,15 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
     protected abstract Call<List<T>> callApi() ;
 
-    protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment);
+    protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment, Bundle bundle);
 
+
+    private Bundle mArguments;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        mArguments = getArguments();
         String authorizedHeader =
                     QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
 
@@ -124,7 +128,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         btnRetryNoResult = (Button) v.findViewById(R.id.no_result_btn_retry);
 
 
-        mAdapter = getNewAdapter(this);
+        mAdapter = getNewAdapter(this, mArguments);
 
         mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         rv.setLayoutManager(mLayoutManager);

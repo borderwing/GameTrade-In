@@ -47,7 +47,7 @@ public class SearchPaginationFragment extends PaginationFragment<GameTileBean> {
     }
 
     @Override
-    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment) {
+    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment, Bundle bundle) {
         return new GameTilePaginationAdapter(fragment);
     }
 }

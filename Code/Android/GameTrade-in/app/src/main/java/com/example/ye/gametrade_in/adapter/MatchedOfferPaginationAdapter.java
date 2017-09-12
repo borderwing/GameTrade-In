@@ -60,7 +60,7 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
 
     @Override
     protected int getItemLayout() {
-        return R.layout.item_wish_offer;
+        return R.layout.item_matched_offer;
     }
 
     private class MatchedOfferHolder extends ItemHolder {

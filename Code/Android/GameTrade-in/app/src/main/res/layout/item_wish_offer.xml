@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content">
 
                 <Button
-                    android:id="@+id/item_wish_match"
+                    android:id="@+id/item_wish_edit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/button_edit"
@@ -84,7 +84,7 @@
                     android:layout_weight="1"/>
 
                 <Button
-                    android:id="@+id/item_wish_edit"
+                    android:id="@+id/item_wish_match"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/button_match"

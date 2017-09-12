@@ -232,13 +232,13 @@
             android:src="@drawable/add">
         </ImageButton>-->
             <Button
-                android:id = "@+id/detail_modify_button"
+                android:id = "@+id/detail_modify_confirm_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_centerHorizontal="true"
-                android:text = "Modify"
-                android:visibility="gone"/>
+                android:layout_alignParentLeft="true"
+                android:text = "Confirm"
+                android:visibility="gone">
+            </Button>
 
 
             <Button
@@ -249,12 +249,13 @@
                 android:text = "Wish">
             </Button>
             <Button
-                android:id = "@+id/detail_match_button"
+                android:id = "@+id/detail_modify_cancel_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:visibility="gone"
-                android:text="match"/>
+                android:layout_alignParentRight="true"
+                android:text="Cancel"
+                android:layout_centerVertical="true"
+                android:visibility="gone"/>
 
             <Button
                 android:id = "@+id/detail_offer_button"

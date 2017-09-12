@@ -2,6 +2,7 @@ package com.example.ye.gametrade_in.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -23,6 +24,8 @@ import com.example.ye.gametrade_in.Bean.WishBean;
 import com.example.ye.gametrade_in.GameDetailActivity;
 import com.example.ye.gametrade_in.R;
 import com.example.ye.gametrade_in.api.GameTradeService;
+import com.example.ye.gametrade_in.fragment.OfferPaginationFragment;
+import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
 import com.example.ye.gametrade_in.utils.GameDetailUtility;
 
 import java.util.List;
@@ -38,9 +41,16 @@ import retrofit2.http.Path;
 
 public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter<WishBean> {
 
+    public static final String ARG_TYPE = "WishOfferPaginationAdapter.type";
+    public static final int TYPE_OFFER = 1;
+    public static final int TYPE_WISH = 2;
 
+
+    public abstract int getAdapterType();
 
     private Fragment mFragment;
+    private String operation;
+
 
     public abstract GameTradeService getGameTradeService();
 
@@ -51,6 +61,9 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
     public WishOfferPaginationAdapter(Fragment fragment) {
         super(fragment);
         mFragment = fragment;
+
+
+        // operation = mFragment.getArguments().getString("operation");
     }
 
     @Override
@@ -110,6 +123,19 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
             mEditButton = (Button) itemView.findViewById(R.id.item_wish_edit);
             mMatchButton = (Button) itemView.findViewById(R.id.item_wish_match);
+
+            switch (getAdapterType()){
+                case TYPE_OFFER:
+                    mMatchButton.setVisibility(View.GONE);
+                    break;
+                case TYPE_WISH:
+                    break;
+                default:
+                    break;
+            }
+            /*if(operation == "offer"){
+                mMatchButton.setVisibility(View.GONE);
+            }*/
 
         }
 
