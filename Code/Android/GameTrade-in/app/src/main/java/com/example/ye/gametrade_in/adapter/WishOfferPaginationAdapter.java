@@ -23,6 +23,7 @@ import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
 import com.example.ye.gametrade_in.GameDetailActivity;
 import com.example.ye.gametrade_in.R;
+import com.example.ye.gametrade_in.activity.MatchWishActivity;
 import com.example.ye.gametrade_in.api.GameTradeService;
 import com.example.ye.gametrade_in.fragment.OfferPaginationFragment;
 import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
@@ -153,7 +154,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             loadContent();
         }
 
-        private void bindContents(WishBean wish, GameDetailBean gameDetail){
+        private void bindContents(final WishBean wish, final GameDetailBean gameDetail){
             mTitle.setText(gameDetail.getTitle());
 
             // TODO: move it to string.xml implementation
@@ -165,13 +166,26 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
             mMeta.setText(platform + " | " + region);
 
+            if(getAdapterType() == TYPE_WISH){
+                mMatchButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = MatchWishActivity.newIntent(
+                                mFragment.getContext(),
+                                wish, gameDetail
+                        );
+
+                        mFragment.startActivity(intent);
+                    }
+                });
+            }
+
             Glide
                     .with(context)
                     .load(gameDetail.getCoverUrl())
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            // TODO: 08/11/16 handle failure
                             if(mFragment != null && !mFragment.isAdded())  return false;
                             mCoverProgress.setVisibility(View.GONE);
                             return false;
@@ -210,6 +224,12 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
                     showContentLayout();
                     mGameDetail = response.body();
+
+                    if(mGameDetail == null){
+                        showErrorLayout();
+                        return;
+                    }
+
                     bindContents(mWishBean, mGameDetail);
 
                 }
@@ -225,14 +245,14 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             mCoverProgress.setVisibility(View.VISIBLE);
             mWishProgress.setVisibility(View.VISIBLE);
 
-            mWishContentLayout.setVisibility(View.GONE);
+            mWishContentLayout.setVisibility(View.INVISIBLE);
             mErrorLayout.setVisibility(View.GONE);
         }
 
         private void showErrorLayout(){
             mErrorLayout.setVisibility(View.VISIBLE);
 
-            mWishContentLayout.setVisibility(View.GONE);
+            mWishContentLayout.setVisibility(View.INVISIBLE);
             mWishProgress.setVisibility(View.GONE);
         }
 

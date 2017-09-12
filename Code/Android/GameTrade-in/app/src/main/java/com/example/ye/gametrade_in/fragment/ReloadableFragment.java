@@ -133,7 +133,7 @@ public abstract class ReloadableFragment<T> extends Fragment implements Paginati
         btnRetryNoResult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                loadFirstPage();
             }
         });
 

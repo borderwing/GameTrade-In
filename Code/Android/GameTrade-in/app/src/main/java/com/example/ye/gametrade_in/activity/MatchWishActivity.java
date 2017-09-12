@@ -23,11 +23,9 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
-import com.example.ye.gametrade_in.Bean.GameTransportBean;
 import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
 import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
-import com.example.ye.gametrade_in.MainActivity;
 import com.example.ye.gametrade_in.QueryPreferences;
 import com.example.ye.gametrade_in.R;
 import com.example.ye.gametrade_in.api.GameTradeApi;
@@ -37,24 +35,20 @@ import com.example.ye.gametrade_in.utils.GameDetailUtility;
 import com.google.gson.Gson;
 import com.travijuu.numberpicker.library.NumberPicker;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static java.security.AccessController.getContext;
-
 /**
  * Created by lykav on 9/12/2017.
  */
 
-public class MatchOfferActivity extends AppCompatActivity {
+public class MatchWishActivity extends AppCompatActivity {
 
-    private static final String EXTRA_WISH = "MatchOfferActivity.wish";
-    private static final String EXTRA_GAME_DETAIL = "MatchOfferActivity.game_detail";
+    private static final String EXTRA_WISH = "MatchWishActivity.wish";
+    private static final String EXTRA_GAME_DETAIL = "MatchWishActivity.game_detail";
 
     MatchedOfferReloadableFragment mMatchOfferReloadableFragment;
 
@@ -80,8 +74,8 @@ public class MatchOfferActivity extends AppCompatActivity {
     private LinearLayout mDummy;
 
 
-    public Intent newIntent(Context context, WishBean wish, GameDetailBean gameDetail){
-        Intent intent = new Intent(context, MatchOfferActivity.class);
+    public static Intent newIntent(Context context, WishBean wish, GameDetailBean gameDetail){
+        Intent intent = new Intent(context, MatchWishActivity.class);
         Gson gson = new Gson();
         String wishJson = gson.toJson(wish);
         String gameDetailJson = gson.toJson(gameDetail);
@@ -116,7 +110,8 @@ public class MatchOfferActivity extends AppCompatActivity {
 
 
     Fragment createFragment(){
-        mMatchOfferReloadableFragment = new MatchedOfferReloadableFragment();
+        mMatchOfferReloadableFragment =
+                MatchedOfferReloadableFragment.newInstance(mWish.getGame().getGameId());
         return mMatchOfferReloadableFragment;
     }
 
@@ -124,7 +119,7 @@ public class MatchOfferActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mUserId = Long.parseLong(QueryPreferences.getStoredAuthorizedQuery(
+        mUserId = Long.parseLong(QueryPreferences.getStoredUserIdQuery(
                 this.getApplicationContext()
         ));
 
@@ -137,6 +132,9 @@ public class MatchOfferActivity extends AppCompatActivity {
                     .getClient(authorizedHeader)
                     .create(GameTradeService.class);
         }
+
+        mWish = getWishFromIntent(getIntent());
+        mGameDetail = getGameDetailFromIntent(getIntent());
 
         setContentView(R.layout.activity_wish_matching);
 
@@ -151,9 +149,6 @@ public class MatchOfferActivity extends AppCompatActivity {
                     .commit();
         }
 
-
-        mWish = getWishFromIntent(getIntent());
-        mGameDetail = getGameDetailFromIntent(getIntent());
 
 
         mWishMeta = (TextView) findViewById(R.id.item_wish_meta);
@@ -206,6 +201,8 @@ public class MatchOfferActivity extends AppCompatActivity {
                             mButtonReload.setEnabled(true);
                         }
                     });
+                } else {
+                    mButtonReload.setEnabled(true);
                 }
             }
         });
@@ -285,6 +282,7 @@ public class MatchOfferActivity extends AppCompatActivity {
 
     private void clearPickerFocus(){
         mNumberPicker.clearFocus();
+        mDummy.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mNumberPicker.getWindowToken(), 0);
     }

@@ -74,7 +74,7 @@
             android:label="">
         </activity>
 
-        <activity android:name=".activity.MatchOfferActivity"
+        <activity android:name=".activity.MatchWishActivity"
                   android:label="Match">
         </activity>
 

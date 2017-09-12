@@ -58,7 +58,11 @@ public class GameDetailUtility {
     }
 
     public String getPlatformString(int platformId){
-        return mPlatformMap.get(platformId).getPlatform();
+        if(mPlatformMap.get(platformId) != null) {
+            return mPlatformMap.get(platformId).getPlatform();
+        } else {
+            return null;
+        }
     }
 
     public String getRegionString(int regionId){

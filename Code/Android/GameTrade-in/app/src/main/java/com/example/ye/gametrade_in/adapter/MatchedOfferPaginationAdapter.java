@@ -105,12 +105,12 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
             mErrorLayout = (LinearLayout) itemView.findViewById(R.id.error_layout);
             mRetryButton = (Button) itemView.findViewById(R.id.error_btn_retry);
 
-            mMatchButton = (Button) itemView.findViewById(R.id.item_wish_match);
+            mMatchButton = (Button) itemView.findViewById(R.id.item_match_button);
 
         }
 
         public void bind(MatchedOfferBean matchedOffer){
-            mIgdbId = matchedOffer.getOfferGame().getGame().getIgdbId();
+            mIgdbId = matchedOffer.getOfferGame().getIgdbId();
             mMatchedOffer = matchedOffer;
 
             mRetryButton.setOnClickListener(new View.OnClickListener() {
@@ -141,8 +141,8 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
             mMatchButton.setText(String.valueOf(matchedOffer.getOfferPoint()) + " pts");
 
             GameDetailUtility utility = new GameDetailUtility(gameDetail);
-            String platform = utility.getPlatformString(matchedOffer.getOfferGame().getGame().getPlatformId());
-            String region = utility.getRegionString(matchedOffer.getOfferGame().getGame().getRegionId());
+            String platform = utility.getPlatformString(matchedOffer.getOfferGame().getPlatformId());
+            String region = utility.getRegionString(matchedOffer.getOfferGame().getRegionId());
 
             mMeta.setText(platform + " | " + region);
 
@@ -209,14 +209,14 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
             mCoverProgress.setVisibility(View.VISIBLE);
             mWishProgress.setVisibility(View.VISIBLE);
 
-            mWishContentLayout.setVisibility(View.GONE);
+            mWishContentLayout.setVisibility(View.INVISIBLE);
             mErrorLayout.setVisibility(View.GONE);
         }
 
         private void showErrorLayout(){
             mErrorLayout.setVisibility(View.VISIBLE);
 
-            mWishContentLayout.setVisibility(View.GONE);
+            mWishContentLayout.setVisibility(View.INVISIBLE);
             mWishProgress.setVisibility(View.GONE);
         }
 
