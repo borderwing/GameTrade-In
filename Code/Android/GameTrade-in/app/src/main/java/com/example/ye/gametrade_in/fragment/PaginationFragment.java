@@ -75,6 +75,8 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
     GameTradeService mGameTradeService;
 
+    protected int mUserId;
+
     protected abstract Call<List<T>> callApi() ;
 
     protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment);
@@ -86,6 +88,11 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
         String authorizedHeader =
                 QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+
+        mUserId = Integer.parseInt(
+                QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
+        );
+
         if(authorizedHeader == null) {
             mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
         } else {
@@ -175,7 +182,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
             @Override
             public void onResponse(Call<List<T>> call, Response<List<T>> response) {
                 // Got data. Send it to adapter
-
+                if(!isAdded())  return;
                 hideErrorView();
 
                 List<T> results = response.body();
@@ -183,6 +190,12 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
                 if(results.size() > 0) {
                     mAdapter.addAll(results);
+
+                    if(results.size() < PAGE_SIZE){
+                        isLastPage = true;
+                        return;
+                    }
+
                     if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
                     else isLastPage = true;
                 } else{
@@ -193,6 +206,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
             @Override
             public void onFailure(Call<List<T>> call, Throwable t) {
+                if(!isAdded())  return;
                 t.printStackTrace();
                 showErrorView(t);
             }
@@ -205,6 +219,8 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         callApi().enqueue(new Callback<List<T>>() {
             @Override
             public void onResponse(Call<List<T>> call, Response<List<T>> response) {
+                if(!isAdded())  return;
+
                 mAdapter.removeLoadingFooter();
                 isLoading = false;
 
@@ -217,6 +233,8 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
             @Override
             public void onFailure(Call<List<T>> call, Throwable t) {
+                if(!isAdded())  return;
+
                 t.printStackTrace();
                 mAdapter.showRetry(true, fetchErrorMessage(t));
             }

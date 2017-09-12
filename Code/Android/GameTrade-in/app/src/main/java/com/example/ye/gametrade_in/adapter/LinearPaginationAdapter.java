@@ -69,10 +69,11 @@ public abstract class LinearPaginationAdapter<T> extends RecyclerView.Adapter<Re
 
         public ItemHolder(View itemView){
             super(itemView);
+            itemView.setOnClickListener(this);
         }
 
-
         public abstract void bind(T item);
+
     }
 
     protected abstract int getItemLayout();
@@ -127,7 +128,7 @@ public abstract class LinearPaginationAdapter<T> extends RecyclerView.Adapter<Re
                     );
                 } else {
                     loadingHolder.mErrorLayout.setVisibility(View.GONE);
-                    loadingHolder.mProgressBar.setVisibility(View.INVISIBLE);
+                    loadingHolder.mProgressBar.setVisibility(View.VISIBLE);
                 }
                 break;
         }

@@ -6,7 +6,7 @@ import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
-import com.example.ye.gametrade_in.Bean.OfferListBean;
+import com.example.ye.gametrade_in.Bean.WishBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.google.gson.Gson;
@@ -70,9 +70,9 @@ public class JSONProcessor {
 
 
     // Get my offer list detail list Bean
-    public OfferListBean[] GetMyOfferListBean(String myListDetailString){
+    public WishBean[] GetMyOfferListBean(String myListDetailString){
 
-        OfferListBean[] myOfferList = gson.fromJson(myListDetailString, OfferListBean[].class);
+        WishBean[] myOfferList = gson.fromJson(myListDetailString, WishBean[].class);
         return myOfferList;
     }
 

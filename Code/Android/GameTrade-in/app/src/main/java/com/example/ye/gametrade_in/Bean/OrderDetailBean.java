@@ -5,7 +5,7 @@ package com.example.ye.gametrade_in.Bean;
  */
 
 public class OrderDetailBean {
-    public  String wishGameTitle;
+    public String wishGameTitle;
     public String offerGameTitle;
     public int wishPoints;
     public int offerPoints;
