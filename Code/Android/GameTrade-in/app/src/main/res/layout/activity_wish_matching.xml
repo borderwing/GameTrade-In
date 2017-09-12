@@ -98,10 +98,11 @@
                     android:orientation="horizontal">
 
                     <Button
+                        android:id="@+id/item_reload_offer"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:layout_marginStart="@dimen/activity_margin_content"
 
+                        android:layout_marginStart="@dimen/activity_margin_content"
                         android:text="@string/button_reload"/>
 
 
@@ -162,24 +163,25 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:id="@+id/fragment_container">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/main_recycler"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:paddingBottom="@dimen/activity_margin_content"
-            android:paddingTop="@dimen/activity_margin_content"/>
+        <!--<android.support.v7.widget.RecyclerView-->
+            <!--android:id="@+id/main_recycler"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:clipToPadding="false"-->
+            <!--android:paddingBottom="@dimen/activity_margin_content"-->
+            <!--android:paddingTop="@dimen/activity_margin_content"/>-->
 
-        <ProgressBar
-            android:id="@+id/main_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"/>
+        <!--<ProgressBar-->
+            <!--android:id="@+id/main_progress"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_gravity="center"/>-->
 
-        <include layout="@layout/error_layout"/>
-        <include layout="@layout/no_result_layout"/>
+        <!--<include layout="@layout/error_layout"/>-->
+        <!--<include layout="@layout/no_result_layout"/>-->
 
     </FrameLayout>
 

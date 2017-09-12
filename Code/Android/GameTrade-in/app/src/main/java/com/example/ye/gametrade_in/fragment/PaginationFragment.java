@@ -77,7 +77,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
     GameTradeService mGameTradeService;
 
-    protected int mUserId;
+    protected Long mUserId;
 
     protected abstract Call<List<T>> callApi() ;
 
@@ -94,7 +94,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
                     QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
 
         if(QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext()) != null){
-            mUserId = Integer.parseInt(
+            mUserId = Long.parseLong(
                         QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
                 );
         }
