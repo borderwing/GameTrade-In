@@ -1,6 +1,8 @@
 package com.bankrupted.tradein.model.temporaryItem;
 
+import com.bankrupted.tradein.model.AddressEntity;
 import com.bankrupted.tradein.model.GameEntity;
+import com.sun.jndi.cosnaming.IiopUrl;
 
 public class OrderResult {
     private int orderId;
@@ -9,6 +11,8 @@ public class OrderResult {
     private int wishPoints;
     private int offerPoints;
     private int status;
+    private AddressEntity YouAddress;
+    private AddressEntity TargetAddress;
 
     public int getOrderId() {
         return orderId;
@@ -56,5 +60,21 @@ public class OrderResult {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public AddressEntity getYouAddress() {
+        return YouAddress;
+    }
+
+    public void setYouAddress(AddressEntity youAddress) {
+        YouAddress = youAddress;
+    }
+
+    public AddressEntity getTargetAddress() {
+        return TargetAddress;
+    }
+
+    public void setTargetAddress(AddressEntity targetAddress) {
+        TargetAddress = targetAddress;
     }
 }

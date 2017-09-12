@@ -1015,6 +1015,8 @@ public class UserController {
                     showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(0).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(1).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(0).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(0).getFromAddress());
                 } else {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
                     showResult.setWishGame(gameWish);
@@ -1022,6 +1024,8 @@ public class UserController {
                     showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(1).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(0).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(1).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(1).getFromAddress());
                 }
                 showResult.setOrderId(item.getTradeOrderId());
                 showResult.setStatus(item.getStatus());
