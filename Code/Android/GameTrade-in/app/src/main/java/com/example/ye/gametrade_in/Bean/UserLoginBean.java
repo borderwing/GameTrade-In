@@ -1,8 +1,8 @@
-package com.example.ye.gametrade_in.TestedBean;
+package com.example.ye.gametrade_in.Bean;
 
 
 
-public class UserBean {
+public class UserLoginBean {
     public Integer userId ;
 
     public Integer getUserId() {

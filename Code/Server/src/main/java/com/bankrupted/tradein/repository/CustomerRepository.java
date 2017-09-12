@@ -26,4 +26,14 @@ public interface CustomerRepository extends JpaRepository<CustomerEntity, Intege
     @Transactional
     @Query("update CustomerEntity p set p.ratingUserNum=p.ratingUserNum+1,p.rating=:rating where p.userId=:userid")
     int updateRating(@Param("rating")int rating,@Param("userid")int userid);
+
+    @Modifying
+    @Transactional
+    @Query("update CustomerEntity p set p.points=p.points-:points where p.userId=:userId")
+    int minusPoints(@Param("userId")int userId,@Param("points")int points);
+
+    @Modifying
+    @Transactional
+    @Query("update CustomerEntity p set p.points=p.points+:points where p.userId=:userId")
+    int addPoints(@Param("userId")int userId,@Param("points")int points);
 }

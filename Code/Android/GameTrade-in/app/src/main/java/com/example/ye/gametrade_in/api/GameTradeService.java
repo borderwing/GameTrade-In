@@ -3,6 +3,7 @@ package com.example.ye.gametrade_in.api;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
+import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
 
 import java.util.List;
@@ -64,6 +65,13 @@ public interface GameTradeService {
             @Path("userId") int userId,
             @Query("limit") int limit,
             @Query("offset") int offset
+    );
+
+    @GET("user/{userId}/wishlist/{gameId}/match")
+    Call<List<MatchedOfferBean>> getMatchedOffers(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId,
+            @Query("scale") int scale
     );
 
 }

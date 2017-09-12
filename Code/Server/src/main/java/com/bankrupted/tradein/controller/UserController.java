@@ -775,7 +775,8 @@ public class UserController {
                 GameEntity OfferGame=gameService.fetchOneGame(sendingGame.get(j));
                 orderItem.setOfferGame(OfferGame);
                 orderItem.setWishGame(game);
-                orderItem.setSenderId(offerUserid.get(i));
+                UserEntity sender=userService.getUserById(offerUserid.get(i));
+                orderItem.setSender(sender);
                 WishEntity wish=wishService.getOneWishByUserAndGame(userService.getUserById(offerUserid.get(i)),OfferGame);
                 orderItem.setOfferPoint(wish.getPoints());
                 resultOrder.add(orderItem);
@@ -824,11 +825,18 @@ public class UserController {
         //create TradeGame
         AddressEntity address=addressService.getAddressById(orderItem.getAddressId());
 
+        //get the points
+        WishEntity UserWish=wishService.getOneWishByUserAndGame(user,receiveGame);
+        WishEntity TargetWish=wishService.getOneWishByUserAndGame(targetUser,sendGame);
+        OfferEntity UserOffer=offerService.getOneOfferByUserAndGame(user,sendGame);
+        OfferEntity TargetOffer=offerService.getOneOfferByUserAndGame(targetUser,receiveGame);
+        int receivePoints=(UserWish.getPoints()+TargetOffer.getPoints())/2;
+        int offerPoints=(UserOffer.getPoints()+TargetWish.getPoints())/2;
         //create the send game order
-        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId,wishService.getOneWishByUserAndGame(targetUser,sendGame).getPoints());
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId,offerPoints);
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,orderId,wishService.getOneWishByUserAndGame(user,receiveGame).getPoints());
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,orderId,receivePoints);
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();

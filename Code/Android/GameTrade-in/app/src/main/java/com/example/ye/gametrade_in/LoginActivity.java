@@ -1,5 +1,4 @@
 package com.example.ye.gametrade_in;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,7 +20,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
-import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -209,7 +208,7 @@ public class LoginActivity extends AppCompatActivity {
     private class LoginTask extends AsyncTask<JSONObject, Integer, String>{
         private String status,urlStr;
         private JSONObject postJson;
-        public UserBean userBean;
+        public UserLoginBean mUserLoginBean;
         public boolean canJump = false;
         private int responseCode = -1;
 
@@ -251,11 +250,11 @@ public class LoginActivity extends AppCompatActivity {
                 JSONProcessor jsonProcessor = new JSONProcessor();
 
                 // Translate JSON to Bean
-                userBean = jsonProcessor.GetUserBean(reader.readLine());
+                mUserLoginBean = jsonProcessor.GetUserBean(reader.readLine());
                 out.close();
 
                 // Set login user bean
-                gameTradeInApplication.SetUserLogin(userBean);
+                gameTradeInApplication.SetUserLogin(mUserLoginBean);
                 userId = gameTradeInApplication.GetLoginUser().getUserId();
                 responseCode = urlConn.getResponseCode();
 

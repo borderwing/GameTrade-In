@@ -41,6 +41,7 @@ import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
 import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
@@ -180,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = gameTradeInApplication.GetLoginUser().getUserId();
 
             if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
@@ -194,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;

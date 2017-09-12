@@ -7,7 +7,7 @@ import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
-import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.google.gson.Gson;
 
@@ -26,9 +26,9 @@ public class JSONProcessor {
     }
 
     // Get user Bean
-    public UserBean GetUserBean(String userDetailString){
+    public UserLoginBean GetUserBean(String userDetailString){
 
-        UserBean user = gson.fromJson(userDetailString, UserBean.class);
+        UserLoginBean user = gson.fromJson(userDetailString, UserLoginBean.class);
         return user;
     }
 
