@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#433582</color>
     <color name="colorAccent">#26F0F1</color>
     <color name="background">#EFEFEF</color>
-    <color name="placeholder_grey">#AAADC4</color>
-    <color name="placeholder_grey_20">#33AAADC4</color>
+    <color name="placeholder_grey">#aaadc4</color>
+    <color name="placeholder_grey_20">#33aaadc4</color>
+
+    <color name="indigo">#4B0082</color>
+    <color name="pink">#ffc0cb</color>
 </resources>

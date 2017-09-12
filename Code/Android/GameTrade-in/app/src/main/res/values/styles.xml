@@ -22,4 +22,9 @@
     </style>
 
 
+    <style name="BrightButton" parent="Theme.AppCompat.Light">
+        <item name="colorControlHighlight">@color/indigo</item>
+        <item name="colorButtonNormal">@color/pink</item>
+    </style>
+
 </resources>
