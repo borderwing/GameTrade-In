@@ -5,6 +5,7 @@ import android.util.Base64;
 
 import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.api.GameTradeApi;
 
 /**
  * Created by ye on 2017/7/7.
@@ -13,7 +14,7 @@ import com.example.ye.gametrade_in.Bean.UserBean;
 public class GameTradeInApplication extends Application {
     public String appVersion = "v1.0";
 
-    public String serverUrl = "http://192.168.1.110:8080";
+    public String serverUrl = GameTradeApi.SERVER;
     // NOTE: commented out Ye's path
     // public String  serverUrl = "http://192.168.1.27:8080";
 

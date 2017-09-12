@@ -1,5 +1,6 @@
 package com.bankrupted.tradein.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -79,6 +80,7 @@ public class WishEntity {
         return (getWishEntityPK() != null ? getWishEntityPK().hashCode() : 0);
     }
 
+
     @Transient
     public GameEntity getGame() {
         return wishEntityPK.getGame();
@@ -88,6 +90,7 @@ public class WishEntity {
         wishEntityPK.setGame(game);
     }
 
+    @JsonIgnore
     @Transient
     public UserEntity getUser() {
         return wishEntityPK.getUser();

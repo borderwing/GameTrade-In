@@ -1,4 +1,5 @@
 package com.example.ye.gametrade_in;
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -64,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 else{
                     userPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
-
                 }
             }
         });
@@ -74,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         /*gameTradeInApplication = (GameTradeInApplication) getApplication();*/
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.loginToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
@@ -193,6 +194,9 @@ public class LoginActivity extends AppCompatActivity {
 
     // Simply go bake to main menu
     public void BackToMain(){
+
+
+
         Intent intent = new Intent();
         intent.setClass(LoginActivity.this, MainActivity.class);
         startActivity(intent);
@@ -258,6 +262,9 @@ public class LoginActivity extends AppCompatActivity {
                 if(responseCode == 200){
                     status = "Welcome back: " + nameString;
                     canJump = true;
+
+                    QueryPreferences.setStoredQuery(getApplicationContext(), userId.toString(), authorizedHeader);
+                    canJump = true;
                 }
                 else if(responseCode == 404){
                     status = "Please input right username and password";
@@ -284,6 +291,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected  void onPostExecute(String result)
         {
+
             showDialog(status, canJump);
             super.onPostExecute(result);
         }

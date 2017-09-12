@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            xmlns:numberpicker="http://schemas.android.com/apk/res-auto">
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+
+             android:paddingTop="36dp"
+             android:paddingBottom="36dp"
+
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_below="@id/gameDetailToolBar"
+>
+
+
+
+    <ProgressBar
+        android:id="@+id/detail_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+    <include layout="@layout/error_layout"/>
+
+    <LinearLayout
+        android:id = "@+id/game_detail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:orientation="vertical">
+
+
+        <android.support.v7.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardBackgroundColor="@color/placeholder_grey"
+            app:cardCornerRadius="3dp"
+            app:cardPreventCornerOverlap="false">
+
+            <ProgressBar
+                android:id="@+id/detail_cover_progress"
+                style="@style/Widget.AppCompat.ProgressBar"
+                android:layout_width="@dimen/activity_margin"
+                android:layout_height="@dimen/activity_margin"
+                android:layout_gravity="center"
+                android:theme="@style/CircularProgress"/>
+
+            <ImageView
+                android:id="@+id/detail_cover"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+              />
+
+        </android.support.v7.widget.CardView>
+
+        <!--<ImageView-->
+            <!--android:id="@+id/detail_image"-->
+            <!--android:layout_height="250dp"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_marginTop="10dp"-->
+            <!--android:layout_gravity="center"-->
+
+            <!--android:contentDescription="@string/app_name">-->
+        <!--</ImageView>-->
+
+        <TextView
+            android:id="@+id/detail_title"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:text="Title"
+            android:layout_marginTop="30dp"
+            android:gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/detail_category"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Popularity: " />
+
+                <TextView
+                    android:id="@+id/detail_popularity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text=""/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                >
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Platform: " />
+
+                <Spinner
+                    android:id="@+id/detail_platform_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Region: " />
+
+                <Spinner
+                    android:id="@+id/detail_region_spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/detail_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:maxLines="5"
+            tools:text="In Destiny 2, the last safe city on Earth has fallen and lays in ruins, occupied by a powerful new enemy and his elite army, the Red Legion. Every player creates their own character called a “Guardian,” humanity’s chosen protectors. As a Guardian in Destiny 2, players must master new abilities and weapons to reunite the city’s forces, stand together and fight back to reclaim their home.  \n  \nIn Destiny 2 players will answer this call, embarking on a fresh story filled with new destinations around our solar system to explore, and an expansive amount of activities to discover. There is something for almost every type of gamer in Destiny 2, including gameplay for solo, cooperative and competitive players set within a vast, evolving and exciting universe."/>
+
+        <RelativeLayout
+            android:id="@+id/creditInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp">
+
+            <ImageView
+                android:id ="@+id/creditIcon"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+
+                android:src="@drawable/crediticon" />
+
+            <TextView
+                android:id ="@+id/detail_credit_evaluate"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:text = ""
+                android:gravity="center"
+                android:layout_toEndOf="@id/creditIcon"
+                tools:text="2000" />
+
+            <!--<EditText-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:id="@+id/detail_credit"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:gravity="bottom"-->
+                <!--/>-->
+            <LinearLayout
+                android:id="@+id/dummy_id"
+                android:orientation="vertical"
+                android:layout_width="0px"
+                android:layout_height="0px"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+
+            <com.travijuu.numberpicker.library.NumberPicker
+                android:id="@+id/detail_credit_picker"
+
+                android:gravity="center"
+                android:layout_alignParentEnd="true"
+
+                android:layout_width="130dp"
+                android:layout_height="40dp"
+                numberpicker:min="100"
+                numberpicker:value="1000"
+                numberpicker:unit="100"
+                numberpicker:focusable="true"/>
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_toStartOf="@id/detail_credit_picker"
+                android:gravity="center"
+                android:lineSpacingExtra="18sp"
+                android:text="Points:"
+                android:textColor="@android:color/black"/>
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp">
+        <!--<ImageButton
+            android:id = "@+id/addToListButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:background="@android:color/background_light"
+            android:src="@drawable/add">
+        </ImageButton>-->
+            <Button
+                android:id = "@+id/detail_modify_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:text = "Modify"
+                android:visibility="gone"/>
+
+
+            <Button
+                android:id = "@+id/detail_wish_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:text = "Wish">
+            </Button>
+            <Button
+                android:id = "@+id/detail_match_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:visibility="gone"
+                android:text="match"/>
+
+            <Button
+                android:id = "@+id/detail_offer_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="Offer"
+                android:layout_centerVertical="true"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
+</ScrollView>

@@ -56,13 +56,17 @@ public class AddressActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         // matchBean = (MatchBean[]) getIntent().getSerializableExtra("matchBean");
 
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
-        userId =  gameTradeInApplication.GetLoginUser().getUserId();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
 
+        // userId =  gameTradeInApplication.GetLoginUser().getUserId();
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+
+        userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         setContentView(R.layout.activity_address);
 
         Intent intentReceiver = getIntent();
@@ -76,8 +80,8 @@ public class AddressActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
+        toolbar.setTitle("");
         toolbar.inflateMenu(R.menu.toolbar);
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +97,7 @@ public class AddressActivity extends AppCompatActivity {
                 new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
                 new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
         );
+
 
         listView.setAdapter(adapter);
 
@@ -116,6 +121,37 @@ public class AddressActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        GetAddress();
+
+        SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
+                new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
+                new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
+        );
+
+
+        listView.setAdapter(adapter);
+
+        try {
+            switch (operation) {
+                case "match":
+                    listView.setOnItemClickListener(onAddressItemClickListener);
+                    break;
+                case "browse":
+                    listView.setOnItemClickListener(onAddressItemBrowseClickListener);
+                    break;
+                default:
+                    break;
+            }
+        }
+        catch (Exception exc){
+            Log.d("error", exc.toString());
+        }
+
+    }
 
     /*****************************************************************************************/
     /* Function for toolbar */
@@ -302,9 +338,10 @@ public class AddressActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if(!canChoose){
-                showDialog(status);
+                if((status == null)== false) {
+                    showDialog(status);
+                }
             }
-            //showDialog(status);
             super.onPostExecute(result);
         }
     }
@@ -338,8 +375,6 @@ public class AddressActivity extends AppCompatActivity {
             postJson = params[0];
             HttpURLConnection urlConn;
             try {
-
-
                 Uri.Builder builder = new Uri.Builder();
                 builder.appendPath("api")
                         .appendPath("user")
@@ -348,8 +383,6 @@ public class AddressActivity extends AppCompatActivity {
                         .appendPath(gameDetailId)
                         .appendPath("match")
                         .appendPath("confirm");
-
-
                 urlStr = serverUrl + builder.build().toString();
                 URL url = new URL(urlStr);
                 urlConn = (HttpURLConnection) url.openConnection();
@@ -364,7 +397,6 @@ public class AddressActivity extends AppCompatActivity {
                 out.write(postJson.toString().getBytes());
                 out.flush();
                 out.close();
-
                 responseCode = urlConn.getResponseCode();
                 if (responseCode == 200) {
                     status = "Match confirmed";
@@ -387,7 +419,11 @@ public class AddressActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(String result) {
-            showDialog(status);
+            if ((status == null) == false) {
+                showDialog(status);
+            }
+            else{
+            }
             super.onPostExecute(result);
         }
     }
@@ -408,14 +444,20 @@ public class AddressActivity extends AppCompatActivity {
     private List<Map<String, Object>> getAddressData(AddressBean[] addressBean){
         List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
         Map<String, Object> map = new HashMap<String, Object>();
-        for(int i = 0; i < addressBean.length; i++){
-            map = new HashMap<String, Object>();
-            map.put("itemAddressDetailAddressId", addressBean[i].getAddressId());
-            map.put("itemAddressDetailReceiver", addressBean[i].getReceiver());
-            map.put("itemAddressDetailPhone", addressBean[i].getPhone());
-            map.put("itemAddressDetailAddress", addressBean[i].getAddress());
-            map.put("itemAddressDetailRegion", addressBean[i].getRegion());
-            list.add(map);
+
+        if(addressBean == null){
+            showDialog("no address, please add one");
+        }
+        else{
+            for (int i = 0; i < addressBean.length; i++) {
+                map = new HashMap<String, Object>();
+                map.put("itemAddressDetailAddressId", addressBean[i].getAddressId());
+                map.put("itemAddressDetailReceiver", addressBean[i].getReceiver());
+                map.put("itemAddressDetailPhone", addressBean[i].getPhone());
+                map.put("itemAddressDetailAddress", addressBean[i].getAddress());
+                map.put("itemAddressDetailRegion", addressBean[i].getRegion());
+                list.add(map);
+            }
         }
         return list;
     }

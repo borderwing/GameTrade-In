@@ -1,12 +1,16 @@
 package com.bankrupted.tradein.model.temporaryItem;
 
+import com.bankrupted.tradein.model.GameEntity;
+
 /**
  * Created by homepppp on 2017/7/4.
  */
 public class ReceiverOrderItem {
     private int senderId;
-    private long getGameId;
-    private long offerGameId;
+    private GameEntity wishGame;
+    private GameEntity offerGame;
+    private int offerPoint;
+
 
     public int getSenderId() {
         return senderId;
@@ -16,19 +20,27 @@ public class ReceiverOrderItem {
         this.senderId = senderId;
     }
 
-    public long getGetGameId() {
-        return getGameId;
+    public GameEntity getWishGame() {
+        return wishGame;
     }
 
-    public void setGetGameId(long getGameId) {
-        this.getGameId = getGameId;
+    public void setWishGame(GameEntity wishGame) {
+        this.wishGame = wishGame;
     }
 
-    public long getOfferGameId() {
-        return offerGameId;
+    public GameEntity getOfferGame() {
+        return offerGame;
     }
 
-    public void setOfferGameId(long offerGameId) {
-        this.offerGameId = offerGameId;
+    public void setOfferGame(GameEntity offerGame) {
+        this.offerGame = offerGame;
+    }
+
+    public int getOfferPoint() {
+        return offerPoint;
+    }
+
+    public void setOfferPoint(int offerPoint) {
+        this.offerPoint = offerPoint;
     }
 }

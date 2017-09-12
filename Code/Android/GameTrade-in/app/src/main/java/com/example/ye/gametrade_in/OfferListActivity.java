@@ -17,7 +17,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ye.gametrade_in.Bean.OfferListBean;
+import com.example.ye.gametrade_in.Bean.WishBean;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -32,7 +32,7 @@ public class OfferListActivity extends AppCompatActivity{
     TextView offerListTitle;
     GameTradeInApplication gameTradeInApplication;
     Integer userId;
-    OfferListBean[] offerList;
+    WishBean[] offerList;
     String serverUrl;
     String authorizedHeader;
 
@@ -46,11 +46,12 @@ public class OfferListActivity extends AppCompatActivity{
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
         serverUrl = gameTradeInApplication.getServerUrl();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
@@ -124,7 +125,12 @@ public class OfferListActivity extends AppCompatActivity{
         @Override
         protected  void onPostExecute(String result)
         {
-            showList(offerList.length);
+            if (offerList == null){
+                showDialog("No game in your offer list.");
+            }
+            else {
+                showList(offerList.length);
+            }
             super.onPostExecute(result);
         }
     }
@@ -160,7 +166,7 @@ public class OfferListActivity extends AppCompatActivity{
             Intent intent;
             intent = new Intent();
             intent.putExtra("operation","offerList");
-            intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
+            intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().getGameId()));
             intent.setClass(OfferListActivity.this, GameDetailActivity.class);
             startActivity(intent);
         }

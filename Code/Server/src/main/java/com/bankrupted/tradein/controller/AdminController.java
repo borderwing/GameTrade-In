@@ -227,7 +227,7 @@ public class AdminController {
 
 
     //get all the available orders
-    @RequestMapping(value="{adminid}/change/params",method = RequestMethod.GET)
+   /* @RequestMapping(value="{adminid}/change/params",method = RequestMethod.GET)
     public ResponseEntity<List<PotentialChangesItem>> getAllChanges(@PathVariable("adminid")int adminid,
                                                                     @RequestParam(value = "page",defaultValue = "0")Integer page,
                                                                     @RequestParam(value = "size",defaultValue = "5")Integer size){
@@ -263,5 +263,5 @@ public class AdminController {
         PageList.setPage(page);
         PageList.setPageSize(size);
         return new ResponseEntity<List<PotentialChangesItem>>(PageList.getPageList(),HttpStatus.OK);
-    }
+    }*/
 }

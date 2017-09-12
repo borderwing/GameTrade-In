@@ -27,6 +27,9 @@ import java.util.stream.Collectors;
 @Service
 public class GameService {
 
+    @Autowired
+    private pythonGetEvaluatePoint pythonGetEvaluatePoint;
+
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
@@ -35,6 +38,8 @@ public class GameService {
     GameAsyncService gameAsyncService;
     @Autowired
     GameRepository gameRepo;
+    @Autowired
+    EvaluateAsyncService evaluateAsyncService;
 
     public List<GameTileJson> getTrendingGameTileList(int limit, int offset) {
         List<IgdbGame> igdbGames = igdbUtility.getTrendingIgdbGames(limit, offset);
@@ -163,6 +168,7 @@ public class GameService {
             gameTile.setIgdbId(igdbGame.getId());
             gameTile.setPlatforms(gamePlatformNames);
             gameTile.setPopularity(igdbGame.getPopularity());
+            gameTile.setSummary(igdbGame.getSummary());
 
             gameTiles.add(gameTile);
         }
@@ -186,16 +192,69 @@ public class GameService {
         return gameRepo.findOne(gameid);
     }
 
-    public void addIgdbToDB(Long igdbId,int platformId,int regionId){
+    public GameEntity getGameNonBlocked(Long igdbId,int platformId,int regionId){
+        GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
+        if(game != null) {
+            return game;
+        } else {
+            addGameNonBlocked(igdbId, platformId, regionId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        }
+    }
+
+    public GameEntity getGameBlocked(Long igdbId,int platformId,int regionId){
+        GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
+        if(game == null) {
+            addGameNonBlocked(igdbId, platformId, regionId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        } else if(game.getEvaluatePoint() == 0) {
+            GameDetailJson gameDetail=getIgdbGame(igdbId);
+
+            if(gameDetail == null){
+                return null;
+            }
+            String title = gameDetail.getTitle();
+            List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+            if(gameReleases == null){
+                return null;
+            }
+            String platform=null;
+            Iterator<GameReleaseJson> iter = gameReleases.iterator();
+            while(iter.hasNext()){
+                GameReleaseJson release=iter.next();
+                if(release.getPlatformId()==platformId){
+                    platform=release.getPlatform();
+                    break;
+                }
+            }
+            if(platform == null){
+                return null;
+            }
+            blockedSetPoints(title, platform, igdbId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        } else {
+            return game;
+        }
+    }
+
+
+    private boolean addGameNonBlocked(Long igdbId, int platformId, int regionId){
         GameEntity game=new GameEntity();
         game.setIgdbId(igdbId);
         game.setPlatformId(platformId);
         game.setRegionId(regionId);
         GameDetailJson gameDetail=getIgdbGame(igdbId);
 
+        if(gameDetail == null){
+            return false;
+        }
+        String title = gameDetail.getTitle();
+        List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+        if(gameReleases == null){
+            return false;
+        }
         String platform=null;
-        List<GameReleaseJson> gameRelease=gameDetail.getReleases();
-        Iterator<GameReleaseJson> iter=gameRelease.iterator();
+        Iterator<GameReleaseJson> iter = gameReleases.iterator();
         while(iter.hasNext()){
             GameReleaseJson release=iter.next();
             if(release.getPlatformId()==platformId){
@@ -203,16 +262,65 @@ public class GameService {
                 break;
             }
         }
+        if(platform == null){
+            return false;
+        }
 
-        String point= pythonGetEvaluatePoint.getPoints(gameDetail.getTitle(),platform);
+        game = gameRepo.saveAndFlush(game);
+        evaluateAsyncService.deferredSetPoints(title, platform, game.getGameId());
+
+        return true;
+    }
+
+
+
+    private boolean addGameBlocked(Long igdbId, int platformId, int regionId){
+        GameEntity game=new GameEntity();
+        game.setIgdbId(igdbId);
+        game.setPlatformId(platformId);
+        game.setRegionId(regionId);
+        GameDetailJson gameDetail=getIgdbGame(igdbId);
+
+        if(gameDetail == null){
+            return false;
+        }
+        String title = gameDetail.getTitle();
+        List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+        if(gameReleases == null){
+            return false;
+        }
+        String platform=null;
+        Iterator<GameReleaseJson> iter = gameReleases.iterator();
+        while(iter.hasNext()){
+            GameReleaseJson release=iter.next();
+            if(release.getPlatformId()==platformId){
+                platform=release.getPlatform();
+                break;
+            }
+        }
+        if(platform == null){
+            return false;
+        }
+
+        game = gameRepo.saveAndFlush(game);
+        this.blockedSetPoints(title, platform, game.getGameId());
+
+        return true;
+    }
+
+    void blockedSetPoints(String title, String platform, Long gameId){
+
+        pythonGetEvaluatePoint evaluate = new pythonGetEvaluatePoint();
+        String point = evaluate.getPoints(title, platform);
+
+
         float floatPoint=Float.parseFloat(point)*100;
+        int finalPoint = (int)floatPoint;
 
-        game.setEvaluatePoint((int)floatPoint);
-
-        gameRepo.saveAndFlush(game);
+        gameRepo.updateGameEvaluatePoint(finalPoint, gameId);
     }
 
-    public GameEntity findGameByIgdbId(Long igdbId,int platformId,int regionId){
-        return gameRepo.getGame(igdbId,platformId,regionId);
-    }
+
+
+
 }

@@ -6,6 +6,13 @@
     >
 
     <item
+        android:id="@+id/action_search"
+        android:title="@string/action_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:orderInCategory="80"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/action_settings"
         android:orderInCategory="50"
@@ -33,11 +40,5 @@
         app:showAsAction="always"
         android:visible="false"/>
 
-    <item
-        android:id="@+id/action_search"
-        android:icon="@drawable/searchicon"
-        android:orderInCategory="80"
-        app:showAsAction="always"
-        android:visible="false"/>
 
 </menu>

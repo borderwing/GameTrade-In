@@ -44,7 +44,8 @@ public class MyListActivity extends AppCompatActivity{
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
         userId = gameTradeInApplication.GetLoginUser().getUserId();
-        authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
 
         myListTitle =(TextView) findViewById(R.id.myListTitle);
         myListTitle.setText("My Wish List");
@@ -53,6 +54,7 @@ public class MyListActivity extends AppCompatActivity{
         myListDetailTask.execute(userId.toString());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
@@ -129,7 +131,12 @@ public class MyListActivity extends AppCompatActivity{
         @Override
         protected  void onPostExecute(String result)
         {
-            showList(myList.length);
+            if(myList == null){
+                showDialog("No game in your wish list.");
+            }
+            else {
+                showList(myList.length);
+            }
             super.onPostExecute(result);
         }
     }

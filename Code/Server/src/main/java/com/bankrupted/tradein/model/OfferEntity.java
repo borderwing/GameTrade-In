@@ -1,5 +1,6 @@
 package com.bankrupted.tradein.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
@@ -77,6 +78,7 @@ public class OfferEntity {
         offerEntityPK.setGame(game);
     }
 
+    @JsonIgnore
     @Transient
     public UserEntity getUser() {
         return offerEntityPK.getUser();

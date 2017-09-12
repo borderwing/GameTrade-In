@@ -14,6 +14,8 @@ public class GameTileBean {
     private float popularity;
     private String coverUrl;
 
+    private String summary;
+
     public long getIgdbId() {
         return igdbId;
     }
@@ -52,5 +54,13 @@ public class GameTileBean {
 
     public void setCoverUrl(String coverUrl) {
         this.coverUrl = coverUrl;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 }

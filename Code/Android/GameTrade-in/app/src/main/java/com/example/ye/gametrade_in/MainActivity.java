@@ -2,34 +2,36 @@ package com.example.ye.gametrade_in;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.GridView;
-import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,19 +40,30 @@ import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
-import com.squareup.picasso.Picasso;
+import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
+import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
+import com.example.ye.gametrade_in.api.GameTradeApi;
+import com.example.ye.gametrade_in.api.GameTradeService;
+import com.example.ye.gametrade_in.fragment.GameTilePaginationFragment;
+import com.example.ye.gametrade_in.utils.PaginationAdapterCallback;
+import com.example.ye.gametrade_in.utils.PaginationScrollListener;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeoutException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    public final String TAG = "MainActivity";
 
     public Integer userId ;
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
@@ -65,10 +78,6 @@ public class MainActivity extends AppCompatActivity {
     GameTileBean[] gameTileBeanList;
     BitmapBean[] bitmapBeanList;
     boolean finish;
-    WorkCounter workCounter = new WorkCounter();
-
-    private static final int THREAD_NUM = 2;
-    private static CountDownLatch countDownLatch = null;
 
     private Notification notification;
     private NotificationManager notificationManager;
@@ -77,12 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
     String authorizedHeader;
 
-    private RecyclerView mGameTileRecyclerView;
-    private GridLayoutManager mLayoutManager;
-    private List<GameTileBean> mGameTiles = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
         gameTradeInApplication = (GameTradeInApplication) getApplication();
         serverUrl = gameTradeInApplication.getServerUrl();
@@ -94,24 +102,29 @@ public class MainActivity extends AppCompatActivity {
             bitmapBeanList[p] = new BitmapBean();
         }
 
-        super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.main_fragment_container);
+
+        if(fragment == null){
+            fragment = new GameTilePaginationFragment();
+            fm.beginTransaction()
+                    .add(R.id.main_fragment_container, fragment)
+                    .commit();
+        }
+
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         toolbar.inflateMenu(R.menu.toolbar);
 
         toolbar.setNavigationIcon(R.drawable.nav);
-        toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
-
-        // View view1 = toolbar.findViewById(R.id.action_search);
-        // View view2 = toolbar.findViewById(R.id.action_add);
-
-        //toolbar.findViewById(R.id.action_add).setVisibility(View.VISIBLE);
-        //toolbar.findViewById(R.id.action_search).setVisibility(View.VISIBLE);
-
+         //toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
         // this part is for notification
@@ -129,14 +142,8 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(i, notification);
 
 
-        // Initialize RecyclerView
-        mGameTileRecyclerView = (RecyclerView) findViewById(R.id.game_recycler_view);
-        mLayoutManager = new GridLayoutManager(MainActivity.this, 2);
-        mGameTileRecyclerView.setLayoutManager(mLayoutManager);
 
-        updateItems();
 
-        setupAdapter();
 
 
 
@@ -165,7 +172,22 @@ public class MainActivity extends AppCompatActivity {
 
         // set userId
         try{
-            userId = gameTradeInApplication.GetLoginUser().getUserId();
+
+            // userId = gameTradeInApplication.GetLoginUser().getUserId();
+
+            if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
+                UserBean userDefault = new UserBean();
+                userDefault.setUserId(0);
+                gameTradeInApplication.SetUserLogin(userDefault);
+                userId = 0;
+            }
+
+            else {
+
+                authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
+                userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
+            }
+            // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
                 UserBean userDefault = new UserBean();
@@ -173,12 +195,14 @@ public class MainActivity extends AppCompatActivity {
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
             }
+
             if(userId != 0){
-                authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
+                // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
                 SetMenuHeaderUserDetailed();
                 UserDetailTask userDetailTask = new UserDetailTask();
                 userDetailTask.execute(userId.toString());
             }
+
             else if(userId == 0){
                 SetMenuHeaderDefault();
             }
@@ -189,81 +213,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    }
-
-    private void updateItems(){
-        // TODO: implement paging
-        new FetchGameTilesTask().execute(0);
-//        currentPage++;
-    }
-
-    private void setupAdapter(){
-        mGameTileRecyclerView.setAdapter(new GameTileAdapter(mGameTiles));
-    }
-
-    private class GameTileHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        private CardView mCardView;
-        private ImageView mCoverImage;
-        private TextView mTitle;
-
-        private long mIgdbId;
-
-
-        public GameTileHolder(View itemView) {
-            super(itemView);
-            mCardView = (CardView)itemView.findViewById(R.id.item_tile);
-            mCoverImage = (ImageView)itemView.findViewById(R.id.item_tile_image);
-            mTitle = (TextView)itemView.findViewById(R.id.item_tile_text);
-        }
-
-        public void bindGameTile(GameTileBean gameTile){
-            mTitle.setText(gameTile.getTitle());
-            mIgdbId = gameTile.getIgdbId();
-
-            Picasso.with(MainActivity.this)
-                    .load(gameTile.getCoverUrl())
-                    .placeholder(R.drawable.cover_placeholder)
-                    .into(mCoverImage);
-        }
-
-//        public void bindCoverDrawable(Drawable drawable){
-//            mCoverImage.setImageDrawable(drawable);
-//        }
-//        public void bindTitle(String title){
-//            mTitle.setText(title);
-//        }
-
-        @Override
-        public void onClick(View v) {
-            // TODO: implement onClick behaviour for game tiles
-        }
-    }
-
-    private class GameTileAdapter extends RecyclerView.Adapter<GameTileHolder>{
-
-        private List<GameTileBean> mGameTiles;
-
-        public GameTileAdapter(List<GameTileBean> gameTiles){
-            mGameTiles = gameTiles;
-        }
-
-        @Override
-        public GameTileHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View view = inflater.inflate(R.layout.item_game_tile, parent, false);
-            return new GameTileHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(GameTileHolder holder, int position) {
-            GameTileBean gameTile = mGameTiles.get(position);
-            holder.bindGameTile(gameTile);
-        }
-
-        @Override
-        public int getItemCount() {
-            return mGameTiles.size();
-        }
     }
 
 
@@ -322,6 +271,9 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
+
+            QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
+
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -333,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Intent intent = new Intent();
-            intent.setClass(MainActivity.this, MyListActivity.class);
+            intent.setClass(MainActivity.this, WishListActivity.class);
             startActivity(intent);
         }
     };
@@ -357,51 +309,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
     };
-
-
-
-    /*****************************************************************************************/
-    /* Part for gameTile detail */
-
-
-    private class FetchGameTilesTask extends AsyncTask<Integer, Void, List<GameTileBean>> {
-
-        private String status, urlStr;
-        private int responseCode = -1;
-        public Boolean finish = false;
-
-
-
-        @Override
-        protected List<GameTileBean> doInBackground(Integer... params){
-            if(params == null){
-                return new ArrayList<>();
-            } else {
-                return new ServerFetcher(authorizedHeader).fetchPopularGameTiles(params[0]);
-            }
-        }
-
-
-        @Override
-        protected void onPostExecute(List<GameTileBean> items)
-        {
-            // TODO: update recycler view and private fields to reflect the fetch
-            super.onPostExecute(items);
-            mGameTiles = items;
-
-            setupAdapter();
-        }
-    }
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -454,15 +361,19 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+
         @Override
         protected void onProgressUpdate(Integer... progresses)
         {
             super.onProgressUpdate(progresses);
         }
+
         @Override
         protected  void onPostExecute(String result)
         {
-            SetUserDetailedLayout(userDetail.username);
+            if(userDetail != null){
+                SetUserDetailedLayout(userDetail.username);
+            }
             super.onPostExecute(result);
         }
     }
@@ -477,46 +388,47 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
+        super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.toolbar, menu);
-        menu.findItem(R.id.action_search).setVisible(true);
+
+        SearchView search = (SearchView)
+                MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        search.setSearchableInfo(
+                searchManager.getSearchableInfo(new ComponentName(this, SearchResultsActivity.class))
+        );
+        search.setQueryHint(getResources().getString(R.string.search_hint));
+
+        // menu.findItem(R.id.action_search).setVisible(true);
         return true;
     }
 
-
-    private Toolbar.OnMenuItemClickListener onMenuItemClickListener = new Toolbar.OnMenuItemClickListener()
-    {
-        @Override
-        public boolean onMenuItemClick(MenuItem menuItem)
-        {
-            String message = "";
-            Intent intent;
-            switch (menuItem.getItemId()){
-                case R.id.action_publish:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, PublishActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
-                case R.id.action_orderDetail:
-                    intent = new Intent();
-                    intent.setClass(MainActivity.this, OrderDetailActivity.class);
-                    startActivity(intent);
-                    MainActivity.this.finish();
-                    break;
-                case R.id.action_search:
-                    intent = new Intent();
-                    break;
-                case R.id.action_settings:
-                    message += "Click setting";
-                    break;
-            }
-            if(!message.equals(""))
-            {
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String message = "";
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.action_publish:
+                intent = new Intent();
+                intent.setClass(MainActivity.this, PublishActivity.class);
+                startActivity(intent);
+//                MainActivity.this.finish();
+                return true;
+            case R.id.action_orderDetail:
+                intent = new Intent();
+                intent.setClass(MainActivity.this, OrderDetailActivity.class);
+                startActivity(intent);
+//                MainActivity.this.finish();
+                return true;
+            case R.id.action_settings:
+                message += "Click setting";
                 Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
-            }
-            return true;
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-    };
+    }
+
 
 
     /*****************************************************************************************/
