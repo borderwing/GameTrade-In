@@ -26,15 +26,15 @@ import retrofit2.http.Query;
 public interface GameTradeService {
     @GET("game/trending")
     Call<List<GameTileBean>> getTrendingGames(
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("game/search")
     Call<List<GameTileBean>> getSearchedGames(
             @Query("keyword") String keyword,
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("game/{igdbId}")
@@ -57,16 +57,16 @@ public interface GameTradeService {
     @GET("user/{userId}/wishlist/params")
     Call<List<WishBean>> getWishList(
             @Path("userId") Long userId,
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
 
     @GET("user/{userId}/offerlist/params")
     Call<List<WishBean>> getOfferList(
             @Path("userId") Long userId,
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("user/{userId}/wishlist/{gameId}/match")

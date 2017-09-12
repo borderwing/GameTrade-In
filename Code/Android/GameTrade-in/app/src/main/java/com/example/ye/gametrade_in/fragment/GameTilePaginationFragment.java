@@ -21,8 +21,8 @@ public class GameTilePaginationFragment extends PaginationFragment<GameTileBean>
     @Override
     protected Call<List<GameTileBean>> callApi() {
         return mGameTradeService.getTrendingGames(
-                PAGE_SIZE,
-                PAGE_SIZE * currentPage
+                currentPage,
+                PAGE_SIZE
         );
     }
 
