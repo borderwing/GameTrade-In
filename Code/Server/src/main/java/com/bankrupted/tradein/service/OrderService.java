@@ -4,9 +4,7 @@ import com.bankrupted.tradein.model.*;
 import com.bankrupted.tradein.model.json.offer.ConfirmMatchJson;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderGamesItem;
 import com.bankrupted.tradein.model.temporaryItem.ShowOrderItem;
-import com.bankrupted.tradein.repository.AddressRepository;
-import com.bankrupted.tradein.repository.TradeGameRepository;
-import com.bankrupted.tradein.repository.TradeOrderRepository;
+import com.bankrupted.tradein.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +20,10 @@ import java.util.Map;
 @Service
 public class OrderService {
 
+    @Autowired
+    UserRepository userRepo;
+    @Autowired
+    CustomerRepository customerRepo;
     @Autowired
     TradeOrderRepository tradeOrderRepo;
     @Autowired
@@ -142,6 +144,12 @@ public class OrderService {
         //get the status in trade or minus by one shows one game order is confirmed
         if(tradeGame.getStatus()==1){
             tradeOrderRepo.confirmOneGame(orderid);
+            TradeOrderEntity order=tradeOrderRepo.findOne(orderid);
+            int receUserId=tradeGame.getReceiver().getUserId();
+            int offerUserId=tradeGame.getSender().getUserId();
+            int points=tradeGame.getPoints();
+            customerRepo.minusPoints(receUserId,points);
+            customerRepo.addPoints(offerUserId,points);
         }
     }
 
@@ -151,6 +159,12 @@ public class OrderService {
         tradeGameRepo.ConfirmBySender(tradeGameId,Address);
         if(tradeGame.getStatus()==1) {
             tradeOrderRepo.confirmOneGame(orderid);
+            TradeOrderEntity order=tradeOrderRepo.findOne(orderid);
+            int receUserId=tradeGame.getReceiver().getUserId();
+            int offerUserId=tradeGame.getSender().getUserId();
+            int points=tradeGame.getPoints();
+            customerRepo.minusPoints(receUserId,points);
+            customerRepo.addPoints(offerUserId,points);
         }
     }
 
@@ -176,7 +190,8 @@ public class OrderService {
 
     public int getNewOrderId(){
         int orderId=1;
-        if(tradeOrderRepo.findAll()!=null){
+        System.out.println("--------------------------------");
+        if(tradeOrderRepo.findOne(1)!=null){
             orderId=tradeOrderRepo.getMaxId()+1;
         }
         return orderId;
