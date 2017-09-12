@@ -1,20 +1,9 @@
 package com.example.ye.gametrade_in.Bean;
 
-
+/**
+ * Created by lykav on 9/12/2017.
+ */
 
 public class UserBean {
-    public Integer userId ;
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    @Override
-    public String toString(){
-        return "userId" + userId;
-    }
 }

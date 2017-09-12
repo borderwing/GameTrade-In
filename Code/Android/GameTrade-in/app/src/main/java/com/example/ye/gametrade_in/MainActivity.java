@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -18,48 +17,29 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
-import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
-import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
-import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
-import com.example.ye.gametrade_in.api.GameTradeApi;
-import com.example.ye.gametrade_in.api.GameTradeService;
 import com.example.ye.gametrade_in.fragment.GameTilePaginationFragment;
-import com.example.ye.gametrade_in.utils.PaginationAdapterCallback;
-import com.example.ye.gametrade_in.utils.PaginationScrollListener;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeoutException;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -176,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = gameTradeInApplication.GetLoginUser().getUserId();
 
             if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
@@ -190,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;

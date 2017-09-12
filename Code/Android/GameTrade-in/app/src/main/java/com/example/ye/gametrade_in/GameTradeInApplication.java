@@ -4,7 +4,7 @@ import android.app.Application;
 import android.util.Base64;
 
 import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
-import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.api.GameTradeApi;
 
 /**
@@ -20,7 +20,7 @@ public class GameTradeInApplication extends Application {
 
     public int limit = 4;
 
-    private UserBean loginUser = new UserBean();
+    private UserLoginBean loginUser = new UserLoginBean();
     private UserAuthenticationBean userAuthenticationBean = new UserAuthenticationBean();
 
     public int getLimit() {
@@ -39,16 +39,16 @@ public class GameTradeInApplication extends Application {
         this.serverUrl = serverUrl;
     }
 
-    public UserBean GetLoginUser(){
+    public UserLoginBean GetLoginUser(){
         return loginUser;
     }
 
-    public void SetUserLogin(UserBean user){
+    public void SetUserLogin(UserLoginBean user){
         loginUser.setUserId(user.getUserId());
     }
 
     public void SetUserLogout(){
-        loginUser = new UserBean();
+        loginUser = new UserLoginBean();
     }
 
     public UserAuthenticationBean GetUserAuthenticationBean() {
