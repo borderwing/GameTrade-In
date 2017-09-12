@@ -2,14 +2,16 @@ package com.bankrupted.tradein.script;
 
 import org.python.core.*;
 import org.python.util.PythonInterpreter;
+import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 
 /**
  * Created by homepppp on 2017/7/7.
  */
+@Component
 public class pythonGetEvaluatePoint {
-    public static String getPoints(String title,String platform){
+    public String getPoints(String title,String platform){
         Properties props=new Properties();
         props.put("python.console.encoding", "UTF-8");
         props.put("python.security.respectJavaAccessibility", "false");

@@ -145,7 +145,6 @@ public class FragmentGameDetail extends Fragment {
     }
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
         super.onCreateView(inflater, container, savedInstance);
@@ -195,9 +194,9 @@ public class FragmentGameDetail extends Fragment {
                         verifyAndGetGameTransport();
                 mWishButton.setEnabled(false);
                 if(gameTransport != null){
-                    callSaveWishItemApi(getUserId(), gameTransport).enqueue(new Callback<POST>(){
+                    callSaveWishItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
                         @Override
-                        public void onResponse(Call<POST> call, Response<POST> response) {
+                        public void onResponse(Call<String> call, Response<String> response) {
                             // Got data. Send it to adapter
                             if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
                                 mWishButton.setText(R.string.in_wish_list);
@@ -209,10 +208,75 @@ public class FragmentGameDetail extends Fragment {
                         }
 
                         @Override
-                        public void onFailure(Call<POST> call, Throwable t) {
+                        public void onFailure(Call<String> call, Throwable t) {
                             t.printStackTrace();
                             showErrorToast(t);
                             mWishButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        mWishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GameTransportBean gameTransport =
+                        verifyAndGetGameTransport();
+                if(gameTransport != null){
+                    mWishButton.setEnabled(false);
+                    callSaveWishItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            // Got data. Send it to adapter
+                            if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
+                                mWishButton.setText(R.string.in_wish_list);
+
+                            } else {
+                                showErrorToast(response.code());
+                                mWishButton.setEnabled(true);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            t.printStackTrace();
+                            showErrorToast(t);
+                            mWishButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        mOfferButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GameTransportBean gameTransport =
+                        verifyAndGetGameTransport();
+
+                if(gameTransport != null){
+                    mOfferButton.setEnabled(false);
+                    callSaveOfferItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            // Got data. Send it to adapter
+                            if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
+                                mOfferButton.setText(R.string.in_offer_list);
+
+                            } else {
+                                showErrorToast(response.code());
+                                mOfferButton.setEnabled(true);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            t.printStackTrace();
+                            showErrorToast(t);
+                            mOfferButton.setVisibility(View.VISIBLE);
                         }
                     });
                 }
@@ -247,11 +311,14 @@ public class FragmentGameDetail extends Fragment {
         });
 
 
+        return v;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
         setProgressLayout();
         loadGameDetail();
-
-
-        return v;
     }
 
     protected GameTransportBean verifyAndGetGameTransport(){
@@ -308,7 +375,10 @@ public class FragmentGameDetail extends Fragment {
                 GameDetailBean result = response.body();
 
                 if(result != null) {
-                    bindGameDetail(result);
+                    if(isAdded()) {
+                        bindGameDetail(result);
+                    }
+
                 } else{
                     setErrorLayout();
                 }
@@ -343,7 +413,9 @@ public class FragmentGameDetail extends Fragment {
                     @Override
                     public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                         // TODO: 08/11/16 handle failure
-                        mCoverProgress.setVisibility(View.GONE);
+                        if(isAdded()) {
+                            mCoverProgress.setVisibility(View.GONE);
+                        }
                         return false;
                     }
 
@@ -425,8 +497,14 @@ public class FragmentGameDetail extends Fragment {
         );
     }
 
-    Call<POST> callSaveWishItemApi(Long userId, GameTransportBean gameTransport){
+    Call<String> callSaveWishItemApi(Long userId, GameTransportBean gameTransport){
         return mGameTradeService.saveWishItem(
+                userId, gameTransport
+        );
+    }
+
+    Call<String> callSaveOfferItemApi(Long userId, GameTransportBean gameTransport){
+        return mGameTradeService.saveOfferItem(
                 userId, gameTransport
         );
     }

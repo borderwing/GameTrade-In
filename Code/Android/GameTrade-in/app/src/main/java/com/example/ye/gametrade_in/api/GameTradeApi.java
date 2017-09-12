@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * Created by lykav on 9/10/2017.
@@ -43,6 +44,7 @@ public class GameTradeApi {
     public static Retrofit getClient(String credentials){
         retrofitAuth = new Retrofit.Builder()
                 .client(buildClient(credentials))
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(ENDPOINT)
                 .build();
@@ -53,6 +55,7 @@ public class GameTradeApi {
     public static Retrofit getClient(String username, String password){
         retrofitAuth = new Retrofit.Builder()
                 .client(buildClient(username, password))
+                .addConverterFactory(ScalarsConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .baseUrl(ENDPOINT)
                 .build();
@@ -64,6 +67,7 @@ public class GameTradeApi {
         if(retrofitNoAuth == null){
             retrofitNoAuth = new Retrofit.Builder()
                     .client(buildClient())
+                    .addConverterFactory(ScalarsConverterFactory.create())
                     .addConverterFactory(GsonConverterFactory.create())
                     .baseUrl(ENDPOINT)
                     .build();

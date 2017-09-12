@@ -42,11 +42,13 @@
             </intent-filter>
         </activity>
 
-
-
-        <activity android:name=".MyListActivity"
+        <activity android:name=".WishListActivity"
                   android:label="@string/app_name">
         </activity>
+
+        <!--<activity android:name=".MyListActivity"-->
+                  <!--android:label="@string/app_name">-->
+        <!--</activity>-->
         <activity android:name=".GameDetailActivity"
                   android:label="@string/app_name">
         </activity>

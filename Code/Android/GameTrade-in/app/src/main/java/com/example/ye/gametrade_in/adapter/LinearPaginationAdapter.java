@@ -128,7 +128,7 @@ public abstract class LinearPaginationAdapter<T> extends RecyclerView.Adapter<Re
                     );
                 } else {
                     loadingHolder.mErrorLayout.setVisibility(View.GONE);
-                    loadingHolder.mProgressBar.setVisibility(View.INVISIBLE);
+                    loadingHolder.mProgressBar.setVisibility(View.VISIBLE);
                 }
                 break;
         }

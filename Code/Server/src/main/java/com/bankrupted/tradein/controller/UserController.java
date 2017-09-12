@@ -146,7 +146,7 @@ public class UserController {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameService.findGameByIgdbId(createWishJson.getIgdbId(),createWishJson.getPlatformId(),createWishJson.getRegionId());
+        GameEntity game=gameService.getGameNonBlocked(createWishJson.getIgdbId(),createWishJson.getPlatformId(),createWishJson.getRegionId());
         if (game == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
@@ -538,7 +538,7 @@ public class UserController {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameService.findGameByIgdbId(offerGame.getIgdbId(),offerGame.getPlatformId(),offerGame.getRegionId());
+        GameEntity game=gameService.getGameNonBlocked(offerGame.getIgdbId(),offerGame.getPlatformId(),offerGame.getRegionId());
         if (game == null) {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }

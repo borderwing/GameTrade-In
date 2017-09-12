@@ -3,6 +3,7 @@ package com.example.ye.gametrade_in.api;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
+import com.example.ye.gametrade_in.Bean.WishBean;
 
 import java.util.List;
 
@@ -39,11 +40,23 @@ public interface GameTradeService {
     );
 
     @POST("user/{userId}/wishlist")
-    Call<POST> saveWishItem(
+    Call<String> saveWishItem(
             @Path("userId") Long userId,
             @Body GameTransportBean gameTransport
     );
 
+    @POST("user/{userId}/offerlist ")
+    Call<String> saveOfferItem(
+            @Path("userId") Long userId,
+            @Body GameTransportBean gameTransport
+    );
+
+    @GET("user/{userId}/wishlist/params")
+    Call<List<WishBean>> getWishList(
+            @Path("userId") int userId,
+            @Query("limit") int limit,
+            @Query("offset") int offset
+    );
 
 
 }

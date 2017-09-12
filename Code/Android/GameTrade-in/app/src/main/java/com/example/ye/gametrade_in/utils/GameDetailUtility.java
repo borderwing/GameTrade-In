@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import okhttp3.internal.Platform;
 
 /**
  * Created by lykav on 9/11/2017.
@@ -56,6 +55,14 @@ public class GameDetailUtility {
         list.addAll(mPlatformToRegionMap.get(platformBean));
 
         return list;
+    }
+
+    public String getPlatformString(int platformId){
+        return mPlatformMap.get(platformId).getPlatform();
+    }
+
+    public String getRegionString(int regionId){
+        return mRegionMap.get(regionId).getRegion();
     }
 
 
