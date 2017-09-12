@@ -92,8 +92,8 @@ public class UserController {
     @RequestMapping(value = "/{userId}/wishlist/params", method = RequestMethod.GET)
     public ResponseEntity<List<WishEntity>> getWishListPaged(
             @PathVariable("userId") int userId,
-            @RequestParam(value = "offset",defaultValue = "0")Integer offset,
-            @RequestParam(value = "limit",defaultValue = "5")Integer limit) {
+            @RequestParam(value = "page",defaultValue = "0")Integer page,
+            @RequestParam(value = "size",defaultValue = "5")Integer size) {
         UserEntity user=userService.getUserByIdAndFetchWishList(userId);
         if (user == null) {
             System.out.println("Cannot find User with id " + userId);
@@ -102,8 +102,8 @@ public class UserController {
         Collection<WishEntity> wishList=wishService.getAvailableWish(user);
 
         PagedListHolder<WishEntity> pagedWishList= new PagedListHolder<>((List<WishEntity>)wishList);
-        pagedWishList.setPage(offset/limit);
-        pagedWishList.setPageSize(limit);
+        pagedWishList.setPage(page);
+        pagedWishList.setPageSize(size);
         return new ResponseEntity<List<WishEntity>>(pagedWishList.getPageList(), HttpStatus.OK);
     }
 
@@ -639,8 +639,8 @@ public class UserController {
     // fetch address(paged)
     @RequestMapping(value="/{userId}/address/params",method=RequestMethod.GET)
     public ResponseEntity<List<AddressEntity>> getAddressPaged(@PathVariable("userId")int userId,
-                                                               @RequestParam(value = "page",defaultValue = "0")Integer offset,
-                                                               @RequestParam(value = "size",defaultValue = "5")Integer limit){
+                                                               @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                               @RequestParam(value = "size",defaultValue = "5")Integer size){
         UserEntity user = userService.getUserByIdAndFetchAddress(userId);
         if(user==null){
             System.out.println("cannot find the user...");
@@ -650,8 +650,8 @@ public class UserController {
 
         //get paged
         PagedListHolder<AddressEntity> pagedAddress=new PagedListHolder<>((List<AddressEntity>)addresses);
-        pagedAddress.setPage(offset/limit);
-        pagedAddress.setPageSize(limit);
+        pagedAddress.setPage(page);
+        pagedAddress.setPageSize(size);
         return new ResponseEntity<List<AddressEntity>>(pagedAddress.getPageList(),HttpStatus.OK);
     }
 
@@ -956,8 +956,8 @@ public class UserController {
     //fetch all orders (paged)
     @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
     public ResponseEntity<List<OrderResult>> getAllOrdersPaged(@PathVariable("userid")int userid,
-                                                                 @RequestParam(value = "limit",defaultValue = "5")Integer limit,
-                                                                 @RequestParam(value = "offset",defaultValue = "0")Integer offset){
+                                                                 @RequestParam(value = "page",defaultValue = "5")Integer page,
+                                                                 @RequestParam(value = "size",defaultValue = "0")Integer size){
         System.out.println("fetch all orders");
 
         UserEntity user=userService.getUserById(userid);
@@ -1020,8 +1020,8 @@ public class UserController {
         }
 
         PagedListHolder<OrderResult> pagedShowResult=new PagedListHolder<>(resultList);
-        pagedShowResult.setPageSize(limit);
-        pagedShowResult.setPage(offset/limit);
+        pagedShowResult.setPageSize(size);
+        pagedShowResult.setPage(page);
         return new ResponseEntity<List<OrderResult>>(pagedShowResult.getPageList(),HttpStatus.OK);
     }
 

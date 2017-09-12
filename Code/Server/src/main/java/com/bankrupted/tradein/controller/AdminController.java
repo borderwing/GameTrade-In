@@ -35,15 +35,15 @@ public class AdminController {
 
     //Fetch All Users
     @RequestMapping(value="{adminid}/user/params",method= RequestMethod.GET)
-    public ResponseEntity<List<UserEntity>> ListAllUser(@RequestParam(value="offset",defaultValue="0")Integer offset,
-                                                        @RequestParam(value="limit",defaultValue="5")Integer limit){
+    public ResponseEntity<List<UserEntity>> ListAllUser(@RequestParam(value="page",defaultValue="0")Integer page,
+                                                        @RequestParam(value="limit",defaultValue="5")Integer size){
         System.out.println("get all users...");
 
         List<UserEntity> userList=userService.getAllUser();
 
         PagedListHolder<UserEntity> pagedUserList= new PagedListHolder<>(userList);
-        pagedUserList.setPage(offset/limit);
-        pagedUserList.setPageSize(limit);
+        pagedUserList.setPage(page);
+        pagedUserList.setPageSize(size);
 
         return new ResponseEntity<List<UserEntity>>(pagedUserList.getPageList(),HttpStatus.OK);
     }
