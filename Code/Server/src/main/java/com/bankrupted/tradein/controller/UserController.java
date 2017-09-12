@@ -775,7 +775,8 @@ public class UserController {
                 GameEntity OfferGame=gameService.fetchOneGame(sendingGame.get(j));
                 orderItem.setOfferGame(OfferGame);
                 orderItem.setWishGame(game);
-                orderItem.setSenderId(offerUserid.get(i));
+                UserEntity sender=userService.getUserById(offerUserid.get(i));
+                orderItem.setSender(sender);
                 WishEntity wish=wishService.getOneWishByUserAndGame(userService.getUserById(offerUserid.get(i)),OfferGame);
                 orderItem.setOfferPoint(wish.getPoints());
                 resultOrder.add(orderItem);
