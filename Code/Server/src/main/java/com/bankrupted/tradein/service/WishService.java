@@ -107,8 +107,8 @@ public class WishService {
         return wishRepo.findByUserId(userid);
     }
 
-    public List<Long> getSameGame(int wishUserid,int offerUserid,int points){
-        return wishRepo.getSameGame(wishUserid,offerUserid,points);
+    public List<Long> getSameGame(int wishUserid,int offerUserid,int points,int scale){
+        return wishRepo.getSameGame(wishUserid,offerUserid,points,scale);
     }
 
     public List<WishEntity> getWishGame(int wantPoint,long gameid){
@@ -124,7 +124,7 @@ public class WishService {
         return UserOfferPoints;
     }
 
-    public List<Object[]> getPotentialChanges(){
-        return wishRepo.getPotientialChanges();
+    public List<Object[]> getPotentialChanges(int scale){
+        return wishRepo.getPotientialChanges(scale);
     }
 }

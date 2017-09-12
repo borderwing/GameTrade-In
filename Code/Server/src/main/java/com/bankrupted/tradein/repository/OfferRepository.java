@@ -23,8 +23,8 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     @Query("select p from OfferEntity p where p.offerEntityPK.user=:user and p.offerEntityPK.game=:game")
     List<OfferEntity> findByUserAndGame(@Param("user")UserEntity user, @Param("game")GameEntity game);
 
-    @Query("select p from OfferEntity p where p.points=:points and p.status=1 and p.offerEntityPK.game.gameId=:gameId order by p.offerEntityPK.user.userId")
-    List<OfferEntity> getOfferGame(@Param("points")int points,@Param("gameId")long gameId);
+    @Query("select p from OfferEntity p where abs(p.points-:points)<:scale and p.status=1 and p.offerEntityPK.game.gameId=:gameId order by p.offerEntityPK.user.userId")
+    List<OfferEntity> getOfferGame(@Param("points")int points,@Param("gameId")long gameId,@Param("scale")int scale);
 
     @Query("select wish.wishEntityPK.game.gameId from WishEntity wish, OfferEntity offer where wish.wishEntityPK.user.userId=:WishUserid" +
             " and offer.offerEntityPK.user.userId=:OfferUserid and wish.wishEntityPK.game.gameId=offer.offerEntityPK.game.gameId" +

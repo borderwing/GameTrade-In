@@ -110,8 +110,8 @@ public class OfferService {
         return offerRepo.getSameGame(wishUserid,offerUserid,points);
     }
 
-    public List<OfferEntity> getOfferGames(int wantPoint,long gameid){
-        return offerRepo.getOfferGame(wantPoint,gameid);
+    public List<OfferEntity> getOfferGames(int wantPoint,long gameid,int scale){
+        return offerRepo.getOfferGame(wantPoint,gameid,scale);
     }
 
     public Map<Long,Integer> getGamePointsById(int userid){
