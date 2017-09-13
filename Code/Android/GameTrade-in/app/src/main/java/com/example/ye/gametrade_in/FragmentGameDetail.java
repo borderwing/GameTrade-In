@@ -101,6 +101,7 @@ public class FragmentGameDetail extends Fragment {
     TextView mCreditEvaluate;
 
     Button mWishButton, mOfferButton;
+    Button mEditConfirmButton, mEditCancelButton, mEditDeleteButton;
 
     LinearLayout errorLayout;
     Button btnRetry;
@@ -171,6 +172,9 @@ public class FragmentGameDetail extends Fragment {
 
         mWishButton = (Button) v.findViewById(R.id.detail_wish_button);
         mOfferButton = (Button) v.findViewById(R.id.detail_offer_button);
+        mEditConfirmButton = (Button) v.findViewById(R.id.detail_modify_confirm_button);
+        mEditCancelButton = (Button) v.findViewById(R.id.detail_modify_cancel_button);
+        mEditDeleteButton = (Button) v.findViewById(R.id.detail_modify_delete_button);
 
 
         errorLayout = (LinearLayout) v.findViewById(R.id.error_layout);
@@ -284,7 +288,12 @@ public class FragmentGameDetail extends Fragment {
             }
         });
 
-
+        mEditDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditDeleteButton.setEnabled(false);
+            }
+        });
 
 
 

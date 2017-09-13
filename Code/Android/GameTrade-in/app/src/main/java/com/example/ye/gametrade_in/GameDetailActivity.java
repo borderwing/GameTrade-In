@@ -33,6 +33,8 @@ public class GameDetailActivity extends SingleFragmentActivity {
     BitmapBean bitmapBean;
     Bitmap bitmap;
 
+
+
     public static Intent newInent(Context packageContext, Long igdbId){
         Intent intent = new Intent(packageContext, GameDetailActivity.class);
         intent.putExtra(EXTRA_IGDB_ID, igdbId);
