@@ -38,6 +38,11 @@ public class WishPaginationFragment extends PaginationFragment<WishBean> {
             public GameTradeService getGameTradeService() {
                 return mGameTradeService;
             }
+
+            @Override
+            public Long getUserId() {
+                return mUserId;
+            }
         };
     }
 

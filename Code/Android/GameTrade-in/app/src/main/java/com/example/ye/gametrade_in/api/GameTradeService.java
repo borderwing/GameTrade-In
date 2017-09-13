@@ -119,4 +119,16 @@ public interface GameTradeService {
             @Path("userId") Long userId,
             @Path("orderId") Long orderId
     );
+
+    @PUT("user/{userId}/wishlist/{gameId}/delete")
+    Call<String> deleteWish(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId
+    );
+
+    @PUT("user/{userId}/offerlist/{gameId}/delete")
+    Call<String> deleteOffer(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId
+    );
 }

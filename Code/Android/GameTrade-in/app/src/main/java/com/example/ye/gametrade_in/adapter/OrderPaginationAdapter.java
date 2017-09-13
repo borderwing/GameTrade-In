@@ -40,6 +40,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.GONE;
+
 /**
  * Created by lykav on 9/12/2017.
  */
@@ -163,12 +165,19 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
 
         @Override
         public void bind(TradeOrderBean tradeOrder) {
+            mOfferCover.setImageResource(android.R.color.transparent);
+            mWishCover.setImageResource(android.R.color.transparent);
+
+
             mOrderId = tradeOrder.getOrderId();
             mTradeOrder = tradeOrder;
 
             mRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mErrorLayout.setVisibility(GONE);
+                    mOrderProgress.setVisibility(View.VISIBLE);
+
                     if(mTradeOrder != null) {
                         bind(mTradeOrder);
                     }
@@ -360,7 +369,7 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
                             return false;   // return false if you want Glide to handle everything else.
                         }
                     })
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)   // cache both original & resized image
                     .centerCrop()
                     .crossFade()
                     .into(mWishCover);
@@ -392,7 +401,7 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
                             return false;   // return false if you want Glide to handle everything else.
                         }
                     })
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)   // cache both original & resized image
                     .centerCrop()
                     .crossFade()
                     .into(mOfferCover);

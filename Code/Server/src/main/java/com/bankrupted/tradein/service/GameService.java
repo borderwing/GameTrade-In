@@ -234,6 +234,7 @@ public class GameService {
             if(platform == null){
                 return null;
             }
+
             blockedSetPoints(title, platform, igdbId);
             return gameRepo.getGame(igdbId, platformId, regionId);
         } else {
@@ -242,6 +243,7 @@ public class GameService {
     }
 
 
+    @Transactional
     private boolean addGameNonBlocked(Long igdbId, int platformId, int regionId){
         GameEntity game=new GameEntity();
         game.setIgdbId(igdbId);
@@ -270,14 +272,18 @@ public class GameService {
             return false;
         }
 
-        game = gameRepo.saveAndFlush(game);
-        evaluateAsyncService.deferredSetPoints(title, platform, game.getGameId());
+        GameEntity tempGame = gameRepo.getGame(igdbId, platformId, regionId);
+        if(tempGame == null) {
+            tempGame = gameRepo.saveAndFlush(game);
+        }
+
+//        evaluateAsyncService.deferredSetPoints(title, platform, game.getGameId());
 
         return true;
     }
 
 
-
+    @Transactional
     private boolean addGameBlocked(Long igdbId, int platformId, int regionId){
         GameEntity game=new GameEntity();
         game.setIgdbId(igdbId);
@@ -306,11 +312,16 @@ public class GameService {
             return false;
         }
 
-        game = gameRepo.saveAndFlush(game);
+        GameEntity tempGame = gameRepo.getGame(igdbId, platformId, regionId);
+        if(tempGame == null) {
+            tempGame = gameRepo.saveAndFlush(game);
+        }
+
         this.blockedSetPoints(title, platform, game.getGameId());
 
         return true;
     }
+
 
     void blockedSetPoints(String title, String platform, Long gameId){
 
@@ -323,7 +334,6 @@ public class GameService {
 
         gameRepo.updateGameEvaluatePoint(finalPoint, gameId);
     }
-
 
 
 

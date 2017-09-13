@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -36,6 +37,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Path;
 
+import static android.view.View.GONE;
+
 /**
  * Created by lykav on 9/12/2017.
  */
@@ -54,6 +57,8 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
 
     public abstract GameTradeService getGameTradeService();
+
+    public abstract Long getUserId();
 
     public WishOfferPaginationAdapter(Context context) {
         super(context);
@@ -132,7 +137,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
             switch (getAdapterType()){
                 case TYPE_OFFER:
-                    mMatchButton.setVisibility(View.GONE);
+                    mMatchButton.setVisibility(View.INVISIBLE);
                     break;
                 case TYPE_WISH:
                     break;
@@ -146,11 +151,16 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         }
 
         public void bind(WishBean wish){
+
+            mCover.setImageResource(android.R.color.transparent);
+
             mIgdbId = wish.getGame().getIgdbId();
             mWishBean = wish;
             mRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mErrorLayout.setVisibility(GONE);
+                    mWishProgress.setVisibility(View.VISIBLE);
                     loadContent();
                 }
             });
@@ -160,6 +170,8 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         }
 
         private void bindContents(final WishBean wish, final GameDetailBean gameDetail){
+
+
             mTitle.setText(gameDetail.getTitle());
 
             // TODO: move it to string.xml implementation
@@ -188,9 +200,56 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mDeleteButton.setEnabled(false);
                     switch(getAdapterType()){
                         case TYPE_WISH:
+                            callDeleteWishApi(getUserId(), wish.getGame().getGameId()).
+                                    enqueue(new Callback<String>() {
+                                @Override
+                                public void onResponse(Call<String> call, Response<String> response) {
+                                    if(response.code() == 200){
+                                        mDeleteButton.setText("Deleted");
+                                    } else {
+                                        Toast.makeText(mFragment.getContext(),
+                                                "Http Status " + response.code(),
+                                                Toast.LENGTH_LONG);
+                                        mDeleteButton.setEnabled(true);
+                                    }
+                                }
 
+                                @Override
+                                public void onFailure(Call<String> call, Throwable t) {
+                                    Toast.makeText(mFragment.getContext(),
+                                            t.toString(),
+                                            Toast.LENGTH_LONG);
+                                    mDeleteButton.setEnabled(true);
+                                }
+                            });
+                            break;
+                        case TYPE_OFFER:
+                            callDeleteOfferApi(getUserId(), wish.getGame().getGameId()).
+                                    enqueue(new Callback<String>() {
+                                        @Override
+                                        public void onResponse(Call<String> call, Response<String> response) {
+                                            if(response.code() == 200){
+                                                mDeleteButton.setText("Deleted");
+                                            } else {
+                                                Toast.makeText(mFragment.getContext(),
+                                                        "Http Status " + response.code(),
+                                                        Toast.LENGTH_LONG);
+                                                mDeleteButton.setEnabled(true);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(Call<String> call, Throwable t) {
+                                            Toast.makeText(mFragment.getContext(),
+                                                    t.toString(),
+                                                    Toast.LENGTH_LONG);
+                                            mDeleteButton.setEnabled(true);
+                                        }
+                                    });
+                            break;
                     }
                 }
             });
@@ -203,7 +262,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
                             if(mFragment != null && !mFragment.isAdded())  return false;
-                            mCoverProgress.setVisibility(View.GONE);
+                            mCoverProgress.setVisibility(GONE);
                             return false;
                         }
 
@@ -211,11 +270,11 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                         public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                             // image ready, hide progress now
                             if(mFragment != null && !mFragment.isAdded())  return false;
-                            mCoverProgress.setVisibility(View.GONE);
+                            mCoverProgress.setVisibility(GONE);
                             return false;   // return false if you want Glide to handle everything else.
                         }
                     })
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)
                     .centerCrop()
                     .crossFade()
                     .into(mCover);
@@ -273,27 +332,35 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             mWishProgress.setVisibility(View.VISIBLE);
 
             mWishContentLayout.setVisibility(View.INVISIBLE);
-            mErrorLayout.setVisibility(View.GONE);
+            mErrorLayout.setVisibility(GONE);
         }
 
         private void showErrorLayout(){
             mErrorLayout.setVisibility(View.VISIBLE);
 
             mWishContentLayout.setVisibility(View.INVISIBLE);
-            mWishProgress.setVisibility(View.GONE);
+            mWishProgress.setVisibility(GONE);
         }
 
         private void showContentLayout(){
             mWishContentLayout.setVisibility(View.VISIBLE);
 
-            mErrorLayout.setVisibility(View.GONE);
-            mWishProgress.setVisibility(View.GONE);
+            mErrorLayout.setVisibility(GONE);
+            mWishProgress.setVisibility(GONE);
         }
 
     }
 
     private Call<GameDetailBean> callGameDetailApi(Long igdbId){
         return getGameTradeService().getDetailGame(igdbId);
+    }
+
+    private Call<String> callDeleteWishApi(Long userId, Long gameId){
+        return getGameTradeService().deleteWish(userId, gameId);
+    }
+
+    private Call<String> callDeleteOfferApi(Long userId, Long gameId){
+        return getGameTradeService().deleteOffer(userId, gameId);
     }
 
 //    private Call

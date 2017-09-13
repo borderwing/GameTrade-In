@@ -112,13 +112,20 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
 
         }
 
+
+
         public void bind(final MatchedOfferBean matchedOffer){
+            mCover.setImageResource(android.R.color.transparent);
+
             mIgdbId = matchedOffer.getOfferGame().getIgdbId();
             mMatchedOffer = matchedOffer;
 
             mRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    mErrorLayout.setVisibility(View.GONE);
+                    mWishProgress.setVisibility(View.VISIBLE);
+
                     loadContent();
                 }
             });
@@ -180,7 +187,7 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
                             return false;   // return false if you want Glide to handle everything else.
                         }
                     })
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                    .diskCacheStrategy(DiskCacheStrategy.RESULT)   // cache both original & resized image
                     .centerCrop()
                     .crossFade()
                     .into(mCover);

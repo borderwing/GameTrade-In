@@ -66,6 +66,11 @@ public class OfferPaginationFragment extends PaginationFragment<WishBean> {
             public GameTradeService getGameTradeService() {
                 return mGameTradeService;
             }
+
+            @Override
+            public Long getUserId() {
+                return mUserId;
+            }
         };
     }
 }

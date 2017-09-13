@@ -13,6 +13,7 @@ import java.util.Collection;
 public class GameEntity {
     private long gameId;
 
+    
     private long igdbId;
     private int platformId;
     private int regionId;
