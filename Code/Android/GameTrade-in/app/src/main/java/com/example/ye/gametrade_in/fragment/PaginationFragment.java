@@ -12,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -49,9 +50,13 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     protected LinearLayoutManager mLayoutManager;
 
 
+    protected void onNoResult(){
+        loadFirstPage();
+    }
+
     // Views for error layout
     RecyclerView rv;
-    ProgressBar progressBar;
+    protected ProgressBar progressBar;
     LinearLayout errorLayout;
     Button btnRetry;
     TextView txtError;
@@ -82,6 +87,24 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
     protected abstract Call<List<T>> callApi() ;
 
     protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment, Bundle bundle);
+
+    protected void disableTouchAndRolling(){
+        rv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
+    }
+
+    protected void enableTouchAndRolling(){
+        rv.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return false;
+            }
+        });
+    }
 
 
     private Bundle mArguments;
@@ -173,7 +196,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         btnRetryNoResult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                onNoResult();
             }
         });
 
@@ -190,24 +213,29 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
             public void onResponse(Call<List<T>> call, Response<List<T>> response) {
                 // Got data. Send it to adapter
                 if(!isAdded())  return;
-                hideErrorView();
 
-                List<T> results = response.body();
-                progressBar.setVisibility(View.GONE);
+                if(response.code() == 200) {
+                    hideErrorView();
+                    List<T> results = response.body();
+                    progressBar.setVisibility(View.GONE);
 
-                if(results.size() > 0) {
-                    mAdapter.addAll(results);
+                    if (results.size() > 0) {
+                        mAdapter.addAll(results);
 
-                    if(results.size() < PAGE_SIZE){
-                        isLastPage = true;
-                        return;
+                        if (results.size() < PAGE_SIZE) {
+                            isLastPage = true;
+                            return;
+                        }
+
+                        if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
+                        else isLastPage = true;
+                    } else {
+                        // currentPage --;
+                        showNoResultView();
                     }
-
-                    if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
-                    else isLastPage = true;
-                } else{
-                    currentPage --;
-                    showNoResultView();
+                } else {
+                    if(!isAdded())  return;
+                    showErrorView(null);
                 }
             }
 
@@ -257,7 +285,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
         if (!isNetworkConnected()) {
             errorMsg = getResources().getString(R.string.error_msg_no_internet);
-        } else if (throwable instanceof TimeoutException) {
+        } else if (throwable != null && throwable instanceof TimeoutException) {
             errorMsg = getResources().getString(R.string.error_msg_timeout);
         }
 

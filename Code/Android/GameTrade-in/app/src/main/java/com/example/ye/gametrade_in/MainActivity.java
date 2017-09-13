@@ -45,6 +45,7 @@ import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
 import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
+import com.example.ye.gametrade_in.activity.OrderActivity;
 import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
 import com.example.ye.gametrade_in.api.GameTradeApi;
@@ -345,7 +346,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v){
             Intent intent = new Intent();
-            // TODO: jump to order activity
+            intent.setClass(MainActivity.this, OrderActivity.class);
+            startActivity(intent);
+
         }
     };
 
@@ -409,7 +412,7 @@ public class MainActivity extends AppCompatActivity {
         protected  void onPostExecute(String result)
         {
             if(userDetail != null){
-                SetUserDetailedLayout(userDetail.username);
+                SetUserDetailedLayout(userDetail.getUsername());
             }
             super.onPostExecute(result);
         }

@@ -1,5 +1,7 @@
 package com.bankrupted.tradein.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -15,6 +17,7 @@ public class TradeGameEntity {
 
     private GameEntity game;
 
+    @JsonIgnore
     private TradeOrderEntity tradeOrder;
 
     private UserEntity sender;
@@ -125,6 +128,7 @@ public class TradeGameEntity {
         this.game = game;
     }
 
+
     @ManyToOne
     @JoinColumn(name = "tradeOrderID", referencedColumnName = "tradeOrderID")
     public TradeOrderEntity getTradeOrder() {
@@ -134,6 +138,7 @@ public class TradeGameEntity {
     public void setTradeOrder(TradeOrderEntity tradeOrder) {
         this.tradeOrder = tradeOrder;
     }
+
 
     @ManyToOne
     @JoinColumn(name = "senderID", referencedColumnName = "userID")

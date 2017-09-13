@@ -184,7 +184,7 @@ public class OrderService {
         tradeOrder.setCreatetime(time);
         tradeOrder.setStatus(gameNum);
         tradeOrder.setTradeOrderId(orderid);
-        tradeOrderRepo.saveAndFlush(tradeOrder);
+        tradeOrder = tradeOrderRepo.saveAndFlush(tradeOrder);
         return tradeOrder;
     }
 
@@ -207,11 +207,14 @@ public class OrderService {
         tradeGame.setReceiverStatus(1);
         tradeGame.setStatus(1);
         tradeGame.setPoints(points);
+
         tradeGame.setTradeOrder(tradeOrderRepo.findOne(orderId));
         tradeGameRepo.saveAndFlush(tradeGame);
 
         return tradeGame;
     }
+
+
 
     public TradeGameEntity setReceiverTradeGame(AddressEntity address,UserEntity user,GameEntity receiveGame,UserEntity targetUser,int orderId,int points){
         TradeGameEntity tradeGame=new TradeGameEntity();
@@ -243,4 +246,15 @@ public class OrderService {
         return tradeGame;
     }
 
+    public boolean DuplicatedOrder(Long gameId,int userId){
+        System.out.println(gameId);
+        System.out.println(userId);
+        System.out.println("here-------------------------------------");
+        if(tradeGameRepo.getDuplicatedOrder(gameId,userId).size()==0){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }

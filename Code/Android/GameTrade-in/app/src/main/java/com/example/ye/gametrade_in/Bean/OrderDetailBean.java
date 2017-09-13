@@ -11,6 +11,7 @@ public class OrderDetailBean {
     public int offerPoints;
     public String status;
 
+
     public String getWishGameTitle() {
         return wishGameTitle;
     }

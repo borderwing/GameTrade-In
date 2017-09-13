@@ -30,4 +30,9 @@
     <string name="button_cancel">Cancel</string>
     <string name="match_succeeded">Match Succeeded</string>
 
+    <string name="trade_order_status_cancelled">Cancelled</string>
+    <string name="trade_order_status_completed">Completed</string>
+    <string name="trade_order_status_wait_other">Waiting for other\'s confirm</string>
+    <string name="trade_order_status_wait_you">Waiting for your confirm</string>
+
 </resources>
