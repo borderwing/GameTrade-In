@@ -243,4 +243,15 @@ public class OrderService {
         return tradeGame;
     }
 
+    public boolean DuplicatedOrder(Long gameId,int userId){
+        System.out.println(gameId);
+        System.out.println(userId);
+        System.out.println("here-------------------------------------");
+        if(tradeGameRepo.getDuplicatedOrder(gameId,userId).size()==0){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }

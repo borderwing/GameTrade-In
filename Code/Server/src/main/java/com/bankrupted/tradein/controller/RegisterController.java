@@ -40,6 +40,12 @@ public class RegisterController {
     public ResponseEntity<Void> createUser(@RequestBody RegisterJsonItem registerItem, UriComponentsBuilder ucBuilder) {
         System.out.println("Creating User...");
 
+        //check whether the blanks are input
+        if(registerItem.getUsername()==""||registerItem.getEmail()==""||registerItem.getPassword()==""||registerItem.getPhone()==""){
+            System.out.println("didn't input all the blanks...");
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+
         //check whether the username is duplicated
         if (userRepo.findByUsername(registerItem.getUsername()) != null) {
             System.out.println("A User with username \"" + registerItem.getUsername() + "\" already exist");

@@ -27,6 +27,13 @@ public class LoginController {
     @RequestMapping(value="/",method= RequestMethod.POST)
     public ResponseEntity<ReturnLoginJsonItem> checkLogin(@RequestBody LoginJsonItem loginItem){
         System.out.println("confirm the username");
+
+        //check whether filled all the blanks
+        if(loginItem.getPassword()==""||loginItem.getUsername()==""){
+            System.out.println("didn't fill all the blanks...");
+            return new ResponseEntity<ReturnLoginJsonItem>(HttpStatus.BAD_REQUEST);
+        }
+
         UserEntity user=userService.getUserByUsername(loginItem.getUsername());
         if(user==null){
             //cant find the user
