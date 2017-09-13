@@ -83,6 +83,9 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
     }
 
     private class WishOfferHolder extends ItemHolder {
+
+        Call<GameDetailBean> call;
+
         private Long mIgdbId;
         private WishBean mWishBean;
         private GameDetailBean mGameDetail;
@@ -229,10 +232,20 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         }
 
         private void loadContent(){
-            callGameDetailApi(mIgdbId).enqueue(new Callback<GameDetailBean>() {
+
+
+            if(call != null){
+                call.cancel();
+            }
+
+            call = callGameDetailApi(mIgdbId);
+
+            call.enqueue(new Callback<GameDetailBean>() {
                 @Override
                 public void onResponse(Call<GameDetailBean> call, Response<GameDetailBean> response) {
                     // Got data. Send it to adapter
+                    call = null;
+
                     if(mFragment != null && !mFragment.isAdded())  return;
 
                     showContentLayout();
@@ -249,6 +262,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
                 @Override
                 public void onFailure(Call<GameDetailBean> call, Throwable t) {
+                    call = null;
                     showErrorLayout();
                 }
             });

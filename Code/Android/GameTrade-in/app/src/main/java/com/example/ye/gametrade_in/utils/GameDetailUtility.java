@@ -66,7 +66,12 @@ public class GameDetailUtility {
     }
 
     public String getRegionString(int regionId){
-        return mRegionMap.get(regionId).getRegion();
+        if(mRegionMap.get(regionId) != null){
+            return mRegionMap.get(regionId).getRegion();
+        } else {
+            return null;
+        }
+
     }
 
 

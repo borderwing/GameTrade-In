@@ -256,11 +256,18 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
             public void onResponse(Call<List<T>> call, Response<List<T>> response) {
                 if(!isAdded())  return;
 
+
                 mAdapter.removeLoadingFooter();
                 isLoading = false;
 
                 List<T> results = response.body();
+
                 mAdapter.addAll(results);
+
+                if (results.size() < PAGE_SIZE) {
+                    isLastPage = true;
+                    return;
+                }
 
                 if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
                 else isLastPage = true;
