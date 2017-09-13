@@ -680,6 +680,12 @@ public class UserController {
                                                     @PathVariable("userid")int userid){
         System.out.println("creating new address");
 
+        //check whether all blanks are filled
+        if(addressItem.getAddress()==""||addressItem.getPhone()==""||addressItem.getReceiver()==""||addressItem.getRegion()==""){
+            System.out.println("dont't fill all the blanks...");
+            return new ResponseEntity<AddressEntity>(HttpStatus.BAD_REQUEST);
+        }
+
         UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find the user");
@@ -741,7 +747,6 @@ public class UserController {
             System.out.println("can't find game...");
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
         }
-
 
         //get the wanted points
         int wantPoint=0;
@@ -816,6 +821,13 @@ public class UserController {
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
+        //check whether the order is already exist
+        if(orderService.DuplicatedOrder(gameid,userid)){
+            System.out.println("have order already...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.CONFLICT);
+        }
+
+
         //create TradeOrder
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
@@ -832,6 +844,7 @@ public class UserController {
         OfferEntity TargetOffer=offerService.getOneOfferByUserAndGame(targetUser,receiveGame);
         int receivePoints=(UserWish.getPoints()+TargetOffer.getPoints())/2;
         int offerPoints=(UserOffer.getPoints()+TargetWish.getPoints())/2;
+
         //create the send game order
         TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId,offerPoints);
 
@@ -997,23 +1010,24 @@ public class UserController {
                 int targetUserId;
                 if (item.getGameDetail().get(0).getReceiver().getUserId() == userid) {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
-                    String name = gameWish.getTitle();
                     GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
-                    String name2 = gameOffer.getTitle();
-                    showResult.setWishGameTitle(name);
-                    showResult.setOfferGameTitle(name2);
+                    showResult.setWishGame(gameWish);
+                    showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(0).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(1).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(0).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(0).getFromAddress());
                 } else {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
-                    String name = gameWish.getTitle();
-                    showResult.setWishGameTitle(name);
+                    showResult.setWishGame(gameWish);
                     GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
-                    String name2 = gameOffer.getTitle();
-                    showResult.setOfferGameTitle(name2);
+                    showResult.setOfferGame(gameOffer);
                     showResult.setWishPoints(item.getGameDetail().get(1).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(0).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(1).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(1).getFromAddress());
                 }
+                showResult.setOrderId(item.getTradeOrderId());
                 showResult.setStatus(item.getStatus());
                 resultList.add(showResult);
             }
@@ -1023,6 +1037,42 @@ public class UserController {
         pagedShowResult.setPageSize(size);
         pagedShowResult.setPage(page);
         return new ResponseEntity<List<OrderResult>>(pagedShowResult.getPageList(),HttpStatus.OK);
+    }
+
+    //fetch one order
+    @RequestMapping(value="/{userid}/order/{orderId}",method=RequestMethod.GET)
+    public ResponseEntity<OrderResult> getOneOrder(@PathVariable("userid")int userid,@PathVariable("orderId")int orderId){
+        System.out.println("get one order...");
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<OrderResult>(HttpStatus.NOT_FOUND);
+        }
+
+        TradeOrderEntity order=orderService.getTradeOrderById(orderId);
+        List<TradeGameEntity> TradeGames=orderService.getTradeGamesById(orderId);
+        OrderResult result=new OrderResult();
+        if(TradeGames.get(0).getReceiver().getUserId()==userid){
+            result.setTargetAddress(TradeGames.get(0).getFromAddress());
+            result.setYouAddress(TradeGames.get(0).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(1).getGame());
+            result.setWishGame(TradeGames.get(0).getGame());
+            result.setOfferPoints(TradeGames.get(1).getPoints());
+            result.setWishPoints(TradeGames.get(0).getPoints());
+        }
+        else{
+            result.setTargetAddress(TradeGames.get(1).getFromAddress());
+            result.setYouAddress(TradeGames.get(1).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(0).getGame());
+            result.setWishGame(TradeGames.get(1).getGame());
+            result.setWishPoints(TradeGames.get(1).getPoints());
+            result.setOfferPoints(TradeGames.get(0).getPoints());
+        }
+        return new ResponseEntity<OrderResult>(result,HttpStatus.OK);
     }
 
     //fetch unconfirmed order
