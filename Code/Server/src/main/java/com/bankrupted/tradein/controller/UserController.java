@@ -832,7 +832,7 @@ public class UserController {
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
         int orderId=orderService.getNewOrderId();
-        orderService.saveTradeOrder(tradeOrder,time,2,orderId);
+        tradeOrder = orderService.saveTradeOrder(tradeOrder,time,2,orderId);
 
         //create TradeGame
         AddressEntity address=addressService.getAddressById(orderItem.getAddressId());
@@ -845,11 +845,13 @@ public class UserController {
         int receivePoints=(UserWish.getPoints()+TargetOffer.getPoints())/2;
         int offerPoints=(UserOffer.getPoints()+TargetWish.getPoints())/2;
 
+
+        System.out.println(tradeOrder.getTradeOrderId());
         //create the send game order
-        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId,offerPoints);
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,tradeOrder.getTradeOrderId(),offerPoints);
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,orderId,receivePoints);
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,tradeOrder.getTradeOrderId(),receivePoints);
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();
@@ -1005,14 +1007,17 @@ public class UserController {
         Iterator<ShowOrderItem> iterResult=ShowResult.iterator();
         while(iterResult.hasNext()){
             ShowOrderItem item=iterResult.next();
+
             if(item.getGameDetail().size()==2) {
                 OrderResult showResult = new OrderResult();
                 int targetUserId;
                 if (item.getGameDetail().get(0).getReceiver().getUserId() == userid) {
                     GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
                     GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
+
                     showResult.setWishGame(gameWish);
                     showResult.setOfferGame(gameOffer);
+
                     showResult.setWishPoints(item.getGameDetail().get(0).getPoints());
                     showResult.setOfferPoints(item.getGameDetail().get(1).getPoints());
                     showResult.setYouAddress(item.getGameDetail().get(0).getToAddress());
@@ -1027,6 +1032,17 @@ public class UserController {
                     showResult.setYouAddress(item.getGameDetail().get(1).getToAddress());
                     showResult.setTargetAddress(item.getGameDetail().get(1).getFromAddress());
                 }
+
+                // set other username
+                UserEntity sender = item.getGameDetail().get(0).getSender();
+                UserEntity receiver = item.getGameDetail().get(0).getReceiver();
+                if(sender != user){
+                    showResult.setOtherUsername(sender.getUsername());
+                } else {
+                    showResult.setOtherUsername(receiver.getUsername());
+                }
+
+
                 showResult.setOrderId(item.getTradeOrderId());
                 showResult.setStatus(item.getStatus());
                 resultList.add(showResult);

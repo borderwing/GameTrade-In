@@ -8,7 +8,7 @@ public class CreateOrderBean {
 
     public Long gameId ;
     public Long targetUserId;
-    public Long addressId;
+    public int addressId;
 
     public Long getGameId() {
         return gameId;
@@ -26,15 +26,16 @@ public class CreateOrderBean {
         this.targetUserId = targetUserId;
     }
 
-    public Long getAddressId() {
+
+    public int getAddressId() {
         return addressId;
     }
 
-    public void setAddressId(Long addressId) {
+    public void setAddressId(int addressId) {
         this.addressId = addressId;
     }
 
-    public CreateOrderBean(Long gameId, Long targetUserId, Long addressId) {
+    public CreateOrderBean(Long gameId, Long targetUserId, int addressId) {
         this.gameId = gameId;
         this.targetUserId = targetUserId;
         this.addressId = addressId;

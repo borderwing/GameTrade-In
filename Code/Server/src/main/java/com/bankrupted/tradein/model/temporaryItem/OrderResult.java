@@ -14,6 +14,8 @@ public class OrderResult {
     private AddressEntity YouAddress;
     private AddressEntity TargetAddress;
 
+    private String otherUsername;
+
     public int getOrderId() {
         return orderId;
     }
@@ -76,5 +78,13 @@ public class OrderResult {
 
     public void setTargetAddress(AddressEntity targetAddress) {
         TargetAddress = targetAddress;
+    }
+
+    public String getOtherUsername() {
+        return otherUsername;
+    }
+
+    public void setOtherUsername(String otherUsername) {
+        this.otherUsername = otherUsername;
     }
 }

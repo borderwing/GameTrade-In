@@ -128,6 +128,7 @@ public class TradeGameEntity {
         this.game = game;
     }
 
+
     @ManyToOne
     @JoinColumn(name = "tradeOrderID", referencedColumnName = "tradeOrderID")
     public TradeOrderEntity getTradeOrder() {
@@ -137,6 +138,7 @@ public class TradeGameEntity {
     public void setTradeOrder(TradeOrderEntity tradeOrder) {
         this.tradeOrder = tradeOrder;
     }
+
 
     @ManyToOne
     @JoinColumn(name = "senderID", referencedColumnName = "userID")

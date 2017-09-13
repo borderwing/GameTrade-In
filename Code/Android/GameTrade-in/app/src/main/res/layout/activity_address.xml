@@ -8,13 +8,6 @@
 
     <!--<include layout="@layout/error_layout"/>-->
 
-    <ProgressBar
-        android:id="@+id/main_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"/>
-
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     xmlns:tools="http://schemas.android.com/tools"
                     android:id="@+id/layoutAddress"
@@ -23,7 +16,7 @@
                     tools:context=".AddressActivity">
 
 
-    <android.support.v7.widget.Toolbar
+        <android.support.v7.widget.Toolbar
         android:id="@+id/addressToolBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
@@ -88,13 +81,20 @@
 
     </RelativeLayout>-->
 
-    <ListView
-        android:id="@+id/addressListView"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_below="@id/addressToolBar"/>
+        <FrameLayout
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_below="@id/addressToolBar">
+        </FrameLayout>
+
+        <!--<ListView-->
+        <!--android:id="@+id/addressListView"-->
+        <!--android:layout_marginLeft="30dp"-->
+        <!--android:layout_marginRight="30dp"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_below="@id/addressToolBar"/>-->
 
     </RelativeLayout>
 

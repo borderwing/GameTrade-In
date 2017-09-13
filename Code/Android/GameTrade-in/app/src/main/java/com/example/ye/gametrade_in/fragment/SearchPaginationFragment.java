@@ -22,6 +22,11 @@ public class SearchPaginationFragment extends PaginationFragment<GameTileBean> {
 
     private String mQuery;
 
+    @Override
+    protected void onNoResult(){
+        this.getActivity().finish();
+    }
+
     public static SearchPaginationFragment newInstance(String query){
         Bundle args = new Bundle();
         args.putString(ARG_QUERY, query);

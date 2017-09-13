@@ -14,6 +14,8 @@ public class TradeOrderBean {
     private AddressBean youAddress;
     private AddressBean targetAddress;
 
+    private String otherUsername;
+
     public Long getOrderId() {
         return orderId;
     }
@@ -76,5 +78,13 @@ public class TradeOrderBean {
 
     public void setTargetAddress(AddressBean targetAddress) {
         this.targetAddress = targetAddress;
+    }
+
+    public String getOtherUsername() {
+        return otherUsername;
+    }
+
+    public void setOtherUsername(String otherUsername) {
+        this.otherUsername = otherUsername;
     }
 }

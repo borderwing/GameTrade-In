@@ -1,5 +1,6 @@
 package com.example.ye.gametrade_in.api;
 
+import com.example.ye.gametrade_in.Bean.AddressBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
@@ -42,6 +43,13 @@ public interface GameTradeService {
     @GET("game/{igdbId}")
     Call<GameDetailBean> getDetailGame(
             @Path("igdbId") Long igdbId
+    );
+
+    @GET("user/{userId}/address/params")
+    Call<List<AddressBean>> getAddressList(
+            @Path("userId") Long userId,
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @POST("user/{userId}/wishlist")

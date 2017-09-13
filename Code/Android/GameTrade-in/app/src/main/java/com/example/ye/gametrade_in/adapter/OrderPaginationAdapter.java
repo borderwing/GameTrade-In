@@ -283,7 +283,10 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
             });
 
 
-            String otherName = tradeOrder.getTargetAddress().getReceiver();
+            String otherName = tradeOrder.getOtherUsername();
+            if(otherName == null){
+                otherName = "";
+            }
 
             // set explain text
             mWishExplain.setText("Receive this game from: " + otherName);
@@ -407,6 +410,7 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
         }
 
         private void showContentLayout(){
+            mOrderLayout.setVisibility(View.VISIBLE);
             mOrderWishContentLayout.setVisibility(View.VISIBLE);
             mOrderOfferContentLayout.setVisibility(View.VISIBLE);
 

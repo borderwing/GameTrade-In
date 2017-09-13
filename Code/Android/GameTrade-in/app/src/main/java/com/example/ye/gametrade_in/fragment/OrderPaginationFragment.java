@@ -29,8 +29,8 @@ public class OrderPaginationFragment extends PaginationFragment<TradeOrderBean> 
     protected Call<List<TradeOrderBean>> callApi() {
         return mGameTradeService.getOrderList(
                 mUserId,
-                PAGE_SIZE,
-                PAGE_SIZE * currentPage
+                currentPage,
+                PAGE_SIZE
         );
     }
 
