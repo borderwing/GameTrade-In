@@ -30,6 +30,10 @@ public class OrderService {
     TradeGameRepository tradeGameRepo;
     @Autowired
     AddressRepository addressRepo;
+    @Autowired
+    WishRepository wishRepo;
+    @Autowired
+    OfferRepository offerRepo;
 
     public List<TradeOrderEntity> getALlTradeOrder(){
         return tradeOrderRepo.findAll();
@@ -150,6 +154,8 @@ public class OrderService {
             int points=tradeGame.getPoints();
             customerRepo.minusPoints(receUserId,points);
             customerRepo.addPoints(offerUserId,points);
+            wishRepo.deleteWish(receUserId,tradeGame.getGame().getGameId());
+            offerRepo.deleteOffer(offerUserId,tradeGame.getGame().getGameId());
         }
     }
 
@@ -165,6 +171,8 @@ public class OrderService {
             int points=tradeGame.getPoints();
             customerRepo.minusPoints(receUserId,points);
             customerRepo.addPoints(offerUserId,points);
+            wishRepo.deleteWish(receUserId,tradeGame.getGame().getGameId());
+            offerRepo.deleteOffer(offerUserId,tradeGame.getGame().getGameId());
         }
     }
 

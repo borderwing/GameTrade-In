@@ -46,4 +46,9 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     @Transactional
     @Query("update OfferEntity p set p.points=:points where p.offerEntityPK.createTime=:createTime and p.offerEntityPK.game=:game and p.offerEntityPK.user=:user")
     int modifyOfferGame(@Param("game")GameEntity game,@Param("user")UserEntity user,@Param("createTime")Timestamp createTime,@Param("points")int points);
+
+    @Modifying
+    @Transactional
+    @Query("update OfferEntity p set p.status=0 where p.offerEntityPK.game.gameId=:gameid and p.offerEntityPK.user.userId=:userid and p.status=1")
+    int deleteOffer(@Param("userid")int userid,@Param("gameid")long gameid);
 }

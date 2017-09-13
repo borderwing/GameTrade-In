@@ -62,4 +62,9 @@ public interface WishRepository extends JpaRepository<WishEntity, WishEntityPK> 
     @Transactional
     @Query("update WishEntity p set p.points=:points where p.wishEntityPK.user=:user and p.wishEntityPK.game=:game and p.wishEntityPK.createTime=:createTime")
     int modifyWishGame(@Param("user")UserEntity user,@Param("game")GameEntity game,@Param("createTime")Timestamp createTime,@Param("points")int points);
+
+    @Modifying
+    @Transactional
+    @Query("update WishEntity p set p.status=0 where p.wishEntityPK.user.userId=:userid and p.wishEntityPK.game.gameId=:gameid and p.status=1")
+    int deleteWish(@Param("userid")int userid,@Param("gameid")long gameid);
 }
