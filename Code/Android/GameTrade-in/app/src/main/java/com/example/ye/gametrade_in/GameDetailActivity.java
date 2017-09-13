@@ -1,5 +1,6 @@
 package com.example.ye.gametrade_in;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -33,6 +35,8 @@ public class GameDetailActivity extends SingleFragmentActivity {
     BitmapBean bitmapBean;
     Bitmap bitmap;
 
+
+
     public static Intent newInent(Context packageContext, Long igdbId){
         Intent intent = new Intent(packageContext, GameDetailActivity.class);
         intent.putExtra(EXTRA_IGDB_ID, igdbId);
@@ -51,7 +55,6 @@ public class GameDetailActivity extends SingleFragmentActivity {
         igdbId = intent.getLongExtra(EXTRA_IGDB_ID, 0);
 
         super.onCreate(savedInstanceState);
-
 
         //bundle.putString("wishPoints", wishPoints);
         //bundle.putString("offerPoints", offerPoints);

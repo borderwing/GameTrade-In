@@ -37,4 +37,11 @@
     <string name="trade_order_status_wait_other">Waiting for other\'s confirm</string>
     <string name="trade_order_status_wait_you">Waiting for your confirm</string>
 
+    <string name="my_wishlist_title">My wish list</string>
+    <string name="my_offerlist_title">My offer list</string>
+    <string name="game_detail_title">Game Detail</string>
+    <string name="register_title">Register</string>
+    <string name="login_title">Login</string>
+    <string name="my_order_title">My order</string>
+
 </resources>

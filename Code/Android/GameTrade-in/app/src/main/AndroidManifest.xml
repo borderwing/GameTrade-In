@@ -43,32 +43,46 @@
         </activity>
 
         <activity android:name=".WishListActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/my_wishlist_title"
+                  android:theme="@style/AppDefaultToolbar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ye.gametrade_in.MainActivity"/>
         </activity>
 
         <!--<activity android:name=".MyListActivity"-->
                   <!--android:label="@string/app_name">-->
         <!--</activity>-->
+
         <activity android:name=".GameDetailActivity"
-                  android:label="@string/app_name">
-        </activity>
+                  android:label="@string/game_detail_title"
+                  android:theme="@style/AppDefaultToolbar">
+            </activity>
+
         <activity android:name=".PublishActivity"
             android:label="@string/app_name">
         </activity>
+
         <activity android:name=".RegisterActivity"
-            android:label="@string/app_name">
+            android:label="@string/register_title">
         </activity>
+
         <activity android:name=".OrderDetailActivity"
             android:label="@string/app_name">
         </activity>
 
         <activity android:name=".activity.OrderActivity"
-                  android:label="@string/app_name">
+            android:label="@string/my_order_title"
+            android:theme="@style/AppDefaultToolbar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ye.gametrade_in.MainActivity"/>
         </activity>
 
 
         <activity android:name=".LoginActivity"
-            android:label="@string/app_name">
+            android:label="@string/login_title">
+
             <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -76,11 +90,19 @@
         </activity>
 
         <activity android:name=".OfferListActivity"
-            android:label="">
+            android:label="@string/my_offerlist_title"
+            android:theme="@style/AppDefaultToolbar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ye.gametrade_in.MainActivity"/>
         </activity>
 
         <activity android:name=".activity.MatchWishActivity"
-                  android:label="Match">
+                  android:label="Match"
+                  android:theme="@style/AppDefaultToolbar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.ye.gametrade_in.WishListActivity"/>
         </activity>
 
         <activity android:name=".MatchActivity"
