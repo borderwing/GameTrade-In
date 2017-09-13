@@ -20,7 +20,7 @@ import java.util.List;
 @Repository
 public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityPK> {
 
-    @Query("select p from OfferEntity p where p.offerEntityPK.user=:user and p.offerEntityPK.game=:game")
+    @Query("select p from OfferEntity p where p.offerEntityPK.user=:user and p.offerEntityPK.game=:game order by p.offerEntityPK.createTime desc")
     List<OfferEntity> findByUserAndGame(@Param("user")UserEntity user, @Param("game")GameEntity game);
 
     @Query("select p from OfferEntity p where abs(p.points-:points)<:scale and p.status=1 and p.offerEntityPK.game.gameId=:gameId order by p.offerEntityPK.user.userId")
@@ -34,7 +34,7 @@ public interface OfferRepository extends JpaRepository<OfferEntity, OfferEntityP
     @Query("select p from OfferEntity p where p.offerEntityPK.user.userId<>:userId")
     List<OfferEntity> findAllExceptById(@Param("userId")int userId);
 
-    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId=:userId and p.status=1")
+    @Query("select p from OfferEntity p where p.offerEntityPK.user.userId=:userId and p.status=1 order by p.offerEntityPK.createTime desc")
     List<OfferEntity> findById(@Param("userId")int userId);
 
     @Modifying

@@ -6,6 +6,8 @@
              android:layout_height="wrap_content"
              android:orientation="vertical">
 
+    <include layout="@layout/error_layout"/>
+
     <ProgressBar
         android:id="@+id/item_order_progress"
         style="@style/Widget.AppCompat.ProgressBar"
@@ -15,6 +17,7 @@
         android:theme="@style/CircularProgress"/>
 
     <LinearLayout
+        android:id="@+id/item_order_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -22,22 +25,24 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textSize="20dp"
-                android:text="Status :"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:paddingLeft="100dp"/>
+                android:paddingLeft="100dp"
+                android:text="Status :"
+                android:textSize="20dp"/>
+
             <TextView
                 android:id="@+id/item_order_status"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:text="Confirmed"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:paddingLeft="10dp"
+                android:text="Confirmed"
                 android:textSize="20dp"/>
         </LinearLayout>
 
@@ -62,16 +67,20 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="30dp"
                     android:orientation="vertical">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingBottom="10dp">
+
                         <TextView
+                            android:id="@+id/item_order_wish_explain"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:text="My wish :"
-                            android:textSize="20dp"
-                            android:paddingLeft="15dp"/>
+                            android:paddingLeft="15dp"
+                            android:text="My Wish"
+                            android:textSize="18sp"
+                            tools:text="Receive this game from lykavin"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -129,7 +138,7 @@
                         android:layout_marginTop="@dimen/activity_margin_half"
                         android:ellipsize="start"
                         android:gravity="start"
-                        android:maxLines="3"
+                        android:maxLines="4"
                         android:textColor="?attr/colorControlNormal"
                         android:textSize="12sp"
                         android:textStyle="bold"
@@ -190,12 +199,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:paddingBottom="10dp">
+
                         <TextView
+                            android:id="@+id/item_order_offer_explain"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:text="My Offer :"
                             android:paddingLeft="15dp"
-                            android:textSize="20dp"/>
+                            android:text="My Offer"
+                            android:textSize="18sp"
+                            tools:text="Send this game to lykavin"/>
                     </LinearLayout>
 
                     <LinearLayout
@@ -248,17 +260,17 @@
                         style="@style/TextAppearance.AppCompat.Caption"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
                         android:layout_marginBottom="@dimen/activity_margin_half"
                         android:layout_marginLeft="@dimen/activity_margin_content"
                         android:layout_marginStart="@dimen/activity_margin_content"
+                        android:layout_marginTop="10dp"
                         android:ellipsize="start"
                         android:gravity="start"
-                        android:maxLines="3"
+                        android:maxLines="4"
                         android:textColor="?attr/colorControlNormal"
                         android:textSize="12sp"
                         android:textStyle="bold"
-                        tools:text="Room 706, Building 27, 825 Boxing Road, Shanghai, China, 18621588356"/>
+                        tools:text="Room 706, Building 27, 825 Boxing Road, Shanghai, China, 18621588356 18621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356186215883561862158835618621588356"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -318,6 +330,7 @@
             </android.support.v7.widget.CardView>
 
         </FrameLayout>
+
 
         <!--<FrameLayout-->
         <!--android:layout_width="match_parent"-->

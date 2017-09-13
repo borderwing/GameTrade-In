@@ -1,42 +1,42 @@
-package com.bankrupted.tradein.model.temporaryItem;
+package com.example.ye.gametrade_in.Bean;
 
-import com.bankrupted.tradein.model.AddressEntity;
-import com.bankrupted.tradein.model.GameEntity;
-import com.sun.jndi.cosnaming.IiopUrl;
+/**
+ * Created by lykav on 9/13/2017.
+ */
 
-public class OrderResult {
-    private int orderId;
-    private GameEntity wishGame;
-    private GameEntity offerGame;
+public class TradeOrderBean {
+    private Long orderId;
+    private GameBean wishGame;
+    private GameBean offerGame;
     private int wishPoints;
     private int offerPoints;
     private int status;
-    private AddressEntity YouAddress;
-    private AddressEntity TargetAddress;
+    private AddressBean youAddress;
+    private AddressBean targetAddress;
 
     private String otherUsername;
 
-    public int getOrderId() {
+    public Long getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(int orderId) {
+    public void setOrderId(Long orderId) {
         this.orderId = orderId;
     }
 
-    public GameEntity getWishGame() {
+    public GameBean getWishGame() {
         return wishGame;
     }
 
-    public void setWishGame(GameEntity wishGame) {
+    public void setWishGame(GameBean wishGame) {
         this.wishGame = wishGame;
     }
 
-    public GameEntity getOfferGame() {
+    public GameBean getOfferGame() {
         return offerGame;
     }
 
-    public void setOfferGame(GameEntity offerGame) {
+    public void setOfferGame(GameBean offerGame) {
         this.offerGame = offerGame;
     }
 
@@ -64,20 +64,20 @@ public class OrderResult {
         this.status = status;
     }
 
-    public AddressEntity getYouAddress() {
-        return YouAddress;
+    public AddressBean getYouAddress() {
+        return youAddress;
     }
 
-    public void setYouAddress(AddressEntity youAddress) {
-        YouAddress = youAddress;
+    public void setYouAddress(AddressBean youAddress) {
+        this.youAddress = youAddress;
     }
 
-    public AddressEntity getTargetAddress() {
-        return TargetAddress;
+    public AddressBean getTargetAddress() {
+        return targetAddress;
     }
 
-    public void setTargetAddress(AddressEntity targetAddress) {
-        TargetAddress = targetAddress;
+    public void setTargetAddress(AddressBean targetAddress) {
+        this.targetAddress = targetAddress;
     }
 
     public String getOtherUsername() {
