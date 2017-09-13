@@ -1048,6 +1048,7 @@ public class UserController {
                 resultList.add(showResult);
             }
         }
+        Collections.reverse(resultList);
 
         PagedListHolder<OrderResult> pagedShowResult=new PagedListHolder<>(resultList);
         pagedShowResult.setPageSize(size);
