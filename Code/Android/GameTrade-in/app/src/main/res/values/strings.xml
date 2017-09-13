@@ -28,6 +28,8 @@
     <string name="button_reload">Reload</string>
     <string name="button_confirm">Confirm</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_delete">Delete</string>
+
     <string name="match_succeeded">Match Succeeded</string>
 
     <string name="trade_order_status_cancelled">Cancelled</string>

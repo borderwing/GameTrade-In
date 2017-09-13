@@ -102,6 +102,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
         private Button mEditButton;
         private Button mMatchButton;
+        private Button mDeleteButton;
 
 
         public WishOfferHolder(View itemView) {
@@ -124,6 +125,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
             mEditButton = (Button) itemView.findViewById(R.id.item_wish_edit);
             mMatchButton = (Button) itemView.findViewById(R.id.item_wish_match);
+            mDeleteButton = (Button) itemView.findViewById(R.id.item_wish_delete);
 
             switch (getAdapterType()){
                 case TYPE_OFFER:
@@ -179,6 +181,17 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                     }
                 });
             }
+
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch(getAdapterType()){
+                        case TYPE_WISH:
+
+                    }
+                }
+            });
+
 
             Glide
                     .with(context)
@@ -268,5 +281,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
     private Call<GameDetailBean> callGameDetailApi(Long igdbId){
         return getGameTradeService().getDetailGame(igdbId);
     }
+
+//    private Call
 
 }

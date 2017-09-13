@@ -150,7 +150,7 @@ public class AddressPaginationFragment extends PaginationFragment<AddressBean> {
                                             Toast.makeText(getActivity(), "Order Successfully Created", Toast.LENGTH_SHORT)
                                                     .show();
 
-                                            Intent intent = new Intent(getActivity(), OrderActivity.class);
+                                            Intent intent = OrderActivity.newIntent(getContext(), OrderActivity.CALLER_ADDRESS);
                                             startActivity(intent);
                                         } else {
                                             Toast.makeText(getActivity(), "HTTP: " + response.code(), Toast.LENGTH_SHORT)
@@ -183,20 +183,28 @@ public class AddressPaginationFragment extends PaginationFragment<AddressBean> {
                                     @Override
                                     public void onResponse(Call<String> call, Response<String> response) {
 
-                                        if(response.code() == 200) {
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                            enableTouchAndRolling();
+                                        switch(response.code()){
+                                            case 200:
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                enableTouchAndRolling();
 
-                                            Toast.makeText(getActivity(), "Order Successfully Confirmed", Toast.LENGTH_SHORT)
-                                                    .show();
+                                                Toast.makeText(getActivity(), "Order Successfully Confirmed", Toast.LENGTH_SHORT)
+                                                        .show();
 
-                                            Intent intent = new Intent(getActivity(), OrderActivity.class);
-                                            startActivity(intent);
-                                        } else {
-                                            Toast.makeText(getActivity(), "HTTP: " + response.code(), Toast.LENGTH_SHORT)
-                                                    .show();
-                                            progressBar.setVisibility(View.INVISIBLE);
-                                            enableTouchAndRolling();
+                                                Intent intent = OrderActivity.newIntent(getContext(), OrderActivity.CALLER_ADDRESS);
+                                                startActivity(intent);
+                                                break;
+                                            case 409:
+                                                Toast.makeText(getActivity(), "Order already created. Jumping to order list...", Toast.LENGTH_LONG)
+                                                        .show();
+                                                intent = OrderActivity.newIntent(getContext(), OrderActivity.CALLER_ADDRESS);
+                                                startActivity(intent);
+                                                break;
+                                            default:
+                                                Toast.makeText(getActivity(), "HTTP: " + response.code(), Toast.LENGTH_SHORT)
+                                                        .show();
+                                                progressBar.setVisibility(View.INVISIBLE);
+                                                enableTouchAndRolling();
                                         }
 
                                     }

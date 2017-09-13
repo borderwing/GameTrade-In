@@ -44,8 +44,8 @@ public class IgdbUtility {
 
 
     private List<String> gameFullFields = Arrays.asList(
-            "name","release_dates","cover","summary","screenshots"
-            ,"genres", "themes", "keywords"
+            "name","release_dates","cover","summary" //, "screenshots"
+            // ,"genres", "themes", "keywords"
             ,"popularity", "url"
     );
 

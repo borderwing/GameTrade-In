@@ -20,6 +20,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.example.ye.gametrade_in.AddressActivity;
 import com.example.ye.gametrade_in.Bean.AddressBean;
 import com.example.ye.gametrade_in.Bean.GameBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
@@ -224,13 +225,13 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
             switch(tradeOrder.getStatus()) {
                 case -1:
                     mOrderStatus.setText(R.string.trade_order_status_cancelled);
-                    mOrderConfirmButton.setVisibility(View.INVISIBLE);
-                    mOrderCancelButton.setVisibility(View.INVISIBLE);
+                    mOrderConfirmButton.setVisibility(View.GONE);
+                    mOrderCancelButton.setVisibility(View.GONE);
                     break;
                 case 0:
                     mOrderStatus.setText(R.string.trade_order_status_completed);
-                    mOrderConfirmButton.setVisibility(View.INVISIBLE);
-                    mOrderCancelButton.setVisibility(View.INVISIBLE);
+                    mOrderConfirmButton.setVisibility(View.GONE);
+                    mOrderCancelButton.setVisibility(View.GONE);
                     break;
                 default:
                     if(tradeOrder.getYouAddress() == null) {
@@ -238,15 +239,20 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
 
                     } else {
                         mOrderStatus.setText(R.string.trade_order_status_wait_other);
+                        mOrderConfirmButton.setVisibility(View.GONE);
                     }
             }
 
-            mOrderCancelButton.setOnClickListener(new View.OnClickListener() {
+            mOrderConfirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mOrderConfirmButton.setEnabled(false);
                     mOrderCancelButton.setEnabled(false);
 
+                    // start the address picker activity
+                    Intent intent = AddressActivity.newIntent(
+                            mFragment.getContext(), mOrderId);
+                    mFragment.startActivity(intent);
 
                 }
             });
@@ -264,7 +270,9 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
                             } else {
                                 Toast.makeText(mFragment.getContext(),
                                         "Http Status " + response.code(),
-                                        Toast.LENGTH_SHORT);
+                                        Toast.LENGTH_LONG);
+
+
                                 mOrderConfirmButton.setEnabled(true);
                                 mOrderCancelButton.setEnabled(true);
                             }
@@ -274,7 +282,7 @@ public abstract class OrderPaginationAdapter extends LinearPaginationAdapter<Tra
                         public void onFailure(Call<String> call, Throwable t) {
                             Toast.makeText(mFragment.getContext(),
                                     t.toString(),
-                                    Toast.LENGTH_SHORT);
+                                    Toast.LENGTH_LONG);
                             mOrderConfirmButton.setEnabled(true);
                             mOrderCancelButton.setEnabled(true);
                         }

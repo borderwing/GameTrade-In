@@ -84,6 +84,18 @@
                     android:layout_weight="1"/>
 
                 <Button
+                    android:id="@+id/item_wish_delete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/button_delete"/>
+
+                <Space
+                    android:layout_width="1dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1"/>
+
+                <Button
                     android:id="@+id/item_wish_match"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
