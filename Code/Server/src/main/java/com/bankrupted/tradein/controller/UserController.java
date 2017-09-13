@@ -956,8 +956,8 @@ public class UserController {
     //fetch all orders (paged)
     @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
     public ResponseEntity<List<OrderResult>> getAllOrdersPaged(@PathVariable("userid")int userid,
-                                                                 @RequestParam(value = "page",defaultValue = "5")Integer page,
-                                                                 @RequestParam(value = "size",defaultValue = "0")Integer size){
+                                                                 @RequestParam(value = "size",defaultValue = "5")Integer size,
+                                                                 @RequestParam(value = "page",defaultValue = "0")Integer page){
         System.out.println("fetch all orders");
 
         UserEntity user=userService.getUserById(userid);

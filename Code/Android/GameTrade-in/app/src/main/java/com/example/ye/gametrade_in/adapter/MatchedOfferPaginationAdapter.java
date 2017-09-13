@@ -16,6 +16,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.example.ye.gametrade_in.AddressActivity;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
@@ -34,6 +35,8 @@ import retrofit2.Response;
  */
 
 public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdapter<MatchedOfferBean> {
+
+    public final static String TAG = "MatchedOfferPaginationAdapter";
 
     private Fragment mFragment;
 
@@ -109,7 +112,7 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
 
         }
 
-        public void bind(MatchedOfferBean matchedOffer){
+        public void bind(final MatchedOfferBean matchedOffer){
             mIgdbId = matchedOffer.getOfferGame().getIgdbId();
             mMatchedOffer = matchedOffer;
 
@@ -126,7 +129,16 @@ public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdap
                 public void onClick(View v) {
                     // TODO: ConfirmMatchJson needs gameId, targetUserId and addressId
                     // save these values in a bundle and start get address activity
+                    Intent intent = AddressActivity.newIntent(mFragment.getContext(),
+                            matchedOffer.getWishGame().getGameId(),
+                            matchedOffer.getOfferGame().getGameId(),
+                            matchedOffer.getSender().getUserId());
 
+                    Log.d("TAG", "myGameId: " + matchedOffer.getWishGame().getGameId().toString());
+                    Log.d("TAG", "targetGameId: " + matchedOffer.getOfferGame().getGameId().toString());
+                    Log.d("TAG", "targetUserId: " + matchedOffer.getSender().getUserId().toString());
+
+                    mFragment.startActivity(intent);
                 }
             });
 

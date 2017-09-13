@@ -22,16 +22,17 @@ public class OfferService {
     OfferRepository offerRepo;
 
     public Collection<OfferEntity> getAvailableOffer(UserEntity user){
-        Collection<OfferEntity> offerlist=user.getOffers();
-        //check the availability
-        Iterator<OfferEntity> iter=offerlist.iterator();
-        while(iter.hasNext()){
-            OfferEntity offerGame=iter.next();
-            if(offerGame.getStatus()==0){
-                iter.remove();
-            }
-        }
-        return offerlist;
+//        Collection<OfferEntity> offerlist=user.getOffers();
+//        //check the availability
+//        Iterator<OfferEntity> iter=offerlist.iterator();
+//        while(iter.hasNext()){
+//            OfferEntity offerGame=iter.next();
+//            if(offerGame.getStatus()==0){
+//                iter.remove();
+//            }
+//        }
+//        return offerlist;
+        return offerRepo.findById(user.getUserId());
     }
 
     public OfferEntity getOneOfferByUserAndGame(UserEntity user, GameEntity game){

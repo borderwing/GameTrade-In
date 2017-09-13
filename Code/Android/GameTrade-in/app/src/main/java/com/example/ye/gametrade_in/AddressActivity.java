@@ -1,5 +1,6 @@
 package com.example.ye.gametrade_in;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -17,10 +18,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.example.ye.gametrade_in.Bean.AddressBean;
+import com.example.ye.gametrade_in.Bean.TradeConfirmBean;
+import com.example.ye.gametrade_in.Bean.temp.CreateOrderBean;
+import com.example.ye.gametrade_in.activity.OrderActivity;
+import com.example.ye.gametrade_in.api.GameTradeApi;
+import com.example.ye.gametrade_in.api.GameTradeService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,13 +35,16 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -43,18 +53,54 @@ import java.util.Map;
 
 public class AddressActivity extends AppCompatActivity {
 
+    private static final String EXTRA_MY_GAME_ID = "AddressActivity.EXTRA_MY_GAME_ID";
+    private static final String EXTRA_TARGET_GAME_ID =  "AddressActivity.EXTRA_TARGET_GAME_ID";
+    private static final String EXTRA_TARGET_USER_ID =  "AddressActivity.EXTRA_TARGET_USER_ID";
+    private static final String EXTRA_OPERATION = "AddressActivity.EXTRA_OPERATION";
+
+    private static final int OPERATION_MATCH = 1;
+    private static final int OPERATION_BROWSE = 0;
+
+
     GameTradeInApplication gameTradeInApplication;
     String gameDetailId;
-    private String gameId, targetUserId, operation;
+
+//    private String gameId, targetUserId, operation;
+
+    private Long myGameId;
+    private Long targetGameId;
+    private Long targetUserId;
+    private int operation;
+
     String serverUrl;
     Integer userId;
     boolean canChoose;
     private AddressBean[] addressBean;
     private ListView listView;
+    ProgressBar mMainProgress;
     String authorizedHeader;
     Button addressOperationButton;
 
 
+    private GameTradeService mGameTradeService;
+
+    public static Intent newIntent(Context context, Long myGameId, Long targetGameId, Long targetUserId){
+        Intent intent = new Intent(context, AddressActivity.class);
+        intent.putExtra(EXTRA_MY_GAME_ID, myGameId);
+        intent.putExtra(EXTRA_TARGET_GAME_ID, targetGameId);
+        intent.putExtra(EXTRA_TARGET_USER_ID, targetUserId);
+        intent.putExtra(EXTRA_OPERATION, OPERATION_MATCH);
+
+        return intent;
+    }
+
+
+    private void retrieveFromIntent(Intent intent){
+        myGameId = intent.getLongExtra(EXTRA_MY_GAME_ID, 0);
+        targetGameId = intent.getLongExtra(EXTRA_TARGET_GAME_ID, 0);
+        targetUserId = intent.getLongExtra(EXTRA_TARGET_USER_ID, 0);
+        operation = intent.getIntExtra(EXTRA_OPERATION, 0);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,13 +116,17 @@ public class AddressActivity extends AppCompatActivity {
 
         userId = Integer.valueOf(QueryPreferences.getStoredUserIdQuery(getApplicationContext()));
         authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(getApplicationContext());
+
+        mGameTradeService = GameTradeApi.getClient(authorizedHeader).create(GameTradeService.class);
+
         setContentView(R.layout.activity_address);
 
+        retrieveFromIntent(getIntent());
+
         Intent intentReceiver = getIntent();
-        gameId = intentReceiver.getStringExtra("gameId");
-        targetUserId = intentReceiver.getStringExtra("targetUserId");
-        gameDetailId = intentReceiver.getStringExtra("gameDetailId");
-        operation = intentReceiver.getStringExtra("operation");
+
+        mMainProgress = (ProgressBar) findViewById(R.id.main_progress);
+
         listView = (ListView) findViewById(R.id.addressListView);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.addressToolBar);
@@ -96,10 +146,13 @@ public class AddressActivity extends AppCompatActivity {
         // addressOperationButton = (Button) findViewById(R.id.itemAddressOperationButton);
 
         GetAddress();
+
         /*SimpleAdapter adapter = new SimpleAdapter(this, getAddressData(addressBean), R.layout.item_address,
                 new String[]{"itemAddressDetailAddressId", "itemAddressDetailReceiver", "itemAddressDetailPhone","itemAddressDetailAddress", "itemAddressDetailRegion"},
                 new int[]{R.id.itemAddressDetailAddressId, R.id.itemAddressDetailReceiver, R.id.itemAddressDetailPhone, R.id.itemAddressDetailAddress, R.id.itemAddressDetailRegion}
         );
+
+
 
 
         listView.setAdapter(adapter);
@@ -139,10 +192,10 @@ public class AddressActivity extends AppCompatActivity {
 
         try {
             switch (operation) {
-                case "match":
+                case OPERATION_MATCH:
                     listView.setOnItemClickListener(onAddressItemClickListener);
                     break;
-                case "browse":
+                case OPERATION_BROWSE:
                     listView.setOnItemClickListener(onAddressItemBrowseClickListener);
                     break;
                 default:
@@ -168,10 +221,10 @@ public class AddressActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         try {
             switch (operation) {
-                case "match":
+                case  OPERATION_MATCH:
                     listView.setOnItemClickListener(onAddressItemClickListener);
                     break;
-                case "browse":
+                case  OPERATION_BROWSE:
                     listView.setOnItemClickListener(onAddressItemBrowseClickListener);
                     break;
                 default:
@@ -190,7 +243,7 @@ public class AddressActivity extends AppCompatActivity {
         try {
             getMenuInflater().inflate(R.menu.toolbar, menu);
             switch (operation) {
-                case "browse":
+                case OPERATION_BROWSE:
                     menu.findItem(R.id.action_add).setVisible(true);
                     break;
                 default:
@@ -236,13 +289,50 @@ public class AddressActivity extends AppCompatActivity {
     private AdapterView.OnItemClickListener onAddressItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            ListView listView = (ListView) parent;
+            final ListView listView = (ListView) parent;
             HashMap<String, String> map = (HashMap<String, String>) listView.getItemAtPosition(position);
-            String addressId ="";
+            String addressIdStr ="";
+
+            Long addressId;
 
             try{
-                addressId = String.valueOf(map.get("itemAddressDetailAddressId"));
-                ConfirmMatch(gameId, targetUserId, addressId);
+                addressIdStr = String.valueOf(map.get("itemAddressDetailAddressId"));
+                if(addressIdStr == "") return;
+                addressId = Long.getLong(addressIdStr);
+
+                listView.setClickable(false);
+                listView.setOnItemClickListener(null);
+
+                mMainProgress.setVisibility(View.VISIBLE);
+                mGameTradeService.confirmMatch(userId.longValue(), myGameId,
+                        new CreateOrderBean( targetGameId, targetUserId, addressId))
+                        .enqueue(new Callback<TradeConfirmBean>() {
+                            @Override
+                            public void onResponse(Call<TradeConfirmBean> call, Response<TradeConfirmBean> response) {
+
+
+
+                                mMainProgress.setVisibility(View.INVISIBLE);
+                                Toast.makeText(getApplicationContext(), "Order Successfully Created", Toast.LENGTH_SHORT)
+                                        .show();
+
+                                Intent intent = new Intent(AddressActivity.this, OrderActivity.class);
+                                startActivity(intent);
+
+                            }
+
+                            @Override
+                            public void onFailure(Call<TradeConfirmBean> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), t.toString(), Toast.LENGTH_SHORT)
+                                        .show();
+
+                                listView.setClickable(true);
+                                listView.setOnItemClickListener(onAddressItemClickListener);
+
+                                mMainProgress.setVisibility(View.GONE);
+
+                            }
+                        });
             }
             catch (Exception exc)
             {
@@ -400,80 +490,6 @@ public class AddressActivity extends AppCompatActivity {
 
     /*****************************************************************************************/
     /* Part for confirm match task */
-
-
-
-    private class ConfirmMatchTask extends AsyncTask<JSONObject, Integer, String> {
-        private String status, urlStr;
-        private JSONObject postJson;
-        private int responseCode = -1;
-        @Override
-        protected void onPreExecute() {
-        }
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            postJson = params[0];
-            HttpURLConnection urlConn;
-            try {
-                Uri.Builder builder = new Uri.Builder();
-                builder.appendPath("api")
-                        .appendPath("user")
-                        .appendPath(String.valueOf(userId))
-                        .appendPath("wishlist")
-                        .appendPath(gameDetailId)
-                        .appendPath("match")
-                        .appendPath("confirm");
-                urlStr = serverUrl + builder.build().toString();
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-                urlConn.setDoOutput(true);
-                urlConn.setDoInput(true);
-                urlConn.setUseCaches(false);
-                urlConn.setRequestProperty("Authorization", authorizedHeader);
-                urlConn.setRequestMethod("POST");
-                urlConn.setRequestProperty("Content-Type", "application/json");
-                urlConn.connect();
-                OutputStream out = urlConn.getOutputStream();
-                out.write(postJson.toString().getBytes());
-                out.flush();
-                out.close();
-                responseCode = urlConn.getResponseCode();
-                if (responseCode == 200) {
-                    status = "Match confirmed";
-                } else if (responseCode == 409) {
-                    status = "Failed, please refresh";
-                } else if (responseCode == 404) {
-                    status = "Failed, please refresh";
-                } else {
-                    status = "Failed, please refresh";
-                }
-            } catch (Exception exc) {
-                exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
-            }
-            return null;
-        }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            if ((status == null) == false) {
-                showDialog(status);
-            }
-            else{
-            }
-            super.onPostExecute(result);
-        }
-    }
-
-
-    private void ConfirmMatch(String gameId, String targetUserId, String addressId) {
-        final JSONObject postJson = formatMatchConfirmJSON(gameId, targetUserId, addressId);
-        new AddressActivity.ConfirmMatchTask().execute(postJson);
-    }
-
 
 
 

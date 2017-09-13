@@ -1,5 +1,7 @@
 package com.bankrupted.tradein.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 /**
@@ -15,6 +17,7 @@ public class TradeGameEntity {
 
     private GameEntity game;
 
+    @JsonIgnore
     private TradeOrderEntity tradeOrder;
 
     private UserEntity sender;

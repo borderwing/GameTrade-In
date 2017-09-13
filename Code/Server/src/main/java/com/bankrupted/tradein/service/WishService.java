@@ -23,17 +23,20 @@ public class WishService {
     WishRepository wishRepo;
 
     public Collection<WishEntity> getAvailableWish(UserEntity user){
-        Collection<WishEntity> wishList = user.getWishes();
 
-        //get the available game
-        Iterator<WishEntity> iter=wishList.iterator();
-        while(iter.hasNext()){
-            WishEntity wish=iter.next();
-            if(wish.getStatus()==0){
-                iter.remove();
-            }
-        }
-        return wishList;
+        return wishRepo.findByUserId(user.getUserId());
+
+//        Collection<WishEntity> wishList = user.getWishes();
+//
+//        //get the available game
+//        Iterator<WishEntity> iter=wishList.iterator();
+//        while(iter.hasNext()){
+//            WishEntity wish=iter.next();
+//            if(wish.getStatus()==0){
+//                iter.remove();
+//            }
+//        }
+//        return wishList;
     }
 
     public List<WishEntity> findByUserAndGame(UserEntity user,GameEntity game){

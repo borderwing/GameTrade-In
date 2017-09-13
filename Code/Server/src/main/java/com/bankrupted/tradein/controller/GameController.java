@@ -57,14 +57,14 @@ public class GameController {
     // retrieve trending games
     @RequestMapping(value="/trending", method=RequestMethod.GET)
     public ResponseEntity<List<GameTileJson>> getTrendingGames(
-            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
-            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "page", defaultValue = "0") Integer page)
     {
-        if(limit <= 0 || offset < 0) {
+        if(size <= 0 || page < 0) {
             return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
         }
 
-        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(limit,offset);
+        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(size, page * size);
 
         if(trendingGames == null){
             System.out.println("Fetch trending games failed");
@@ -76,14 +76,14 @@ public class GameController {
     @RequestMapping(value="/search", method=RequestMethod.GET)
     public ResponseEntity<List<GameTileJson>> getSearchResults(
             @RequestParam(value = "keyword", required = true) String keyword,
-            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
-            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "page", defaultValue = "0") Integer page)
     {
-        if(limit <= 0 || offset < 0) {
+        if(size <= 0 || page < 0) {
             return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
         }
 
-        List<GameTileJson> searchedGames = gameService.getSearchedGameTileList(keyword, limit,offset);
+        List<GameTileJson> searchedGames = gameService.getSearchedGameTileList(keyword, size,page * size);
 
         if(searchedGames == null){
             System.out.println("Fetch trending games failed");
