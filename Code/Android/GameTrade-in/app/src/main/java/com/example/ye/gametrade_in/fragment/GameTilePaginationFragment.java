@@ -1,6 +1,7 @@
 package com.example.ye.gametrade_in.fragment;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.example.ye.gametrade_in.Bean.GameTileBean;
@@ -20,13 +21,13 @@ public class GameTilePaginationFragment extends PaginationFragment<GameTileBean>
     @Override
     protected Call<List<GameTileBean>> callApi() {
         return mGameTradeService.getTrendingGames(
-                PAGE_SIZE,
-                PAGE_SIZE * currentPage
+                currentPage,
+                PAGE_SIZE
         );
     }
 
     @Override
-    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment) {
+    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment, Bundle bundle) {
         return new GameTilePaginationAdapter(fragment);
     }
 }

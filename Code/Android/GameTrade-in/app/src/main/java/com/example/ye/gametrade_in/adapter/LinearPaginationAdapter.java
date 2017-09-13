@@ -174,7 +174,7 @@ public abstract class LinearPaginationAdapter<T> extends RecyclerView.Adapter<Re
         int oldSize = mItems.size();
         isLoadingAdded = false;
         mItems.clear();
-        notifyItemRangeRemoved(0, oldSize - 1);
+        notifyDataSetChanged();
     }
 
     public void addLoadingFooter() {

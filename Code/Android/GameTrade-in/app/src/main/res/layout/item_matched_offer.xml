@@ -50,8 +50,35 @@
                 android:maxLines="2"
                 tools:text="The Legend of Zelda: Breath of the Wild"/>
 
+            <!--<TextView-->
+                <!--android:id="@+id/item_wish_credit"-->
+                <!--style="@style/TextAppearance.AppCompat.Caption"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="@dimen/activity_margin_content"-->
+                <!--android:layout_marginStart="@dimen/activity_margin_content"-->
+                <!--android:layout_marginTop="@dimen/activity_margin_half"-->
+                <!--android:ellipsize="end"-->
+                <!--android:gravity="end"-->
+                <!--android:maxLines="3"-->
+                <!--android:textColor="@android:color/holo_orange_dark"-->
+                <!--android:textSize="24sp"-->
+                <!--android:textStyle="bold"-->
+                <!--tools:text="2500 pts"/>-->
+
+            <Button
+                android:id="@+id/item_match_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:fontFamily="sans-serif-smallcaps"
+                android:maxLines="3"
+                android:textSize="24sp"
+                android:theme="@style/BrightButton"
+                tools:text="2500"/>
+
             <TextView
-                android:id="@+id/item_wish_credit"
+                android:id="@+id/item_wish_user"
                 style="@style/TextAppearance.AppCompat.Caption"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -61,36 +88,10 @@
                 android:ellipsize="end"
                 android:gravity="end"
                 android:maxLines="3"
-                android:textColor="@color/colorPrimary"
-                android:textSize="24sp"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                tools:text="2500 pts"/>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <Button
-                    android:id="@+id/item_wish_edit"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/button_edit"
-                    android:layout_marginLeft="@dimen/activity_margin_content"
-                    android:layout_marginStart="@dimen/activity_margin_content"/>
-
-                <Space
-                    android:layout_width="1dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1"/>
-
-                <Button
-                    android:id="@+id/item_wish_match"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/button_match"
-                    />
-
-            </LinearLayout>
+                tools:text="from lykavin"/>
 
         </LinearLayout>
 
@@ -102,9 +103,10 @@
             android:layout_gravity="center"
             android:theme="@style/CircularProgress"/>
 
-        <include layout = "@layout/error_layout"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"/>
+        <include
+            layout="@layout/error_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     </FrameLayout>
 
@@ -112,7 +114,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_margin_half"
-        app:cardBackgroundColor="@color/placeholder_grey"
+        app:cardBackgroundColor="@color/cardview_shadow_start_color"
         app:cardCornerRadius="3dp"
         app:cardPreventCornerOverlap="false">
 

@@ -2,9 +2,7 @@ package com.example.ye.gametrade_in.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -18,80 +16,67 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.example.ye.gametrade_in.Bean.GameBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
+import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
 import com.example.ye.gametrade_in.GameDetailActivity;
+import com.example.ye.gametrade_in.MatchActivity;
 import com.example.ye.gametrade_in.R;
-import com.example.ye.gametrade_in.activity.MatchWishActivity;
 import com.example.ye.gametrade_in.api.GameTradeService;
-import com.example.ye.gametrade_in.fragment.OfferPaginationFragment;
-import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
 import com.example.ye.gametrade_in.utils.GameDetailUtility;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.http.Path;
 
 /**
  * Created by lykav on 9/12/2017.
  */
 
-public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter<WishBean> {
-
-    public static final String ARG_TYPE = "WishOfferPaginationAdapter.type";
-    public static final int TYPE_OFFER = 1;
-    public static final int TYPE_WISH = 2;
-
-
-    public abstract int getAdapterType();
+public abstract class MatchedOfferPaginationAdapter extends LinearPaginationAdapter<MatchedOfferBean> {
 
     private Fragment mFragment;
-    private String operation;
-
 
     public abstract GameTradeService getGameTradeService();
 
-    public WishOfferPaginationAdapter(Context context) {
+    public MatchedOfferPaginationAdapter(Context context) {
         super(context);
     }
 
-    public WishOfferPaginationAdapter(Fragment fragment) {
+    public MatchedOfferPaginationAdapter(Fragment fragment) {
         super(fragment);
         mFragment = fragment;
-
-
-        // operation = mFragment.getArguments().getString("operation");
     }
 
     @Override
     protected ItemHolder newItemHolder(View itemView) {
-        return new WishOfferPaginationAdapter.WishOfferHolder(itemView);
+        return new MatchedOfferPaginationAdapter.MatchedOfferHolder(itemView);
     }
 
     @Override
-    protected WishBean newItem() {
-        return new WishBean();
+    protected MatchedOfferBean newItem() {
+        return new MatchedOfferBean();
     }
 
     @Override
     protected int getItemLayout() {
-        return R.layout.item_wish_offer;
+        return R.layout.item_matched_offer;
     }
 
-    private class WishOfferHolder extends ItemHolder {
+    private class MatchedOfferHolder extends ItemHolder {
         private Long mIgdbId;
-        private WishBean mWishBean;
+
+        private MatchedOfferBean mMatchedOffer;
         private GameDetailBean mGameDetail;
 
         private TextView mTitle;
         private ImageView mCover;
 
-        private TextView mCredit;
+        private Button mMatchButton;
+
         private TextView mMeta;
+        private TextView mWishUser;
+
         private ProgressBar mCoverProgress;
         private ProgressBar mWishProgress;
 
@@ -100,49 +85,34 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         private LinearLayout mErrorLayout;
         private Button mRetryButton;
 
-        private Button mEditButton;
-        private Button mMatchButton;
 
-
-        public WishOfferHolder(View itemView) {
+        public MatchedOfferHolder(View itemView) {
             super(itemView);
 
             mTitle = (TextView) itemView.findViewById(R.id.item_wish_title);
             mCover = (ImageView) itemView.findViewById(R.id.item_wish_cover);
 
 
-            mCredit = (TextView) itemView.findViewById(R.id.item_wish_credit);
             mMeta = (TextView) itemView.findViewById(R.id.item_wish_meta);
 
             mCoverProgress = (ProgressBar) itemView.findViewById(R.id.item_cover_progress);
             mWishProgress = (ProgressBar) itemView.findViewById(R.id.item_wish_progress);
+
+            mWishUser = (TextView) itemView.findViewById(R.id.item_wish_user);
 
             mWishContentLayout = (LinearLayout) itemView.findViewById(R.id.item_wish_content);
 
             mErrorLayout = (LinearLayout) itemView.findViewById(R.id.error_layout);
             mRetryButton = (Button) itemView.findViewById(R.id.error_btn_retry);
 
-            mEditButton = (Button) itemView.findViewById(R.id.item_wish_edit);
-            mMatchButton = (Button) itemView.findViewById(R.id.item_wish_match);
-
-            switch (getAdapterType()){
-                case TYPE_OFFER:
-                    mMatchButton.setVisibility(View.GONE);
-                    break;
-                case TYPE_WISH:
-                    break;
-                default:
-                    break;
-            }
-            /*if(operation == "offer"){
-                mMatchButton.setVisibility(View.GONE);
-            }*/
+            mMatchButton = (Button) itemView.findViewById(R.id.item_match_button);
 
         }
 
-        public void bind(WishBean wish){
-            mIgdbId = wish.getGame().getIgdbId();
-            mWishBean = wish;
+        public void bind(MatchedOfferBean matchedOffer){
+            mIgdbId = matchedOffer.getOfferGame().getIgdbId();
+            mMatchedOffer = matchedOffer;
+
             mRetryButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -150,35 +120,33 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                 }
             });
 
+            mMatchButton.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    // TODO: ConfirmMatchJson needs gameId, targetUserId and addressId
+                    // save these values in a bundle and start get address activity
+
+                }
+            });
+
             showLoading();
             loadContent();
         }
 
-        private void bindContents(final WishBean wish, final GameDetailBean gameDetail){
+        private void bindContents(MatchedOfferBean matchedOffer, GameDetailBean gameDetail){
             mTitle.setText(gameDetail.getTitle());
 
             // TODO: move it to string.xml implementation
-            mCredit.setText(String.valueOf(wish.getPoints()) + " pts");
+            mMatchButton.setText(String.valueOf(matchedOffer.getOfferPoint()) + " pts");
 
             GameDetailUtility utility = new GameDetailUtility(gameDetail);
-            String platform = utility.getPlatformString(wish.getGame().getPlatformId());
-            String region = utility.getRegionString(wish.getGame().getRegionId());
+            String platform = utility.getPlatformString(matchedOffer.getOfferGame().getPlatformId());
+            String region = utility.getRegionString(matchedOffer.getOfferGame().getRegionId());
 
             mMeta.setText(platform + " | " + region);
 
-            if(getAdapterType() == TYPE_WISH){
-                mMatchButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = MatchWishActivity.newIntent(
-                                mFragment.getContext(),
-                                wish, gameDetail
-                        );
-
-                        mFragment.startActivity(intent);
-                    }
-                });
-            }
+            mWishUser.setText("from " + matchedOffer.getSender().getUsername());
 
             Glide
                     .with(context)
@@ -186,6 +154,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                     .listener(new RequestListener<String, GlideDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                            // TODO: 08/11/16 handle failure
                             if(mFragment != null && !mFragment.isAdded())  return false;
                             mCoverProgress.setVisibility(View.GONE);
                             return false;
@@ -207,13 +176,14 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
         }
 
 
-
-        @Override
-        public void onClick(View v) {
-            Log.d("Adapter", "clicked");
-            Intent intent = GameDetailActivity.newInent(context, mIgdbId);
-            context.startActivity(intent);
-        }
+//
+//        @Override
+//        public void onClick(View v) {
+//            Log.d("Adapter", "clicked");
+//
+//            Intent intent = GameDetailActivity.newInent(context, mIgdbId);
+//            context.startActivity(intent);
+//        }
 
         private void loadContent(){
             callGameDetailApi(mIgdbId).enqueue(new Callback<GameDetailBean>() {
@@ -224,13 +194,7 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
                     showContentLayout();
                     mGameDetail = response.body();
-
-                    if(mGameDetail == null){
-                        showErrorLayout();
-                        return;
-                    }
-
-                    bindContents(mWishBean, mGameDetail);
+                    bindContents(mMatchedOffer, mGameDetail);
 
                 }
 
@@ -263,10 +227,16 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
             mWishProgress.setVisibility(View.GONE);
         }
 
+        @Override
+        public void onClick(View v) {
+
+        }
     }
 
     private Call<GameDetailBean> callGameDetailApi(Long igdbId){
         return getGameTradeService().getDetailGame(igdbId);
     }
+
+
 
 }

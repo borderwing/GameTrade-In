@@ -41,13 +41,13 @@ public class SearchPaginationFragment extends PaginationFragment<GameTileBean> {
     protected Call<List<GameTileBean>> callApi() {
         return mGameTradeService.getSearchedGames(
                 mQuery,
-                PAGE_SIZE,
-                PAGE_SIZE * currentPage
+                currentPage,
+                PAGE_SIZE
         );
     }
 
     @Override
-    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment) {
+    protected LinearPaginationAdapter<GameTileBean> getNewAdapter(Fragment fragment, Bundle bundle) {
         return new GameTilePaginationAdapter(fragment);
     }
 }

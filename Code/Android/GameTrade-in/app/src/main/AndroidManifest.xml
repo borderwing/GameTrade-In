@@ -74,6 +74,10 @@
             android:label="">
         </activity>
 
+        <activity android:name=".activity.MatchWishActivity"
+                  android:label="Match">
+        </activity>
+
         <activity android:name=".MatchActivity"
             android:label="">
         </activity>

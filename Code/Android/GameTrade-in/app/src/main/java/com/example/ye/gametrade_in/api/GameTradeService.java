@@ -3,7 +3,9 @@ package com.example.ye.gametrade_in.api;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
+import com.example.ye.gametrade_in.Bean.MatchedOfferBean;
 import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
 
 import java.util.List;
 
@@ -13,6 +15,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -23,15 +26,15 @@ import retrofit2.http.Query;
 public interface GameTradeService {
     @GET("game/trending")
     Call<List<GameTileBean>> getTrendingGames(
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("game/search")
     Call<List<GameTileBean>> getSearchedGames(
             @Query("keyword") String keyword,
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Query("page") int page,
+            @Query("size") int size
     );
 
     @GET("game/{igdbId}")
@@ -53,10 +56,31 @@ public interface GameTradeService {
 
     @GET("user/{userId}/wishlist/params")
     Call<List<WishBean>> getWishList(
-            @Path("userId") int userId,
-            @Query("limit") int limit,
-            @Query("offset") int offset
+            @Path("userId") Long userId,
+            @Query("page") int page,
+            @Query("size") int size
     );
 
+
+    @GET("user/{userId}/offerlist/params")
+    Call<List<WishBean>> getOfferList(
+            @Path("userId") Long userId,
+            @Query("page") int page,
+            @Query("size") int size
+    );
+
+    @GET("user/{userId}/wishlist/{gameId}/match")
+    Call<List<MatchedOfferBean>> getMatchedOffers(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId,
+            @Query("scale") int scale
+    );
+
+    @PUT("user/{userId}/wishlist/{gameId}/modify")
+    Call<String> modifyWishItem(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId,
+            @Body ModifyWishOfferBean bean
+    );
 
 }

@@ -53,7 +53,6 @@ public class WishBean {
     }
 
 
-
     public static class Pair{
         private Integer gameId;
         private Integer userId;
@@ -82,6 +81,16 @@ public class WishBean {
         public void setCreateTime(Integer createTime) {
             CreateTime = createTime;
         }
+
+        @Override
+        public String toString() {
+            return "Pair{" +
+                    "gameId=" + gameId +
+                    ", userId=" + userId +
+                    ", CreateTime=" + CreateTime +
+                    '}';
+        }
+
     }
 
 

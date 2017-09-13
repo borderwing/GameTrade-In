@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.fragment.PaginationFragment;
 import com.example.ye.gametrade_in.fragment.SearchPaginationFragment;
 import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
 import com.example.ye.gametrade_in.utils.SingleFragmentActivity;
@@ -18,15 +20,19 @@ import com.example.ye.gametrade_in.utils.SingleFragmentActivity;
 public class WishListActivity extends SingleFragmentActivity {
     private static final String TAG = "SearchResultsActivity";
 
-    private String mQuery;
 
     @Override
     protected Fragment createFragment() {
-        return new WishPaginationFragment();
+
+        WishPaginationFragment wishPaginationFragment = new WishPaginationFragment();
+        // wishPaginationFragment.getView()
+        return wishPaginationFragment;
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
+
 }

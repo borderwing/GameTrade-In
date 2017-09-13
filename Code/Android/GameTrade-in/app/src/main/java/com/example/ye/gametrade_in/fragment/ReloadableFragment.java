@@ -3,14 +3,11 @@ package com.example.ye.gametrade_in.fragment;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +16,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.QueryPreferences;
 import com.example.ye.gametrade_in.R;
-import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
 import com.example.ye.gametrade_in.api.GameTradeApi;
 import com.example.ye.gametrade_in.api.GameTradeService;
@@ -37,10 +32,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 /**
- * Created by lykav on 9/11/2017.
+ * Created by lykav on 9/12/2017.
  */
 
-public abstract class PaginationFragment<T> extends Fragment implements PaginationAdapterCallback {
+public abstract class ReloadableFragment<T> extends Fragment implements PaginationAdapterCallback {
 
     /*
     Fields for RecyclerView & error UI
@@ -64,16 +59,8 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         Fields for pagination & API fetching
      */
 
-    protected static final int PAGE_START = 0;
-    protected static final int TOTAL_PAGES = 5;
-    protected static final int PAGE_SIZE = 10;
-
-
-
     protected boolean isLoading = false;
-    protected boolean isLastPage = false;
 
-    protected int currentPage = PAGE_START;
 
     GameTradeService mGameTradeService;
 
@@ -81,32 +68,30 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
     protected abstract Call<List<T>> callApi() ;
 
-    protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment, Bundle bundle);
+    protected abstract LinearPaginationAdapter<T> getNewAdapter(Fragment fragment);
 
-
-    private Bundle mArguments;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mArguments = getArguments();
+
         String authorizedHeader =
-                    QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+                QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
 
         if(QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext()) != null){
             mUserId = Long.parseLong(
-                        QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
-                );
+                    QueryPreferences.getStoredUserIdQuery(this.getActivity().getApplicationContext())
+            );
         }
 
 
         if (authorizedHeader == null) {
-                mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
-            } else {
-                mGameTradeService = GameTradeApi
-                        .getClient(authorizedHeader)
-                        .create(GameTradeService.class);
-            }
+            mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+        } else {
+            mGameTradeService = GameTradeApi
+                    .getClient(authorizedHeader)
+                    .create(GameTradeService.class);
+        }
 
     }
 
@@ -128,7 +113,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         btnRetryNoResult = (Button) v.findViewById(R.id.no_result_btn_retry);
 
 
-        mAdapter = getNewAdapter(this, mArguments);
+        mAdapter = getNewAdapter(this);
 
         mLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false);
         rv.setLayoutManager(mLayoutManager);
@@ -136,31 +121,6 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         rv.setItemAnimator(new DefaultItemAnimator());
 
         rv.setAdapter(mAdapter);
-
-        rv.addOnScrollListener(new PaginationScrollListener(mLayoutManager) {
-            @Override
-            protected void loadMoreItems() {
-                isLoading = true;
-                currentPage += 1;
-
-                loadNextPage();
-            }
-
-            @Override
-            public int getTotalPageCount() {
-                return TOTAL_PAGES;
-            }
-
-            @Override
-            public boolean isLastPage() {
-                return isLastPage;
-            }
-
-            @Override
-            public boolean isLoading() {
-                return isLoading;
-            }
-        });
 
         loadFirstPage();
 
@@ -173,7 +133,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         btnRetryNoResult.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().finish();
+                loadFirstPage();
             }
         });
 
@@ -197,16 +157,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
                 if(results.size() > 0) {
                     mAdapter.addAll(results);
-
-                    if(results.size() < PAGE_SIZE){
-                        isLastPage = true;
-                        return;
-                    }
-
-                    if (currentPage <= TOTAL_PAGES) mAdapter.addLoadingFooter();
-                    else isLastPage = true;
                 } else{
-                    currentPage --;
                     showNoResultView();
                 }
             }
@@ -220,33 +171,47 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         });
     }
 
-    protected void loadNextPage(){
-//        Log.d(TAG, "loadNextPage: " + currentPage);
+
+
+    public void reloadPage(final Callback<List<T>> callback){
+        hideErrorView();
+        hideNoResultView();
+        mAdapter.clear();
+        progressBar.setVisibility(View.VISIBLE);
 
         callApi().enqueue(new Callback<List<T>>() {
             @Override
             public void onResponse(Call<List<T>> call, Response<List<T>> response) {
+                // Got data. Send it to adapter
                 if(!isAdded())  return;
-
-                mAdapter.removeLoadingFooter();
-                isLoading = false;
+                hideErrorView();
 
                 List<T> results = response.body();
-                mAdapter.addAll(results);
+                progressBar.setVisibility(View.GONE);
 
-                if (currentPage != TOTAL_PAGES) mAdapter.addLoadingFooter();
-                else isLastPage = true;
+                if(results.size() > 0) {
+                    mAdapter.addAll(results);
+                } else{
+                    showNoResultView();
+                }
+
+                callback.onResponse(call, response);
+
             }
 
             @Override
             public void onFailure(Call<List<T>> call, Throwable t) {
                 if(!isAdded())  return;
-
                 t.printStackTrace();
-                mAdapter.showRetry(true, fetchErrorMessage(t));
+                showErrorView(t);
+
+                callback.onFailure(call,t);
+
             }
         });
     }
+
+
 
     /**
      * @param throwable to identify the type of error
@@ -266,7 +231,7 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
 
 
     public void retryPageLoad() {
-        loadNextPage();
+        loadFirstPage();
     }
 
 
@@ -318,6 +283,5 @@ public abstract class PaginationFragment<T> extends Fragment implements Paginati
         ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
     }
-
 
 }

@@ -14,16 +14,19 @@ import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
+import android.support.v7.widget.ButtonBarLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.Menu;
 import android.view.View;
@@ -39,6 +42,7 @@ import com.example.ye.gametrade_in.Bean.BitmapBean;
 import com.example.ye.gametrade_in.Bean.GameTileBean;
 import com.example.ye.gametrade_in.Bean.UserBean;
 import com.example.ye.gametrade_in.Bean.UserDetailBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
 import com.example.ye.gametrade_in.Listener.AutoLoadListener;
 import com.example.ye.gametrade_in.adapter.GameTilePaginationAdapter;
 import com.example.ye.gametrade_in.adapter.LinearPaginationAdapter;
@@ -69,10 +73,10 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout menuUserDetailedHeader, menuDefaultHeader, mainMenuDetail;
     public TextView menuUserName;
     public Button menuRegisterButton, menuLoginButton, menuLogoutButton,
-                  menuMyListButton, menuMyOfferListButton, menuMyAddressButton;
+                  menuMyListButton, menuMyOfferListButton, menuMyAddressButton, menuMyOrderButton;
 
     public GameTradeInApplication gameTradeInApplication;
-
+    public DrawerLayout mainDrawerLayout;
     int limit;
     String serverUrl;
     GameTileBean[] gameTileBeanList;
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
         toolbar.setNavigationIcon(R.drawable.nav);
 
+
          //toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
 
 
@@ -161,6 +166,8 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton = (Button) findViewById(R.id.menuMyListButton);
         menuMyOfferListButton = (Button) findViewById(R.id.menuMyOfferListButton);
         menuMyAddressButton = (Button) findViewById(R.id.menuMyAddressButton);
+        menuMyOrderButton = (Button) findViewById(R.id.menuMyOrderButton);
+        mainDrawerLayout = (DrawerLayout) findViewById(R.id.main);
 
         menuRegisterButton.setOnClickListener(menuRegisterOnClickListener);
         menuLoginButton.setOnClickListener(menuLoginOnClickListener);
@@ -168,7 +175,8 @@ public class MainActivity extends AppCompatActivity {
         menuMyListButton.setOnClickListener(menuMyListButtonOnClickListener);
         menuMyOfferListButton.setOnClickListener(menuMyOfferListButtonOnClickListener);
         menuMyAddressButton.setOnClickListener(menuMyAddressButtonOnClickListener);
-
+        menuMyOrderButton.setOnClickListener(menuMyOrderButtonClickListener);
+        toolbar.setNavigationOnClickListener(navigationOnClickListener);
 
         // set userId
         try{
@@ -176,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = gameTradeInApplication.GetLoginUser().getUserId();
 
             if(QueryPreferences.getStoredUserIdQuery(getApplicationContext()) == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
@@ -190,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
             // userId = Integer.valueOf(QueryPreferences.getStoredQuery(getApplicationContext()));
 
             if(userId == null){
-                UserBean userDefault = new UserBean();
+                UserLoginBean userDefault = new UserLoginBean();
                 userDefault.setUserId(0);
                 gameTradeInApplication.SetUserLogin(userDefault);
                 userId = 0;
@@ -271,9 +279,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent();
             gameTradeInApplication.SetUserLogout();
             gameTradeInApplication.SetUserAuthenticationOut();
-
             QueryPreferences.setStoredQuery(getApplicationContext(), null, null);
-
             intent.setClass(MainActivity.this, MainActivity.class);
             startActivity(intent);
             MainActivity.this.finish();
@@ -310,7 +316,20 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private View.OnClickListener navigationOnClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            mainDrawerLayout.openDrawer(Gravity.LEFT);
+        }
+    };
 
+    private View.OnClickListener menuMyOrderButtonClickListener = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+            Intent intent = new Intent();
+            // TODO: jump to order activity
+        }
+    };
 
 
     /*****************************************************************************************/
