@@ -254,6 +254,30 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
                 }
             });
 
+            mEditButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch(getAdapterType()){
+                        case TYPE_WISH:
+                            Intent intent =
+                                    GameDetailActivity.
+                                            newIntent(context, mIgdbId, wish.getGame().getGameId(),
+                                                    wish.getGame().getPlatformId(), wish.getGame().getRegionId(),
+                                                    GameDetailActivity.OPERATION_WISH);
+                            context.startActivity(intent);
+                            break;
+                        case TYPE_OFFER:
+                            intent =
+                                    GameDetailActivity.
+                                            newIntent(context, mIgdbId, wish.getGame().getGameId(),
+                                                    wish.getGame().getPlatformId(), wish.getGame().getRegionId(),
+                                                    GameDetailActivity.OPERATION_OFFER);
+                            context.startActivity(intent);
+                            break;
+                    }
+                }
+            });
+
 
             Glide
                     .with(context)
@@ -285,9 +309,28 @@ public abstract class WishOfferPaginationAdapter extends LinearPaginationAdapter
 
         @Override
         public void onClick(View v) {
-            Log.d("Adapter", "clicked");
-            Intent intent = GameDetailActivity.newInent(context, mIgdbId);
-            context.startActivity(intent);
+//            Log.d("Adapter", "clicked");
+//
+////                    switch(getAdapterType()){
+////                        case TYPE_WISH:
+////                            Intent intent =
+////                                    GameDetailActivity.
+////                                            newIntent(context, mIgdbId, wish.getGame().getGameId(),
+////                                                    GameDetailActivity.OPERATION_WISH);
+////                            context.startActivity(intent);
+////                            break;
+////                        case TYPE_OFFER:
+////                            intent =
+////                                    GameDetailActivity.
+////                                            newIntent(context, mIgdbId, wish.getGame().getGameId(),
+////                                                    GameDetailActivity.OPERATION_OFFER);
+////                            context.startActivity(intent);
+////                            break;
+////                    }
+////                }
+////            });
+////            Intent intent = GameDetailActivity.newIntent(context, mIgdbId);
+////            context.startActivity(intent);
         }
 
         private void loadContent(){

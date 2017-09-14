@@ -28,31 +28,72 @@ public class GameDetailActivity extends SingleFragmentActivity {
     public static final String EXTRA_IGDB_ID =
             "com.example.ye.gametrade_in.igdb_id";
 
+    public static final String EXTRA_GAME_ID =
+            "com.example.ye.gametrade_in.game_id";
+
+    public static final String EXTRA_PLATFORM_ID =
+            "com.example.ye.gametrade_in.platform_id";
+    public static final String EXTRA_REGION_ID =
+            "com.example.ye.gametrade_in.region_id";
+
+    public static final String EXTRA_OPERATION =
+            "com.example.ye.gametrade-in.extra_from";
+
+    public static final int OPERATION_WISH = 1;
+    public static final int OPERATION_OFFER = 2;
+    public static final int OPERATION_BROWSE = 0;
+
+    private int OPERATION = OPERATION_BROWSE;
+
     private ImageButton homebutton;
-    private String gameId, userId, operation, wishPoints, offerPoints;
-    private Long igdbId;
+
+
+    // private String gameId, userId, operation, wishPoints, offerPoints;
+    private Long igdbId, gameId;
+
+    public int platformId, regionId;
+
     GameTradeInApplication gameTradeInApplication;
     BitmapBean bitmapBean;
     Bitmap bitmap;
 
 
 
-    public static Intent newInent(Context packageContext, Long igdbId){
+    public static Intent newIntent(Context packageContext, Long igdbId){
         Intent intent = new Intent(packageContext, GameDetailActivity.class);
         intent.putExtra(EXTRA_IGDB_ID, igdbId);
+        intent.putExtra(EXTRA_OPERATION, OPERATION_BROWSE);
+        return intent;
+    }
+
+    public static Intent newIntent(Context packageContext, Long igdbId, Long gameId,
+                                   int platformId, int regionId, int operation){
+        Intent intent = new Intent(packageContext, GameDetailActivity.class);
+        intent.putExtra(EXTRA_IGDB_ID, igdbId);
+        intent.putExtra(EXTRA_GAME_ID, gameId);
+        intent.putExtra(EXTRA_PLATFORM_ID, platformId);
+        intent.putExtra(EXTRA_REGION_ID, regionId);
+
+        intent.putExtra(EXTRA_OPERATION, operation);
         return intent;
     }
 
 
     @Override
     protected Fragment createFragment() {
-        return FragmentGameDetail.newInstance(igdbId);
+
+        return FragmentGameDetail.newInstance(igdbId, gameId, OPERATION);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Intent intent = getIntent();
         igdbId = intent.getLongExtra(EXTRA_IGDB_ID, 0);
+        gameId = intent.getLongExtra(EXTRA_GAME_ID, 0);
+        platformId = intent.getIntExtra(EXTRA_PLATFORM_ID,0);
+        regionId = intent.getIntExtra(EXTRA_REGION_ID, 0);
+
+        OPERATION = intent.getIntExtra(EXTRA_OPERATION, 0);
 
         super.onCreate(savedInstanceState);
 

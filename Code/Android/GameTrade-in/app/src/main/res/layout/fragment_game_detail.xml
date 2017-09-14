@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
@@ -168,13 +169,14 @@
                 android:src="@drawable/crediticon" />
 
             <TextView
-                android:id ="@+id/detail_credit_evaluate"
+                android:id="@+id/detail_credit_evaluate"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
-                android:text = ""
-                android:gravity="center"
                 android:layout_toEndOf="@id/creditIcon"
-                tools:text="2000" />
+                android:gravity="center"
+                android:text=""
+                android:textSize="18sp"
+                tools:text="20000"/>
 
             <!--<EditText-->
                 <!--android:layout_width="wrap_content"-->
@@ -232,21 +234,22 @@
             android:src="@drawable/add">
         </ImageButton>-->
             <Button
-                android:id = "@+id/detail_modify_confirm_button"
+                android:id="@+id/detail_modify_confirm_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:text = "Confirm"
+                android:layout_alignParentRight="true"
+                android:text="Confirm"
                 android:visibility="gone">
             </Button>
 
 
             <Button
-                android:id = "@+id/detail_wish_button"
+                android:id="@+id/detail_wish_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
-                android:text = "Wish">
+                android:text="Wish"
+                android:visibility="visible">
             </Button>
 
             <Button
@@ -268,12 +271,13 @@
             </Button>
 
             <Button
-                android:id = "@+id/detail_offer_button"
+                android:id="@+id/detail_offer_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:text="Offer"
-                android:layout_centerVertical="true"/>
+                android:visibility="visible"/>
         </RelativeLayout>
 
     </LinearLayout>

@@ -1,6 +1,7 @@
 package com.bankrupted.tradein.service;
 
 import com.bankrupted.tradein.model.GameEntity;
+import com.bankrupted.tradein.model.json.game.GameDetailJson;
 import com.bankrupted.tradein.model.json.game.GameReleaseJson;
 import com.bankrupted.tradein.repository.GameRepository;
 import com.bankrupted.tradein.script.pythonGetEvaluatePoint;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -22,6 +25,8 @@ public class EvaluateAsyncService {
 
     @Autowired
     GameRepository gameRepository;
+
+
 
     @Async
     void deferredSetPoints(String title, String platform, Long gameId){

@@ -122,8 +122,14 @@ public class GameController {
     public ResponseEntity<Integer> getEvaluatePoint(@RequestParam(value = "platformId",required = true)int platformId,
                                                     @RequestParam(value = "regionId",required = true)int regionId,
                                                     @PathVariable(value="igdbId")Long igdbId){
-        GameEntity game=gameService.getGameBlocked(igdbId,platformId,regionId);
-        return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);
+        GameEntity game1= gameService.getGameNonBlocked(igdbId,platformId,regionId);
+
+        if(game1.getEvaluatePoint() > 0){
+            return new ResponseEntity<Integer>(game1.getEvaluatePoint(),HttpStatus.OK);
+        }
+
+        int point = gameService.getPointBlocked(igdbId, platformId,regionId);
+        return new ResponseEntity<Integer>(point,HttpStatus.OK);
     }
     //find game by key words
    /* @RequestMapping(value="/params",method=RequestMethod.POST)

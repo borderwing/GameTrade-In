@@ -106,7 +106,7 @@ public class GameTilePaginationAdapter extends LinearPaginationAdapter<GameTileB
         @Override
         public void onClick(View v) {
             Log.d("Adapter", "clicked");
-            Intent intent = GameDetailActivity.newInent(context, mIgdbId);
+            Intent intent = GameDetailActivity.newIntent(context, mIgdbId);
             context.startActivity(intent);
         }
     }

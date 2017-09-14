@@ -11,7 +11,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
  */
 
 public class GameTradeApi {
-    public static final String SERVER = "http://10.162.172.25:8080";
+    public static final String SERVER = "http://10.200.8.15:8080";
     public static final String ENDPOINT = SERVER + "/api/";
 
     private static Retrofit retrofitAuth = null;

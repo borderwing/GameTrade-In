@@ -30,10 +30,10 @@ public class pythonGetEvaluatePoint {
 //        interpreter.execfile("F:\\Git\\Trade-In\\Code\\Server\\src\\main\\java\\com\\bankrupted\\tradein\\script\\python\\Amazon.py");
 
         interpreter.exec("import sys");
-        interpreter.exec("sys.path.append('F:\\Python2\\Lib')");
-        interpreter.exec("sys.path.append('F:\\Python2\\Lib\\site-packages')");
+        interpreter.exec("sys.path.append('C:\\Python27\\Lib')");
+        interpreter.exec("sys.path.append('C:\\Python27\\Lib\\site-packages')");
         interpreter.exec("from bs4 import BeautifulSoup");
-        interpreter.execfile("F:\\Git\\Trade-In\\Code\\Server\\src\\main\\java\\com\\bankrupted\\tradein\\script\\python\\Amazon.py");
+        interpreter.execfile("C:\\Ghost\\ProjectGameDealer\\Trade-In\\Code\\Server\\src\\main\\java\\com\\bankrupted\\tradein\\script\\python\\Amazon.py");
 
         PyFunction func=(PyFunction)interpreter.get("getEvaluatePoint",PyFunction.class);
 

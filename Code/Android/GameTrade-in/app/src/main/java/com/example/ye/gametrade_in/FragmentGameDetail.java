@@ -45,6 +45,7 @@ import com.example.ye.gametrade_in.Bean.GameReleaseJson;
 import com.example.ye.gametrade_in.Bean.GameTransportBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
+import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
 import com.example.ye.gametrade_in.Bean.utils.PlatformBean;
 import com.example.ye.gametrade_in.Bean.utils.RegionBean;
 import com.example.ye.gametrade_in.api.GameTradeApi;
@@ -82,7 +83,21 @@ public class FragmentGameDetail extends Fragment {
     public static final String ARG_IGDB_ID =
             "com.example.ye.gametrade_in.igdb_id";
 
-    Long mIgdbId;
+    public static final String ARG_GAME_ID =
+            "com.example.ye.gametrade_in.game_id";
+
+    public static final String ARG_OPERATION =
+            "com.example.ye.gametrade-in.extra_from";
+
+    public static final int OPERATION_WISH = 1;
+    public static final int OPERATION_OFFER = 2;
+    public static final int OPERATION_BROWSE = 0;
+
+    private int OPERATION = OPERATION_BROWSE;
+
+
+    Long mIgdbId, mGameId;
+
     PlatformBean mSelectedPlatform;
     RegionBean mSelectedRegion;
 
@@ -120,6 +135,17 @@ public class FragmentGameDetail extends Fragment {
         return fragment;
     }
 
+    public static FragmentGameDetail newInstance(Long igdbId, Long gameId, int operation){
+        Bundle args = new Bundle();
+        args.putLong(ARG_IGDB_ID, igdbId);
+        args.putLong(ARG_GAME_ID, gameId);
+        args.putInt(ARG_OPERATION, operation);
+
+        FragmentGameDetail fragment = new FragmentGameDetail();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "entered FragmentGameDetail");
@@ -136,7 +162,11 @@ public class FragmentGameDetail extends Fragment {
                     .create(GameTradeService.class);
         }
 
-        mIgdbId = getArguments().getLong(ARG_IGDB_ID);
+        mIgdbId = getArguments().getLong(ARG_IGDB_ID, 0);
+        mGameId = getArguments().getLong(ARG_GAME_ID, 0);
+        OPERATION = getArguments().getInt(ARG_OPERATION, OPERATION_BROWSE);
+
+
     }
 
     @Override
@@ -172,6 +202,7 @@ public class FragmentGameDetail extends Fragment {
 
         mWishButton = (Button) v.findViewById(R.id.detail_wish_button);
         mOfferButton = (Button) v.findViewById(R.id.detail_offer_button);
+
         mEditConfirmButton = (Button) v.findViewById(R.id.detail_modify_confirm_button);
         mEditCancelButton = (Button) v.findViewById(R.id.detail_modify_cancel_button);
         mEditDeleteButton = (Button) v.findViewById(R.id.detail_modify_delete_button);
@@ -316,6 +347,100 @@ public class FragmentGameDetail extends Fragment {
         });
 
 
+        switch(OPERATION){
+            case OPERATION_WISH:
+                mEditConfirmButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int editedCredit = mCreditPicker.getValue();
+                        if(mCreditPicker.hasFocus()){
+                            clearPickerFocus();
+                            return;
+                        }
+
+                        if(!mCreditPicker.valueIsAllowed(editedCredit)){
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_credit, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        mEditConfirmButton.setEnabled(false);
+                        mGameTradeService.
+                                modifyWishItem(getUserId(), mGameId, new ModifyWishOfferBean(editedCredit))
+                                .enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        if(response.code() == 200){
+                                            Toast.makeText(getContext(),
+                                                   "Wish updated", Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        } else {
+                                            Toast.makeText(getContext(),
+                                                    "Error: HTTP CODE " + response.code(), Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                        Toast.makeText(getContext(),
+                                                "Wish update failed!", Toast.LENGTH_LONG).show();
+                                        mEditConfirmButton.setEnabled(true);
+                                    }
+                                });
+
+                    }
+                });
+                break;
+
+            case OPERATION_OFFER:
+                mEditConfirmButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int editedCredit = mCreditPicker.getValue();
+                        if(mCreditPicker.hasFocus()){
+                            clearPickerFocus();
+                            return;
+                        }
+
+                        if(!mCreditPicker.valueIsAllowed(editedCredit)){
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_credit, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        mEditConfirmButton.setEnabled(false);
+                        mGameTradeService.
+                                modifyOfferItem(getUserId(), mGameId, new ModifyWishOfferBean(editedCredit))
+                                .enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        if(response.code() == 200){
+                                            Toast.makeText(getContext(),
+                                                    "Wish updated", Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        } else {
+                                            Toast.makeText(getContext(),
+                                                    "Error: HTTP CODE " + response.code(), Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                        Toast.makeText(getContext(),
+                                                "Wish update failed!", Toast.LENGTH_LONG).show();
+                                        mEditConfirmButton.setEnabled(true);
+                                    }
+                                });
+
+                    }
+                });
+                break;
+
+        }
+
+
         return v;
     }
 
@@ -368,6 +493,17 @@ public class FragmentGameDetail extends Fragment {
     }
 
 
+    void setAdditionalLayout(){
+        if(OPERATION == OPERATION_OFFER || OPERATION == OPERATION_WISH){
+            mOfferButton.setVisibility(View.GONE);
+            mWishButton.setVisibility(View.GONE);
+            mEditConfirmButton.setVisibility(View.VISIBLE);
+
+            mPlatformSpinner.setEnabled(false);
+            mRegionSpinner.setEnabled(false);
+        }
+    }
+
     protected void loadGameDetail(){
         setProgressLayout();
 
@@ -377,6 +513,9 @@ public class FragmentGameDetail extends Fragment {
                 // Got data. Send it to adapter
 
                 setDetailLayout();
+                setAdditionalLayout();
+
+
                 GameDetailBean result = response.body();
 
                 if(result != null) {
@@ -404,6 +543,9 @@ public class FragmentGameDetail extends Fragment {
     }
 
     protected void bindGameDetail(GameDetailBean gameDetail){
+
+
+
 
         mTitle.setText(gameDetail.getTitle());
         mSummary.setText(gameDetail.getSummary());
@@ -457,8 +599,9 @@ public class FragmentGameDetail extends Fragment {
                 getActivity(), android.R.layout.simple_spinner_dropdown_item, regions
         );
 
-        mPlatformSpinner.setAdapter(platformAdapter);
 
+
+        mPlatformSpinner.setAdapter(platformAdapter);
 
         mPlatformSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -468,6 +611,29 @@ public class FragmentGameDetail extends Fragment {
                 mSelectedPlatform = selectedPlatform;
 
                 resetRegionSpinner(detailUtility.getRegionsWithPlatform(selectedPlatform));
+
+                RegionBean selectedRegion =
+                        (RegionBean) mRegionSpinner.getSelectedItem();
+
+                int platformId = selectedPlatform.getPlatformId();
+                int regionId = selectedRegion.getRegionId();
+
+
+                mGameTradeService.getEvaluatePoint(mIgdbId, platformId, regionId)
+                        .enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                if(response.code() == 200){
+                                    mCreditEvaluate.setText(Integer.toString(response.body()));
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
+
+                            }
+                        });
+
             }
 
             @Override
@@ -483,6 +649,29 @@ public class FragmentGameDetail extends Fragment {
                         (RegionBean)parent.getItemAtPosition(position);
                 mSelectedRegion = selectedRegion;
 
+                PlatformBean selectedPlatform =
+                        (PlatformBean) mPlatformSpinner.getSelectedItem();
+
+
+                int platformId = selectedPlatform.getPlatformId();
+                int regionId = selectedRegion.getRegionId();
+
+
+                mGameTradeService.getEvaluatePoint(mIgdbId, platformId, regionId)
+                        .enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                if(response.code() == 200){
+                                    mCreditEvaluate.setText(Integer.toString(response.body()));
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
+
+                            }
+                        });
+
             }
 
             @Override
@@ -490,6 +679,17 @@ public class FragmentGameDetail extends Fragment {
 
             }
         });
+
+
+        if(OPERATION == OPERATION_OFFER || OPERATION == OPERATION_WISH) {
+            GameDetailActivity gameDetailActivity = (GameDetailActivity) getActivity();
+            int platformId = gameDetailActivity.platformId;
+            int regionId = gameDetailActivity.regionId;
+
+            mPlatformSpinner.setSelection(platforms.indexOf(new PlatformBean(platformId, "")));
+            mRegionSpinner.setSelection(platforms.indexOf(new PlatformBean(regionId, "")));
+        }
+
 
 
 

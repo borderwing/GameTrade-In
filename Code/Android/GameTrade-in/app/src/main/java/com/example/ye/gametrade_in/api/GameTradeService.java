@@ -93,6 +93,13 @@ public interface GameTradeService {
             @Body ModifyWishOfferBean bean
     );
 
+    @PUT("user/{userId}/offerlist/{gameId}/modify")
+    Call<String> modifyOfferItem(
+            @Path("userId") Long userId,
+            @Path("gameId") Long gameId,
+            @Body ModifyWishOfferBean bean
+    );
+
     @POST("user/{userId}/wishlist/{myGameId}/match/confirm")
     Call<TradeConfirmBean> confirmMatch(
             @Path("userId") Long userId,
@@ -131,4 +138,15 @@ public interface GameTradeService {
             @Path("userId") Long userId,
             @Path("gameId") Long gameId
     );
+
+    @GET("game/{igdbId}/evaluate")
+    Call<Integer> getEvaluatePoint(
+            @Path("igdbId") Long igdbId,
+            @Query("platformId") int platformId,
+            @Query("regionId") int regionId
+    );
+
+
+
+
 }

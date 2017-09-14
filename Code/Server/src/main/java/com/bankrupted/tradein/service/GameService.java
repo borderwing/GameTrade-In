@@ -284,7 +284,7 @@ public class GameService {
 
 
     @Transactional
-    private boolean addGameBlocked(Long igdbId, int platformId, int regionId){
+    public int getPointBlocked(Long igdbId, int platformId, int regionId){
         GameEntity game=new GameEntity();
         game.setIgdbId(igdbId);
         game.setPlatformId(platformId);
@@ -292,12 +292,12 @@ public class GameService {
         GameDetailJson gameDetail=getIgdbGame(igdbId);
 
         if(gameDetail == null){
-            return false;
+            return 0;
         }
         String title = gameDetail.getTitle();
         List<GameReleaseJson> gameReleases = gameDetail.getReleases();
         if(gameReleases == null){
-            return false;
+            return 0;
         }
         String platform=null;
         Iterator<GameReleaseJson> iter = gameReleases.iterator();
@@ -309,21 +309,16 @@ public class GameService {
             }
         }
         if(platform == null){
-            return false;
+            return 0;
         }
 
-        GameEntity tempGame = gameRepo.getGame(igdbId, platformId, regionId);
-        if(tempGame == null) {
-            tempGame = gameRepo.saveAndFlush(game);
-        }
+        int point = this.blockedSetPoints(title, platform, game.getGameId());
 
-        this.blockedSetPoints(title, platform, game.getGameId());
-
-        return true;
+        return point;
     }
 
 
-    void blockedSetPoints(String title, String platform, Long gameId){
+    int blockedSetPoints(String title, String platform, Long gameId){
 
         pythonGetEvaluatePoint evaluate = new pythonGetEvaluatePoint();
         String point = evaluate.getPoints(title, platform);
@@ -333,6 +328,8 @@ public class GameService {
         int finalPoint = (int)floatPoint;
 
         gameRepo.updateGameEvaluatePoint(finalPoint, gameId);
+
+        return finalPoint;
     }
 
 
