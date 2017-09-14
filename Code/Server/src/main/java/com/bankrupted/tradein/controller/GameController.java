@@ -57,14 +57,14 @@ public class GameController {
     // retrieve trending games
     @RequestMapping(value="/trending", method=RequestMethod.GET)
     public ResponseEntity<List<GameTileJson>> getTrendingGames(
-            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
-            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "page", defaultValue = "0") Integer page)
     {
-        if(limit <= 0 || offset < 0) {
+        if(size <= 0 || page < 0) {
             return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
         }
 
-        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(limit,offset);
+        List<GameTileJson> trendingGames = gameService.getTrendingGameTileList(size, page * size);
 
         if(trendingGames == null){
             System.out.println("Fetch trending games failed");
@@ -76,14 +76,14 @@ public class GameController {
     @RequestMapping(value="/search", method=RequestMethod.GET)
     public ResponseEntity<List<GameTileJson>> getSearchResults(
             @RequestParam(value = "keyword", required = true) String keyword,
-            @RequestParam(value = "limit", defaultValue = "5") Integer limit,
-            @RequestParam(value = "offset", defaultValue = "0") Integer offset)
+            @RequestParam(value = "size", defaultValue = "5") Integer size,
+            @RequestParam(value = "page", defaultValue = "0") Integer page)
     {
-        if(limit <= 0 || offset < 0) {
+        if(size <= 0 || page < 0) {
             return new ResponseEntity<List<GameTileJson>>(HttpStatus.BAD_REQUEST);
         }
 
-        List<GameTileJson> searchedGames = gameService.getSearchedGameTileList(keyword, limit,offset);
+        List<GameTileJson> searchedGames = gameService.getSearchedGameTileList(keyword, size,page * size);
 
         if(searchedGames == null){
             System.out.println("Fetch trending games failed");
@@ -122,14 +122,14 @@ public class GameController {
     public ResponseEntity<Integer> getEvaluatePoint(@RequestParam(value = "platformId",required = true)int platformId,
                                                     @RequestParam(value = "regionId",required = true)int regionId,
                                                     @PathVariable(value="igdbId")Long igdbId){
-        GameEntity game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
-        if(game==null){
+        GameEntity game1= gameService.getGameNonBlocked(igdbId,platformId,regionId);
 
-            gameService.addIgdbToDB(igdbId,platformId,regionId);
-            game=gameService.findGameByIgdbId(igdbId,platformId,regionId);
-            return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);
+        if(game1.getEvaluatePoint() > 0){
+            return new ResponseEntity<Integer>(game1.getEvaluatePoint(),HttpStatus.OK);
         }
-        return new ResponseEntity<Integer>(game.getEvaluatePoint(),HttpStatus.OK);
+
+        int point = gameService.getPointBlocked(igdbId, platformId,regionId);
+        return new ResponseEntity<Integer>(point,HttpStatus.OK);
     }
     //find game by key words
    /* @RequestMapping(value="/params",method=RequestMethod.POST)

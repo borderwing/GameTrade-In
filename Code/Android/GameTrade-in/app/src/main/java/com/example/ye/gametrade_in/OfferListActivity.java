@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,7 +19,10 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.ye.gametrade_in.Bean.OfferListBean;
+import com.example.ye.gametrade_in.Bean.WishBean;
+import com.example.ye.gametrade_in.fragment.OfferPaginationFragment;
+import com.example.ye.gametrade_in.fragment.WishPaginationFragment;
+import com.example.ye.gametrade_in.utils.SingleFragmentActivity;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -27,12 +32,39 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class OfferListActivity extends AppCompatActivity{
+public class OfferListActivity extends SingleFragmentActivity {
 
+    private static final String TAG = "SearchResultsActivity";
+
+    private String mQuery;
+
+    @Override
+    protected Fragment createFragment() {
+        Bundle args = new Bundle();
+        OfferPaginationFragment offerPaginationFragment = new OfferPaginationFragment();
+        return offerPaginationFragment;
+        // return new OfferPaginationFragment();
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+
+}
+
+
+
+
+
+
+
+/*
     TextView offerListTitle;
     GameTradeInApplication gameTradeInApplication;
     Integer userId;
-    OfferListBean[] offerList;
+    WishBean[] offerList;
     String serverUrl;
     String authorizedHeader;
 
@@ -51,6 +83,7 @@ public class OfferListActivity extends AppCompatActivity{
         MyOfferListDetailTask myOfferListDetailTask = new MyOfferListDetailTask();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.myListToolBar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         toolbar.setOnMenuItemClickListener(onMenuItemClickListener);
@@ -65,8 +98,12 @@ public class OfferListActivity extends AppCompatActivity{
         myOfferListDetailTask.execute(userId.toString());
     }
 
-    /*****************************************************************************************/
-    /* Offer list Task */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Offer list Task *//*
+
 
     public void showList(Integer showNum){
         GridView myListGridView = (GridView) findViewById(R.id.myListGridView);
@@ -137,8 +174,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* Helper Function */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Helper Function *//*
+
 
 
 
@@ -156,8 +197,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* Button Listener Settings */
+    */
+/*****************************************************************************************//*
+
+    */
+/* Button Listener Settings *//*
+
 
 
     private class gameItemClickListener implements AdapterView.OnItemClickListener {
@@ -165,7 +210,7 @@ public class OfferListActivity extends AppCompatActivity{
             Intent intent;
             intent = new Intent();
             intent.putExtra("operation","offerList");
-            intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().gameId));
+            intent.putExtra("gameId", String.valueOf(offerList[arg2].getPair().getGameId()));
             intent.setClass(OfferListActivity.this, GameDetailActivity.class);
             startActivity(intent);
         }
@@ -183,8 +228,12 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-    /* ToolBar Settings */
+    */
+/*****************************************************************************************//*
+
+    */
+/* ToolBar Settings *//*
+
 
 
     @Override
@@ -220,6 +269,5 @@ public class OfferListActivity extends AppCompatActivity{
 
 
 
-    /*****************************************************************************************/
-
-}
+    */
+/*****************************************************************************************/

@@ -13,17 +13,22 @@ import java.util.Collection;
 public class GameEntity {
     private long gameId;
 
+    
     private long igdbId;
     private int platformId;
     private int regionId;
 
+    @JsonIgnore
     private String title;
+    @JsonIgnore
     private String platform;
+    @JsonIgnore
     private String language;
+    @JsonIgnore
     private String genre;
 
     //default value need to be changed later
-    private Integer evaluatePoint=100;
+    private Integer evaluatePoint = 0;
 
     @JsonIgnore
     private Collection<WishEntity> wishes;

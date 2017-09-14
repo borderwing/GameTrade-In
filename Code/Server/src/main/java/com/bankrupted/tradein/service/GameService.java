@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -27,6 +28,9 @@ import java.util.stream.Collectors;
 @Service
 public class GameService {
 
+    @Autowired
+    private pythonGetEvaluatePoint pythonGetEvaluatePoint;
+
     private static final Logger logger = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
@@ -35,6 +39,8 @@ public class GameService {
     GameAsyncService gameAsyncService;
     @Autowired
     GameRepository gameRepo;
+    @Autowired
+    EvaluateAsyncService evaluateAsyncService;
 
     public List<GameTileJson> getTrendingGameTileList(int limit, int offset) {
         List<IgdbGame> igdbGames = igdbUtility.getTrendingIgdbGames(limit, offset);
@@ -187,16 +193,74 @@ public class GameService {
         return gameRepo.findOne(gameid);
     }
 
-    public void addIgdbToDB(Long igdbId,int platformId,int regionId){
+
+    @Transactional
+    public GameEntity getGameNonBlocked(Long igdbId,int platformId,int regionId){
+        GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
+        if(game != null) {
+            return game;
+        } else {
+            addGameNonBlocked(igdbId, platformId, regionId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        }
+    }
+
+    @Transactional
+    public GameEntity getGameBlocked(Long igdbId,int platformId,int regionId){
+        GameEntity game = gameRepo.getGame(igdbId,platformId,regionId);
+        if(game == null) {
+            addGameNonBlocked(igdbId, platformId, regionId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        } else if(game.getEvaluatePoint() == 0) {
+            GameDetailJson gameDetail=getIgdbGame(igdbId);
+
+            if(gameDetail == null){
+                return null;
+            }
+            String title = gameDetail.getTitle();
+            List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+            if(gameReleases == null){
+                return null;
+            }
+            String platform=null;
+            Iterator<GameReleaseJson> iter = gameReleases.iterator();
+            while(iter.hasNext()){
+                GameReleaseJson release=iter.next();
+                if(release.getPlatformId()==platformId){
+                    platform=release.getPlatform();
+                    break;
+                }
+            }
+            if(platform == null){
+                return null;
+            }
+
+            blockedSetPoints(title, platform, igdbId);
+            return gameRepo.getGame(igdbId, platformId, regionId);
+        } else {
+            return game;
+        }
+    }
+
+
+    @Transactional
+    private boolean addGameNonBlocked(Long igdbId, int platformId, int regionId){
         GameEntity game=new GameEntity();
         game.setIgdbId(igdbId);
         game.setPlatformId(platformId);
         game.setRegionId(regionId);
         GameDetailJson gameDetail=getIgdbGame(igdbId);
 
+        if(gameDetail == null){
+            return false;
+        }
+        String title = gameDetail.getTitle();
+        List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+        if(gameReleases == null){
+            return false;
+        }
         String platform=null;
-        List<GameReleaseJson> gameRelease=gameDetail.getReleases();
-        Iterator<GameReleaseJson> iter=gameRelease.iterator();
+        Iterator<GameReleaseJson> iter = gameReleases.iterator();
         while(iter.hasNext()){
             GameReleaseJson release=iter.next();
             if(release.getPlatformId()==platformId){
@@ -204,16 +268,70 @@ public class GameService {
                 break;
             }
         }
+        if(platform == null){
+            return false;
+        }
 
-        String point= pythonGetEvaluatePoint.getPoints(gameDetail.getTitle(),platform);
+        GameEntity tempGame = gameRepo.getGame(igdbId, platformId, regionId);
+        if(tempGame == null) {
+            tempGame = gameRepo.saveAndFlush(game);
+        }
+
+//        evaluateAsyncService.deferredSetPoints(title, platform, game.getGameId());
+
+        return true;
+    }
+
+
+    @Transactional
+    public int getPointBlocked(Long igdbId, int platformId, int regionId){
+        GameEntity game=new GameEntity();
+        game.setIgdbId(igdbId);
+        game.setPlatformId(platformId);
+        game.setRegionId(regionId);
+        GameDetailJson gameDetail=getIgdbGame(igdbId);
+
+        if(gameDetail == null){
+            return 0;
+        }
+        String title = gameDetail.getTitle();
+        List<GameReleaseJson> gameReleases = gameDetail.getReleases();
+        if(gameReleases == null){
+            return 0;
+        }
+        String platform=null;
+        Iterator<GameReleaseJson> iter = gameReleases.iterator();
+        while(iter.hasNext()){
+            GameReleaseJson release=iter.next();
+            if(release.getPlatformId()==platformId){
+                platform=release.getPlatform();
+                break;
+            }
+        }
+        if(platform == null){
+            return 0;
+        }
+
+        int point = this.blockedSetPoints(title, platform, game.getGameId());
+
+        return point;
+    }
+
+
+    int blockedSetPoints(String title, String platform, Long gameId){
+
+        pythonGetEvaluatePoint evaluate = new pythonGetEvaluatePoint();
+        String point = evaluate.getPoints(title, platform);
+
+
         float floatPoint=Float.parseFloat(point)*100;
+        int finalPoint = (int)floatPoint;
 
-        game.setEvaluatePoint((int)floatPoint);
+        gameRepo.updateGameEvaluatePoint(finalPoint, gameId);
 
-        gameRepo.saveAndFlush(game);
+        return finalPoint;
     }
 
-    public GameEntity findGameByIgdbId(Long igdbId,int platformId,int regionId){
-        return gameRepo.getGame(igdbId,platformId,regionId);
-    }
+
+
 }

@@ -4,7 +4,8 @@ import android.app.Application;
 import android.util.Base64;
 
 import com.example.ye.gametrade_in.Bean.UserAuthenticationBean;
-import com.example.ye.gametrade_in.Bean.UserBean;
+import com.example.ye.gametrade_in.Bean.UserLoginBean;
+import com.example.ye.gametrade_in.api.GameTradeApi;
 
 /**
  * Created by ye on 2017/7/7.
@@ -13,13 +14,13 @@ import com.example.ye.gametrade_in.Bean.UserBean;
 public class GameTradeInApplication extends Application {
     public String appVersion = "v1.0";
 
-    public String serverUrl = "http://192.168.1.110:8080";
+    public String serverUrl = GameTradeApi.SERVER;
     // NOTE: commented out Ye's path
     // public String  serverUrl = "http://192.168.1.27:8080";
 
     public int limit = 4;
 
-    private UserBean loginUser = new UserBean();
+    private UserLoginBean loginUser = new UserLoginBean();
     private UserAuthenticationBean userAuthenticationBean = new UserAuthenticationBean();
 
     public int getLimit() {
@@ -38,16 +39,16 @@ public class GameTradeInApplication extends Application {
         this.serverUrl = serverUrl;
     }
 
-    public UserBean GetLoginUser(){
+    public UserLoginBean GetLoginUser(){
         return loginUser;
     }
 
-    public void SetUserLogin(UserBean user){
+    public void SetUserLogin(UserLoginBean user){
         loginUser.setUserId(user.getUserId());
     }
 
     public void SetUserLogout(){
-        loginUser = new UserBean();
+        loginUser = new UserLoginBean();
     }
 
     public UserAuthenticationBean GetUserAuthenticationBean() {

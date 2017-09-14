@@ -14,6 +14,8 @@ import com.bankrupted.tradein.model.json.wish.CreateWishJson;
 import com.bankrupted.tradein.model.json.wish.ModifyWishJson;
 import com.bankrupted.tradein.model.temporaryItem.*;
 import com.bankrupted.tradein.service.*;
+import com.sun.org.apache.regexp.internal.RE;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.support.PagedListHolder;
 import org.springframework.http.HttpStatus;
@@ -90,8 +92,8 @@ public class UserController {
     @RequestMapping(value = "/{userId}/wishlist/params", method = RequestMethod.GET)
     public ResponseEntity<List<WishEntity>> getWishListPaged(
             @PathVariable("userId") int userId,
-            @RequestParam(value = "offset",defaultValue = "0")Integer offset,
-            @RequestParam(value = "limit",defaultValue = "5")Integer limit) {
+            @RequestParam(value = "page",defaultValue = "0")Integer page,
+            @RequestParam(value = "size",defaultValue = "5")Integer size) {
         UserEntity user=userService.getUserByIdAndFetchWishList(userId);
         if (user == null) {
             System.out.println("Cannot find User with id " + userId);
@@ -100,8 +102,8 @@ public class UserController {
         Collection<WishEntity> wishList=wishService.getAvailableWish(user);
 
         PagedListHolder<WishEntity> pagedWishList= new PagedListHolder<>((List<WishEntity>)wishList);
-        pagedWishList.setPage(offset/limit);
-        pagedWishList.setPageSize(limit);
+        pagedWishList.setPage(page);
+        pagedWishList.setPageSize(size);
         return new ResponseEntity<List<WishEntity>>(pagedWishList.getPageList(), HttpStatus.OK);
     }
 
@@ -144,7 +146,7 @@ public class UserController {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameService.findGameByIgdbId(createWishJson.getIgdbId(),createWishJson.getPlatformId(),createWishJson.getRegionId());
+        GameEntity game=gameService.getGameNonBlocked(createWishJson.getIgdbId(),createWishJson.getPlatformId(),createWishJson.getRegionId());
         if (game == null) {
             return new ResponseEntity<WishEntity>(HttpStatus.NOT_FOUND);
         }
@@ -289,7 +291,7 @@ public class UserController {
         return new ResponseEntity<List<BasicMatchResultItem>>(result,HttpStatus.OK);
     }
 
-
+/*
     //confirm basic match
     @RequestMapping(value="{userid}/wishlist/match/confirm",method = RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmMatch(@RequestBody BasicMatchConfirmJson matchInfo,
@@ -319,21 +321,23 @@ public class UserController {
         //set the TradeGames as sender
         for(int i = 0;i<youOfferGameIdList.size();i++){
             GameEntity game=gameService.fetchOneGame(youOfferGameIdList.get(i));
-            TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game, TargetUser,orderid);
+            WishEntity wish=wishService.getOneWishByUserAndGame(TargetUser,game);
+            TradeGameEntity tradeGame=orderService.setSenderTradeGame(address,user,game,TargetUser,orderid,wish.getPoints());
             tradeGameList.add(tradeGame);
         }
 
         //set the tradeGames as receiver
         for(int i = 0;i<youWantGameIdList.size();i++){
             GameEntity game=gameService.fetchOneGame(youWantGameIdList.get(i));
-            TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,TargetUser,orderid);
+            WishEntity wish=wishService.getOneWishByUserAndGame(user,game);
+            TradeGameEntity tradeGame=orderService.setReceiverTradeGame(address,user,game,TargetUser,orderid,);
             tradeGameList.add(tradeGame);
         }
         tradeOrder.setTradeGames(tradeGameList);
 
         return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
-    }
-
+    }*/
+/*
 
     //senior match in wishlist
     @RequestMapping(value="{userid}/wishlist/match/senior",method=RequestMethod.POST)
@@ -403,9 +407,9 @@ public class UserController {
         }
         return new ResponseEntity<List<SeniorMatchResultItem>>(seniorMatchResult,HttpStatus.OK);
     }
-
+*/
     //confirm senior match
-    @RequestMapping(value="{userid}/wishlist/match/senior/confirm",method = RequestMethod.POST)
+/*    @RequestMapping(value="{userid}/wishlist/match/senior/confirm",method = RequestMethod.POST)
     public ResponseEntity<TradeOrderEntity> confirmSeniorMatch(@PathVariable("userid")int userid,
                                                                @RequestBody SeniorMatchConfirmJson matchInfo){
         System.out.println("confirm the match");
@@ -468,7 +472,7 @@ public class UserController {
         tradeOrder.setTradeGames(tradeGameList);
 
         return new ResponseEntity<TradeOrderEntity>(tradeOrder,HttpStatus.OK);
-    }
+    }*/
     /*
                     OFFER CONTROLLER
     */
@@ -534,7 +538,7 @@ public class UserController {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
 
-        GameEntity game=gameService.findGameByIgdbId(offerGame.getIgdbId(),offerGame.getPlatformId(),offerGame.getRegionId());
+        GameEntity game=gameService.getGameNonBlocked(offerGame.getIgdbId(),offerGame.getPlatformId(),offerGame.getRegionId());
         if (game == null) {
             return new ResponseEntity<OfferEntity>(HttpStatus.NOT_FOUND);
         }
@@ -635,8 +639,8 @@ public class UserController {
     // fetch address(paged)
     @RequestMapping(value="/{userId}/address/params",method=RequestMethod.GET)
     public ResponseEntity<List<AddressEntity>> getAddressPaged(@PathVariable("userId")int userId,
-                                                               @RequestParam(value = "page",defaultValue = "0")Integer offset,
-                                                               @RequestParam(value = "size",defaultValue = "5")Integer limit){
+                                                               @RequestParam(value = "page",defaultValue = "0")Integer page,
+                                                               @RequestParam(value = "size",defaultValue = "5")Integer size){
         UserEntity user = userService.getUserByIdAndFetchAddress(userId);
         if(user==null){
             System.out.println("cannot find the user...");
@@ -646,8 +650,8 @@ public class UserController {
 
         //get paged
         PagedListHolder<AddressEntity> pagedAddress=new PagedListHolder<>((List<AddressEntity>)addresses);
-        pagedAddress.setPage(offset/limit);
-        pagedAddress.setPageSize(limit);
+        pagedAddress.setPage(page);
+        pagedAddress.setPageSize(size);
         return new ResponseEntity<List<AddressEntity>>(pagedAddress.getPageList(),HttpStatus.OK);
     }
 
@@ -675,6 +679,12 @@ public class UserController {
     public ResponseEntity<AddressEntity> addAddress(@RequestBody CreateAddressJson addressItem,
                                                     @PathVariable("userid")int userid){
         System.out.println("creating new address");
+
+        //check whether all blanks are filled
+        if(addressItem.getAddress()==""||addressItem.getPhone()==""||addressItem.getReceiver()==""||addressItem.getRegion()==""){
+            System.out.println("dont't fill all the blanks...");
+            return new ResponseEntity<AddressEntity>(HttpStatus.BAD_REQUEST);
+        }
 
         UserEntity user=userService.getUserById(userid);
         if(user==null){
@@ -721,7 +731,8 @@ public class UserController {
 
     //match game in wish list
     @RequestMapping(value="/{userId}/wishlist/{gameId}/match",method=RequestMethod.GET)
-    public ResponseEntity<List<ReceiverOrderItem>> matchWistList(@PathVariable("userId")int userid,
+    public ResponseEntity<List<ReceiverOrderItem>> matchWistList(
+            @RequestParam(name = "scale",defaultValue = "200")Integer scale,@PathVariable("userId")int userid,
                                                             @PathVariable("gameId")long gameid){
         System.out.println("match game...");
 
@@ -737,7 +748,6 @@ public class UserController {
             return new ResponseEntity<List<ReceiverOrderItem>>(HttpStatus.NOT_FOUND);
         }
 
-
         //get the wanted points
         int wantPoint=0;
         List<WishEntity> wishList=wishService.findByUserAndGame(user,game);
@@ -749,9 +759,8 @@ public class UserController {
                 break;
             }
         }
-
         //get the list of userid
-        List<OfferEntity> offerList=offerService.getOfferGames(wantPoint,gameid);
+        List<OfferEntity> offerList=offerService.getOfferGames(wantPoint,gameid,scale);
 
         Iterator<OfferEntity> iterOfferList=offerList.iterator();
         List<Integer> offerUserid=new ArrayList<>();
@@ -762,16 +771,19 @@ public class UserController {
                 offerUserid.add(UserId);
             }
         }
-
         List<Long> sendingGame;
         List<ReceiverOrderItem> resultOrder=new ArrayList<>();
         for(int i =0;i<offerUserid.size();i++){
-            sendingGame=wishService.getSameGame(offerUserid.get(i),userid,wantPoint);
+            sendingGame=wishService.getSameGame(offerUserid.get(i),userid,wantPoint,scale);
             for(int j =0;j<sendingGame.size();j++){
                 ReceiverOrderItem orderItem=new ReceiverOrderItem();
-                orderItem.setGetGameId(gameid);
-                orderItem.setOfferGameId(sendingGame.get(j));
-                orderItem.setSenderId(offerUserid.get(i));
+                GameEntity OfferGame=gameService.fetchOneGame(sendingGame.get(j));
+                orderItem.setOfferGame(OfferGame);
+                orderItem.setWishGame(game);
+                UserEntity sender=userService.getUserById(offerUserid.get(i));
+                orderItem.setSender(sender);
+                WishEntity wish=wishService.getOneWishByUserAndGame(userService.getUserById(offerUserid.get(i)),OfferGame);
+                orderItem.setOfferPoint(wish.getPoints());
                 resultOrder.add(orderItem);
             }
         }
@@ -809,20 +821,37 @@ public class UserController {
             return new ResponseEntity<TradeOrderEntity>(HttpStatus.NOT_FOUND);
         }
 
+        //check whether the order is already exist
+        if(orderService.DuplicatedOrder(gameid,userid)){
+            System.out.println("have order already...");
+            return new ResponseEntity<TradeOrderEntity>(HttpStatus.CONFLICT);
+        }
+
+
         //create TradeOrder
         TradeOrderEntity tradeOrder=new TradeOrderEntity();
         Timestamp time=new Timestamp(System.currentTimeMillis());
         int orderId=orderService.getNewOrderId();
-        orderService.saveTradeOrder(tradeOrder,time,2,orderId);
+        tradeOrder = orderService.saveTradeOrder(tradeOrder,time,2,orderId);
 
         //create TradeGame
         AddressEntity address=addressService.getAddressById(orderItem.getAddressId());
 
+        //get the points
+        WishEntity UserWish=wishService.getOneWishByUserAndGame(user,receiveGame);
+        WishEntity TargetWish=wishService.getOneWishByUserAndGame(targetUser,sendGame);
+        OfferEntity UserOffer=offerService.getOneOfferByUserAndGame(user,sendGame);
+        OfferEntity TargetOffer=offerService.getOneOfferByUserAndGame(targetUser,receiveGame);
+        int receivePoints=(UserWish.getPoints()+TargetOffer.getPoints())/2;
+        int offerPoints=(UserOffer.getPoints()+TargetWish.getPoints())/2;
+
+
+        System.out.println(tradeOrder.getTradeOrderId());
         //create the send game order
-        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,orderId);
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,sendGame,targetUser,tradeOrder.getTradeOrderId(),offerPoints);
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,orderId);
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,receiveGame,targetUser,tradeOrder.getTradeOrderId(),receivePoints);
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();
@@ -836,7 +865,9 @@ public class UserController {
 
     //match game in offer list
     @RequestMapping(value="/{userid}/offerlist/{gameid}/match",method=RequestMethod.GET)
-    public ResponseEntity<List<SenderOrderItem>> matchOfferList(@PathVariable("userid")int userid,
+    public ResponseEntity<List<SenderOrderItem>> matchOfferList(
+            @RequestParam(name = "scale",defaultValue = "200")Integer scale,
+                                                                @PathVariable("userid")int userid,
                                                                 @PathVariable("gameid")long gameid){
         System.out.println("match the game in offer list...");
 
@@ -918,10 +949,10 @@ public class UserController {
         AddressEntity address=addressService.getAddressById(orderItem.getAddressId());
 
         //create send game order
-        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,SendGame,targetUser,orderId);
+        TradeGameEntity tradeGameOne=orderService.setSenderTradeGame(address,user,SendGame,targetUser,orderId,wishService.getOneWishByUserAndGame(targetUser,SendGame).getPoints());
 
         //create the receive game order
-        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,ReceiveGame,targetUser,orderId);
+        TradeGameEntity tradeGameTwo=orderService.setReceiverTradeGame(address,user,ReceiveGame,targetUser,orderId,wishService.getOneWishByUserAndGame(user, ReceiveGame).getPoints());
 
         //add trade Game to TradeOrder
         List<TradeGameEntity> trade=new ArrayList<>();
@@ -939,15 +970,15 @@ public class UserController {
 
     //fetch all orders (paged)
     @RequestMapping(value="/{userid}/order/params",method=RequestMethod.GET)
-    public ResponseEntity<List<ShowOrderItem>> getAllOrdersPaged(@PathVariable("userid")int userid,
-                                                                 @RequestParam(value = "limit",defaultValue = "5")Integer limit,
-                                                                 @RequestParam(value = "offset",defaultValue = "0")Integer offset){
+    public ResponseEntity<List<OrderResult>> getAllOrdersPaged(@PathVariable("userid")int userid,
+                                                                 @RequestParam(value = "size",defaultValue = "5")Integer size,
+                                                                 @RequestParam(value = "page",defaultValue = "0")Integer page){
         System.out.println("fetch all orders");
 
         UserEntity user=userService.getUserById(userid);
         if(user==null){
             System.out.println("can't find order...");
-            return new ResponseEntity<List<ShowOrderItem>>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<List<OrderResult>>(HttpStatus.NOT_FOUND);
         }
         List<ShowOrderItem> ShowResult=orderService.getAllGeneralOrder();
 
@@ -972,10 +1003,93 @@ public class UserController {
             }
         }
 
-        PagedListHolder<ShowOrderItem> pagedShowResult=new PagedListHolder<>(ShowResult);
-        pagedShowResult.setPageSize(limit);
-        pagedShowResult.setPage(offset/limit);
-        return new ResponseEntity<List<ShowOrderItem>>(pagedShowResult.getPageList(),HttpStatus.OK);
+        List<OrderResult> resultList=new ArrayList<>();
+        Iterator<ShowOrderItem> iterResult=ShowResult.iterator();
+        while(iterResult.hasNext()){
+            ShowOrderItem item=iterResult.next();
+
+            if(item.getGameDetail().size()==2) {
+                OrderResult showResult = new OrderResult();
+                int targetUserId;
+                if (item.getGameDetail().get(0).getReceiver().getUserId() == userid) {
+                    GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
+                    GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
+
+                    showResult.setWishGame(gameWish);
+                    showResult.setOfferGame(gameOffer);
+
+                    showResult.setWishPoints(item.getGameDetail().get(0).getPoints());
+                    showResult.setOfferPoints(item.getGameDetail().get(1).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(0).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(0).getFromAddress());
+                } else {
+                    GameEntity gameWish = gameRepo.findOne(item.getGameDetail().get(1).getGameId());
+                    showResult.setWishGame(gameWish);
+                    GameEntity gameOffer = gameRepo.findOne(item.getGameDetail().get(0).getGameId());
+                    showResult.setOfferGame(gameOffer);
+                    showResult.setWishPoints(item.getGameDetail().get(1).getPoints());
+                    showResult.setOfferPoints(item.getGameDetail().get(0).getPoints());
+                    showResult.setYouAddress(item.getGameDetail().get(1).getToAddress());
+                    showResult.setTargetAddress(item.getGameDetail().get(1).getFromAddress());
+                }
+
+                // set other username
+                UserEntity sender = item.getGameDetail().get(0).getSender();
+                UserEntity receiver = item.getGameDetail().get(0).getReceiver();
+                if(sender != user){
+                    showResult.setOtherUsername(sender.getUsername());
+                } else {
+                    showResult.setOtherUsername(receiver.getUsername());
+                }
+
+
+                showResult.setOrderId(item.getTradeOrderId());
+                showResult.setStatus(item.getStatus());
+                resultList.add(showResult);
+            }
+        }
+        Collections.reverse(resultList);
+
+        PagedListHolder<OrderResult> pagedShowResult=new PagedListHolder<>(resultList);
+        pagedShowResult.setPageSize(size);
+        pagedShowResult.setPage(page);
+        return new ResponseEntity<List<OrderResult>>(pagedShowResult.getPageList(),HttpStatus.OK);
+    }
+
+    //fetch one order
+    @RequestMapping(value="/{userid}/order/{orderId}",method=RequestMethod.GET)
+    public ResponseEntity<OrderResult> getOneOrder(@PathVariable("userid")int userid,@PathVariable("orderId")int orderId){
+        System.out.println("get one order...");
+        UserEntity user=userService.getUserById(userid);
+        if(user==null){
+            System.out.println("can't find user...");
+            return new ResponseEntity<OrderResult>(HttpStatus.NOT_FOUND);
+        }
+
+        TradeOrderEntity order=orderService.getTradeOrderById(orderId);
+        List<TradeGameEntity> TradeGames=orderService.getTradeGamesById(orderId);
+        OrderResult result=new OrderResult();
+        if(TradeGames.get(0).getReceiver().getUserId()==userid){
+            result.setTargetAddress(TradeGames.get(0).getFromAddress());
+            result.setYouAddress(TradeGames.get(0).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(1).getGame());
+            result.setWishGame(TradeGames.get(0).getGame());
+            result.setOfferPoints(TradeGames.get(1).getPoints());
+            result.setWishPoints(TradeGames.get(0).getPoints());
+        }
+        else{
+            result.setTargetAddress(TradeGames.get(1).getFromAddress());
+            result.setYouAddress(TradeGames.get(1).getToAddress());
+            result.setStatus(order.getStatus());
+            result.setOrderId(orderId);
+            result.setOfferGame(TradeGames.get(0).getGame());
+            result.setWishGame(TradeGames.get(1).getGame());
+            result.setWishPoints(TradeGames.get(1).getPoints());
+            result.setOfferPoints(TradeGames.get(0).getPoints());
+        }
+        return new ResponseEntity<OrderResult>(result,HttpStatus.OK);
     }
 
     //fetch unconfirmed order

@@ -39,6 +39,7 @@ public class OfferEntityPK implements Serializable {
     }
 
 
+
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "userId")
     @JsonIdentityReference(alwaysAsId = true)
     @JsonProperty("userId")

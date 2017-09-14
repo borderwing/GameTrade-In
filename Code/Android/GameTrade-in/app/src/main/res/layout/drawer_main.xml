@@ -32,16 +32,18 @@
             android:id="@+id/menuMyList"
             android:layout_marginTop="20dp">
             <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
-                android:src = "@drawable/gameicon"/>
+                android:layout_height="40dp"
+                android:layout_width="40dp"
+                android:src = "@drawable/gameicon"
+                android:layout_gravity="center" />
             <Button
                 android:id = "@+id/menuMyListButton"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
                 android:text="My wish List"
-                android:textSize="8sp" />
+                android:textSize="16dp"
+                android:layout_gravity="center"/>
         </LinearLayout>
 
         <LinearLayout
@@ -51,16 +53,18 @@
             android:layout_below="@id/menuMyList"
             android:layout_marginTop="30dp">
             <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
-                android:src = "@drawable/gameicon"/>
+                android:layout_height="40dp"
+                android:layout_width="40dp"
+                android:src = "@drawable/gameicon"
+                android:layout_gravity="center"/>
             <Button
                 android:id = "@+id/menuMyOfferListButton"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
                 android:text="My offer List"
-                android:textSize="8sp" />
+                android:textSize="16dp"
+                android:layout_gravity="center"/>
         </LinearLayout>
 
         <LinearLayout
@@ -70,16 +74,18 @@
             android:layout_below="@id/menuMyOfferList"
             android:layout_marginTop="30dp">
             <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
-                android:src = "@drawable/gameicon"/>
+                android:layout_height="40dp"
+                android:layout_width="40dp"
+                android:src = "@drawable/gameicon"
+                android:layout_gravity="center"/>
             <Button
                 android:id = "@+id/menuMyAddressButton"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
                 android:text="My address"
-                android:textSize="8sp" />
+                android:layout_gravity="center"
+                android:textSize="16dp" />
         </LinearLayout>
 
         <LinearLayout
@@ -89,16 +95,19 @@
             android:layout_below="@id/menuMyAddress"
             android:layout_marginTop="30dp">
             <ImageView
-                android:layout_height="30dp"
-                android:layout_width="30dp"
-                android:src = "@drawable/gameicon"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:gravity="center_vertical"
+                android:layout_height="40dp"
+                android:layout_width="40dp"
+                android:src = "@drawable/gameicon"
+                android:layout_gravity="center" />
+            <Button
+                android:id = "@+id/menuMyOrderButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
                 android:layout_marginLeft="20dp"
-                android:text="Setting"
-                android:textSize="16sp" />
+                android:text="My Order"
+                android:textSize="16dp"
+                android:layout_gravity="center"
+                android:gravity="center"/>
         </LinearLayout>
 
     </RelativeLayout>

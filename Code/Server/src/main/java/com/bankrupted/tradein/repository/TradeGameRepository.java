@@ -42,4 +42,7 @@ public interface TradeGameRepository extends JpaRepository<TradeGameEntity,Integ
     @Transactional
     @Query("update TradeGameEntity p set p.receiverStatus=2,p.status=-1 where p.tradeGameId=:tradeGameId")
     int RefuseByReceiver(@Param("tradeGameId")int tradeGameId);
+
+    @Query("select p from TradeGameEntity p where p.game.gameId=:gameId and p.status>0 and p.receiver.userId=:userId")
+    List<TradeGameEntity> getDuplicatedOrder(@Param("gameId")Long gameId,@Param("userId")int userId);
 }

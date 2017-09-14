@@ -6,7 +6,7 @@ android {
     buildToolsVersion "26.0.0"
     defaultConfig {
         applicationId "com.example.ye.gametrade_in"
-        minSdkVersion 15
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -35,6 +35,17 @@ dependencies {
 
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-gson:2.1.0'
+    // https://mvnrepository.com/artifact/com.squareup.retrofit2/converter-scalars
+    compile group: 'com.squareup.retrofit2', name: 'converter-scalars', version: '2.3.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.3.1'
+
+    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
+
+    // apache common collections for multimap
+    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+
+    compile 'com.github.travijuu:numberpicker:1.0.7'
+
+
 }

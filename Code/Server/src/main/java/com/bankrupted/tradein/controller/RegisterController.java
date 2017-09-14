@@ -2,6 +2,7 @@ package com.bankrupted.tradein.controller;
 
 import com.bankrupted.tradein.model.CustomerEntity;
 import com.bankrupted.tradein.model.RoleEntity;
+import com.bankrupted.tradein.model.UserEntity;
 import com.bankrupted.tradein.model.json.RegisterJsonItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +40,12 @@ public class RegisterController {
     public ResponseEntity<Void> createUser(@RequestBody RegisterJsonItem registerItem, UriComponentsBuilder ucBuilder) {
         System.out.println("Creating User...");
 
+        //check whether the blanks are input
+        if(registerItem.getUsername()==""||registerItem.getEmail()==""||registerItem.getPassword()==""||registerItem.getPhone()==""){
+            System.out.println("didn't input all the blanks...");
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+        }
+
         //check whether the username is duplicated
         if (userRepo.findByUsername(registerItem.getUsername()) != null) {
             System.out.println("A User with username \"" + registerItem.getUsername() + "\" already exist");
@@ -46,7 +53,13 @@ public class RegisterController {
         }
 
         //create a new user
+        int userid=userRepo.getMaxId()+1;
+        UserEntity user=new UserEntity();
+
+
         CustomerEntity customer = new CustomerEntity();
+
+        customer.setUserId(userid);
 
         customer.setEmail(registerItem.getEmail());
         customer.setPhone(registerItem.getPhone());
@@ -65,6 +78,8 @@ public class RegisterController {
         customer.setRoles(roles);
 
         customer = customerRepo.saveAndFlush(customer);
+        System.out.println("here2");
+        System.out.println("-------------------------------");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(ucBuilder.path("/api/user/{id}").buildAndExpand(customer.getUserId()).toUri());

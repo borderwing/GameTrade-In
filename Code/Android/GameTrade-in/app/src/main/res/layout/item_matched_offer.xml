@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="bottom|right"
+        android:layout_marginTop="@dimen/activity_margin"
+        android:background="@android:color/white"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_margin"
+        android:paddingEnd="@dimen/activity_margin"
+        android:paddingLeft="@dimen/poster_thumb_width"
+        android:paddingRight="@dimen/activity_margin"
+        android:paddingStart="@dimen/poster_thumb_width"
+        android:paddingTop="@dimen/activity_margin_half">
+
+        <LinearLayout
+            android:id="@+id/item_wish_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/item_wish_meta"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_margin_content"
+                android:layout_marginStart="@dimen/activity_margin_content"
+                android:gravity="end"
+                android:maxLines="1"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                tools:text="PS4 | WorldWide"/>
+
+            <TextView
+                android:id="@+id/item_wish_title"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_margin_content"
+                android:layout_marginStart="@dimen/activity_margin_content"
+                android:layout_marginTop="@dimen/activity_margin_quarter"
+                android:maxLines="2"
+                tools:text="The Legend of Zelda: Breath of the Wild"/>
+
+            <!--<TextView-->
+                <!--android:id="@+id/item_wish_credit"-->
+                <!--style="@style/TextAppearance.AppCompat.Caption"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginLeft="@dimen/activity_margin_content"-->
+                <!--android:layout_marginStart="@dimen/activity_margin_content"-->
+                <!--android:layout_marginTop="@dimen/activity_margin_half"-->
+                <!--android:ellipsize="end"-->
+                <!--android:gravity="end"-->
+                <!--android:maxLines="3"-->
+                <!--android:textColor="@android:color/holo_orange_dark"-->
+                <!--android:textSize="24sp"-->
+                <!--android:textStyle="bold"-->
+                <!--tools:text="2500 pts"/>-->
+
+            <Button
+                android:id="@+id/item_match_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:fontFamily="sans-serif-smallcaps"
+                android:maxLines="3"
+                android:textSize="24sp"
+                android:theme="@style/BrightButton"
+                tools:text="2500"/>
+
+            <TextView
+                android:id="@+id/item_wish_user"
+                style="@style/TextAppearance.AppCompat.Caption"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/activity_margin_content"
+                android:layout_marginStart="@dimen/activity_margin_content"
+                android:layout_marginTop="@dimen/activity_margin_half"
+                android:ellipsize="end"
+                android:gravity="end"
+                android:maxLines="3"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="from lykavin"/>
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/item_wish_progress"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:theme="@style/CircularProgress"/>
+
+        <include
+            layout="@layout/error_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/activity_margin_half"
+        app:cardBackgroundColor="@color/cardview_shadow_start_color"
+        app:cardCornerRadius="3dp"
+        app:cardPreventCornerOverlap="false">
+
+        <ImageView
+            android:id="@+id/item_wish_cover"
+            android:layout_width="@dimen/poster_thumb_width"
+            android:layout_height="@dimen/poster_thumb_height"/>
+
+        <ProgressBar
+            android:id="@+id/item_cover_progress"
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_margin"
+            android:layout_gravity="center"
+            android:theme="@style/CircularProgress"/>
+
+    </android.support.v7.widget.CardView>
+
+</FrameLayout>

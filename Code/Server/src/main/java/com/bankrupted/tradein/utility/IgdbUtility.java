@@ -44,8 +44,8 @@ public class IgdbUtility {
 
 
     private List<String> gameFullFields = Arrays.asList(
-            "name","release_dates","cover","summary","screenshots"
-            ,"genres", "themes", "keywords"
+            "name","release_dates","cover","summary" //, "screenshots"
+            // ,"genres", "themes", "keywords"
             ,"popularity", "url"
     );
 
@@ -82,6 +82,12 @@ public class IgdbUtility {
         UriComponentsBuilder builder = constructBuilder("/games", igdbId, queryParams);
         ResponseEntity<List<IgdbGame>> response = retrieveIgdbResponse(IgdbGame.class, builder);
 
+//        if(!response.getStatusCode().is2xxSuccessful()){
+//            // something wrong happened
+//            return new ResponseEntity<IgdbGame>(response.getHeaders(), response.getStatusCode());
+//        } else {
+//            return new ResponseEntity<IgdbGame>(getOneFromResponse(response), response.getHeaders(), response.getStatusCode());
+//        }
         return getOneFromResponse(response);
 
     }
@@ -100,8 +106,14 @@ public class IgdbUtility {
         UriComponentsBuilder builder = constructBuilder("/games", queryParams);
         ResponseEntity<List<IgdbGame>> response = retrieveIgdbResponse(IgdbGame.class, builder);
 
-        return getListFromResponse(response);
+//        if(!response.getStatusCode().is2xxSuccessful()){
+//            // something wrong happened
+//            return new ResponseEntity<>(response.getHeaders(), response.getStatusCode());
+//        } else {
+//            return new ResponseEntity<>(getListFromResponse(response), response.getHeaders(), response.getStatusCode());
+//        }
 
+        return getListFromResponse(response);
     }
 
     public List<IgdbGame> getSearchedIgdbGames(String keyword, int limit, int offset){
@@ -293,7 +305,7 @@ public class IgdbUtility {
                                                factory.constructCollectionType(ArrayList.class, type));
         } catch(Exception e){
             e.printStackTrace();
-            return null;
+            return new ResponseEntity<List<T>>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         // convert to another response entity

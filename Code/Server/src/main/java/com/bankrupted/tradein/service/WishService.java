@@ -23,17 +23,20 @@ public class WishService {
     WishRepository wishRepo;
 
     public Collection<WishEntity> getAvailableWish(UserEntity user){
-        Collection<WishEntity> wishList = user.getWishes();
 
-        //get the available game
-        Iterator<WishEntity> iter=wishList.iterator();
-        while(iter.hasNext()){
-            WishEntity wish=iter.next();
-            if(wish.getStatus()==0){
-                iter.remove();
-            }
-        }
-        return wishList;
+        return wishRepo.findByUserId(user.getUserId());
+
+//        Collection<WishEntity> wishList = user.getWishes();
+//
+//        //get the available game
+//        Iterator<WishEntity> iter=wishList.iterator();
+//        while(iter.hasNext()){
+//            WishEntity wish=iter.next();
+//            if(wish.getStatus()==0){
+//                iter.remove();
+//            }
+//        }
+//        return wishList;
     }
 
     public List<WishEntity> findByUserAndGame(UserEntity user,GameEntity game){
@@ -107,8 +110,8 @@ public class WishService {
         return wishRepo.findByUserId(userid);
     }
 
-    public List<Long> getSameGame(int wishUserid,int offerUserid,int points){
-        return wishRepo.getSameGame(wishUserid,offerUserid,points);
+    public List<Long> getSameGame(int wishUserid,int offerUserid,int points,int scale){
+        return wishRepo.getSameGame(wishUserid,offerUserid,points,scale);
     }
 
     public List<WishEntity> getWishGame(int wantPoint,long gameid){
@@ -124,7 +127,7 @@ public class WishService {
         return UserOfferPoints;
     }
 
-    public List<Object[]> getPotentialChanges(){
-        return wishRepo.getPotientialChanges();
+    public List<Object[]> getPotentialChanges(int scale){
+        return wishRepo.getPotientialChanges(scale);
     }
 }

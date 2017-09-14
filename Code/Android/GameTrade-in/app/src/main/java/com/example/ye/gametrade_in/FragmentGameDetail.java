@@ -1,33 +1,59 @@
 package com.example.ye.gametrade_in;
 
-import android.app.Fragment;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Region;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.text.method.ScrollingMovementMethod;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ye.gametrade_in.Bean.BitmapBean;
-import com.example.ye.gametrade_in.Bean.GameBean;
 import com.example.ye.gametrade_in.Bean.GameDetailBean;
 import com.example.ye.gametrade_in.Bean.GameReleaseJson;
+import com.example.ye.gametrade_in.Bean.GameTransportBean;
 import com.example.ye.gametrade_in.Bean.MatchBean;
 import com.example.ye.gametrade_in.Bean.MyListBean;
+import com.example.ye.gametrade_in.Bean.temp.ModifyWishOfferBean;
+import com.example.ye.gametrade_in.Bean.utils.PlatformBean;
+import com.example.ye.gametrade_in.Bean.utils.RegionBean;
+import com.example.ye.gametrade_in.api.GameTradeApi;
+import com.example.ye.gametrade_in.api.GameTradeService;
+import com.example.ye.gametrade_in.utils.GameDetailUtility;
+import com.travijuu.numberpicker.library.Enums.ActionEnum;
+import com.travijuu.numberpicker.library.Interface.ValueChangedListener;
+import com.travijuu.numberpicker.library.NumberPicker;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,712 +66,1179 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class FragmentGameDetail extends Fragment{
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.http.POST;
 
-    TextView gameTitleView, gameTextView, gameCategoryPlatform, gameCategoryLanguage, gameCategoryGenre, gameCreditView, gamePopularity;
-    Spinner platformSpinner, regionSpinner;
-    EditText addToListEdit;
-    String gameTitle, gameText, operation, credits;
-    Integer addToListPoints;
-    Boolean toMatch = false;
-    Button addToOfferList, matchButton, addToWishList, modifyButton;
-    String gameDetailId, userId;
-    MatchBean[] matchBean;
-    String serverUrl;
-    String authorizedHeader;
-    public GameTradeInApplication gameTradeInApplication;
-    BitmapBean bitmapBean;
-    Bitmap bitmap;
-    ArrayAdapter <String> platformAdapter;
-    ArrayAdapter <String> regionAdapter;
-    List<String> platformList;
-    List<String> regionList;
-    List<Integer> platformIdList;
-    List<Integer> regionIdList;
-    Integer selectedPlatformId, selectedRegionId;
+public class FragmentGameDetail extends Fragment {
+
+    public static final String TAG = "FragmentGameDetail";
+
+    public static final int HTTP_OK = 200;
+    public static final int HTTP_CONFLICT = 409;
+
+    public static final String ARG_IGDB_ID =
+            "com.example.ye.gametrade_in.igdb_id";
+
+    public static final String ARG_GAME_ID =
+            "com.example.ye.gametrade_in.game_id";
+
+    public static final String ARG_OPERATION =
+            "com.example.ye.gametrade-in.extra_from";
+
+    public static final int OPERATION_WISH = 1;
+    public static final int OPERATION_OFFER = 2;
+    public static final int OPERATION_BROWSE = 0;
+
+    private int OPERATION = OPERATION_BROWSE;
+
+
+    Long mIgdbId, mGameId;
+
+    PlatformBean mSelectedPlatform;
+    RegionBean mSelectedRegion;
+
+    LinearLayout mDetailLayout;
+    ProgressBar mDetailProgress;
+
+    ImageView mCoverImage;
+    ProgressBar mCoverProgress;
+    TextView mTitle, mSummary, mPopularity;
+    Spinner mPlatformSpinner, mRegionSpinner;
+
+    // EditText mCreditEditText;
+    NumberPicker mCreditPicker;
+    LinearLayout mDummy;
+
+    TextView mCreditEvaluate;
+
+    Button mWishButton, mOfferButton;
+    Button mEditConfirmButton, mEditCancelButton, mEditDeleteButton;
+
+    LinearLayout errorLayout;
+    Button btnRetry;
+    TextView txtError;
+
+    GameDetailBean mGameDetail;
+
+    GameTradeService mGameTradeService;
+
+    public static FragmentGameDetail newInstance(Long igdbId){
+        Bundle args = new Bundle();
+        args.putLong(ARG_IGDB_ID, igdbId);
+
+        FragmentGameDetail fragment = new FragmentGameDetail();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static FragmentGameDetail newInstance(Long igdbId, Long gameId, int operation){
+        Bundle args = new Bundle();
+        args.putLong(ARG_IGDB_ID, igdbId);
+        args.putLong(ARG_GAME_ID, gameId);
+        args.putInt(ARG_OPERATION, operation);
+
+        FragmentGameDetail fragment = new FragmentGameDetail();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Log.d(TAG, "entered FragmentGameDetail");
+
+        super.onCreate(savedInstanceState);
+
+        String authorizedHeader = QueryPreferences
+                .getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+        if(authorizedHeader == null) {
+            mGameTradeService = GameTradeApi.getClient().create(GameTradeService.class);
+        } else {
+            mGameTradeService = GameTradeApi
+                    .getClient(authorizedHeader)
+                    .create(GameTradeService.class);
+        }
+
+        mIgdbId = getArguments().getLong(ARG_IGDB_ID, 0);
+        mGameId = getArguments().getLong(ARG_GAME_ID, 0);
+        OPERATION = getArguments().getInt(ARG_OPERATION, OPERATION_BROWSE);
+
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDummy.requestFocus();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstance) {
-        platformList = new ArrayList<String>();
-        regionList = new ArrayList<String>();
-        platformIdList = new ArrayList<Integer>();
-        regionIdList = new ArrayList<Integer>();
+        super.onCreateView(inflater, container, savedInstance);
 
-        gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
-        // authorizedHeader = gameTradeInApplication.GetAuthorizedHeader(gameTradeInApplication.GetUserAuthenticationBean());
-        authorizedHeader = QueryPreferences.getStoredAuthorizedQuery(this.getActivity().getApplicationContext());
+        View v = inflater.inflate(R.layout.fragment_game_detail, container, false);
 
-        Bundle bundle = getArguments();
+        mDetailLayout = (LinearLayout) v.findViewById(R.id.game_detail);
+        mDetailProgress = (ProgressBar) v.findViewById(R.id.detail_progress);
 
-        gameDetailId = bundle.getString("igdbId");
+        mCoverImage = (ImageView) v.findViewById(R.id.detail_cover);
+        mCoverProgress = (ProgressBar) v.findViewById(R.id.detail_cover_progress);
+        mTitle = (TextView) v.findViewById(R.id.detail_title);
+        mSummary = (TextView) v.findViewById(R.id.detail_summary);
+        mPopularity = (TextView) v.findViewById(R.id.detail_popularity);
+        mPlatformSpinner = (Spinner) v.findViewById(R.id.detail_platform_spinner);
+        mRegionSpinner = (Spinner) v.findViewById(R.id.detail_region_spinner);
 
-        userId = bundle.getString("userId");
-        operation = bundle.getString("operation");
-        try {
-            // bitmapBean = (BitmapBean) bundle.get("bitmapBean");
-            bitmap = bundle.getParcelable("bitmap");
+        // mCreditEditText = (EditText) v.findViewById(R.id.detail_credit);
+        mCreditPicker = (NumberPicker) v.findViewById(R.id.detail_credit_picker);
+        mDummy = (LinearLayout) v.findViewById(R.id.dummy_id);
+
+        mCreditEvaluate = (TextView) v.findViewById(R.id.detail_credit_evaluate);
+
+
+        mWishButton = (Button) v.findViewById(R.id.detail_wish_button);
+        mOfferButton = (Button) v.findViewById(R.id.detail_offer_button);
+
+        mEditConfirmButton = (Button) v.findViewById(R.id.detail_modify_confirm_button);
+        mEditCancelButton = (Button) v.findViewById(R.id.detail_modify_cancel_button);
+        mEditDeleteButton = (Button) v.findViewById(R.id.detail_modify_delete_button);
+
+
+        errorLayout = (LinearLayout) v.findViewById(R.id.error_layout);
+        btnRetry = (Button) v.findViewById(R.id.error_btn_retry);
+        txtError = (TextView) v.findViewById(R.id.error_txt_cause);
+
+        hideAllLayout();
+
+        //TODO: finish binding buttons
+        btnRetry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadGameDetail();
+            }
+        });
+
+        mWishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GameTransportBean gameTransport =
+                        verifyAndGetGameTransport();
+                mWishButton.setEnabled(false);
+                if(gameTransport != null){
+                    callSaveWishItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            // Got data. Send it to adapter
+                            if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
+                                mWishButton.setText(R.string.in_wish_list);
+
+                            } else {
+                                showErrorToast(response.code());
+                                mWishButton.setEnabled(true);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            t.printStackTrace();
+                            showErrorToast(t);
+                            mWishButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        mWishButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GameTransportBean gameTransport =
+                        verifyAndGetGameTransport();
+                if(gameTransport != null){
+                    mWishButton.setEnabled(false);
+                    callSaveWishItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            // Got data. Send it to adapter
+                            if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
+                                mWishButton.setText(R.string.in_wish_list);
+
+                            } else {
+                                showErrorToast(response.code());
+                                mWishButton.setEnabled(true);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            t.printStackTrace();
+                            showErrorToast(t);
+                            mWishButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        mOfferButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GameTransportBean gameTransport =
+                        verifyAndGetGameTransport();
+
+                if(gameTransport != null){
+                    mOfferButton.setEnabled(false);
+                    callSaveOfferItemApi(getUserId(), gameTransport).enqueue(new Callback<String>(){
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            // Got data. Send it to adapter
+                            if(response.code() == HTTP_OK || response.code() == HTTP_CONFLICT) {
+                                mOfferButton.setText(R.string.in_offer_list);
+
+                            } else {
+                                showErrorToast(response.code());
+                                mOfferButton.setEnabled(true);
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            t.printStackTrace();
+                            showErrorToast(t);
+                            mOfferButton.setVisibility(View.VISIBLE);
+                        }
+                    });
+                }
+
+            }
+        });
+
+        mEditDeleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mEditDeleteButton.setEnabled(false);
+            }
+        });
+
+
+
+        mCreditPicker.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId== EditorInfo.IME_ACTION_DONE){
+                    //Clear focus here from credit picker
+                    mCreditPicker.clearFocus();
+                    InputMethodManager imm = (InputMethodManager) getContext()
+                            .getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+                    return true;
+                }
+
+                return false;
+            }
+
+        });
+
+
+        switch(OPERATION){
+            case OPERATION_WISH:
+                mEditConfirmButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int editedCredit = mCreditPicker.getValue();
+                        if(mCreditPicker.hasFocus()){
+                            clearPickerFocus();
+                            return;
+                        }
+
+                        if(!mCreditPicker.valueIsAllowed(editedCredit)){
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_credit, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        mEditConfirmButton.setEnabled(false);
+                        mGameTradeService.
+                                modifyWishItem(getUserId(), mGameId, new ModifyWishOfferBean(editedCredit))
+                                .enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        if(response.code() == 200){
+                                            Toast.makeText(getContext(),
+                                                   "Wish updated", Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        } else {
+                                            Toast.makeText(getContext(),
+                                                    "Error: HTTP CODE " + response.code(), Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                        Toast.makeText(getContext(),
+                                                "Wish update failed!", Toast.LENGTH_LONG).show();
+                                        mEditConfirmButton.setEnabled(true);
+                                    }
+                                });
+
+                    }
+                });
+                break;
+
+            case OPERATION_OFFER:
+                mEditConfirmButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        int editedCredit = mCreditPicker.getValue();
+                        if(mCreditPicker.hasFocus()){
+                            clearPickerFocus();
+                            return;
+                        }
+
+                        if(!mCreditPicker.valueIsAllowed(editedCredit)){
+                            Toast.makeText(getContext(),
+                                    R.string.invalid_credit, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        mEditConfirmButton.setEnabled(false);
+                        mGameTradeService.
+                                modifyOfferItem(getUserId(), mGameId, new ModifyWishOfferBean(editedCredit))
+                                .enqueue(new Callback<String>() {
+                                    @Override
+                                    public void onResponse(Call<String> call, Response<String> response) {
+                                        if(response.code() == 200){
+                                            Toast.makeText(getContext(),
+                                                    "Wish updated", Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        } else {
+                                            Toast.makeText(getContext(),
+                                                    "Error: HTTP CODE " + response.code(), Toast.LENGTH_LONG).show();
+                                            mEditConfirmButton.setEnabled(true);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<String> call, Throwable t) {
+                                        Toast.makeText(getContext(),
+                                                "Wish update failed!", Toast.LENGTH_LONG).show();
+                                        mEditConfirmButton.setEnabled(true);
+                                    }
+                                });
+
+                    }
+                });
+                break;
+
         }
-        catch (Exception exc){
-            showDialog(exc.toString());
-        }
 
-        GameTradeInApplication gameTradeInApplication = (GameTradeInApplication) getActivity().getApplication();
-        serverUrl = gameTradeInApplication.getServerUrl();
-        return inflater.inflate(R.layout.fragment_gamedetail, container, false);
+
+        return v;
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+    public void onStart() {
+        super.onStart();
+        setProgressLayout();
+        loadGameDetail();
+    }
 
-        GameDetailTask gameDetailTask = new GameDetailTask();
+    protected GameTransportBean verifyAndGetGameTransport(){
+        int editedCredit = mCreditPicker.getValue();
+        String userIdStr = QueryPreferences.
+                getStoredUserIdQuery(getContext().getApplicationContext());
 
-        gameTitleView = (TextView) getView().findViewById(R.id.gameTitle);
-        gameTextView = (TextView) getView().findViewById(R.id.gameText);
-        gameCreditView = (TextView) getView().findViewById(R.id.creditAmount);
-        addToListEdit = (EditText) getView().findViewById(R.id.addToListPoints);
-        gamePopularity = (TextView) getView().findViewById(R.id.popularityText);
+        if(userIdStr == null){
+            Toast.makeText(getContext(),
+                    R.string.login_prompt,
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        } else if(mCreditPicker.hasFocus()){
+            clearPickerFocus();
+            return null;
+        } else if(mSelectedPlatform == null || mSelectedRegion == null){
+            Toast.makeText(getContext(),
+                    R.string.select_platform_and_region,
+                    Toast.LENGTH_SHORT).show();
+            return null;
+        } else if(!mCreditPicker.valueIsAllowed(editedCredit)){
+            Toast.makeText(getContext(),
+                    R.string.invalid_credit, Toast.LENGTH_SHORT).show();
+            return null;
+        } else {
+            GameTransportBean gameTransport =
+                    new GameTransportBean(
+                            mIgdbId,
+                            mSelectedPlatform.getPlatformId(),
+                            mSelectedRegion.getRegionId(),
+                            editedCredit);
 
-        gameTextView.setMovementMethod(ScrollingMovementMethod.getInstance());
-
-        try{
-            String test = gameDetailTask.execute(gameDetailId).get();
-        }
-        catch (Exception exc){
-            showDialog(exc.toString());
-        }
-
-        try {
-            ImageView gameImageView = (ImageView) getView().findViewById(R.id.gameImage);
-            gameImageView.setImageBitmap(bitmap);
-        }
-        catch (Exception exc){
-            showDialog(exc.toString());
-        }
-
-
-
-        /*gameCategoryPlatform = (TextView) getView().findViewById(R.id.categoryPlatformName);
-        gameCategoryLanguage = (TextView) getView().findViewById(R.id.categoryLanguageName);
-        gameCategoryGenre = (TextView) getView().findViewById(R.id.categoryGenreName);*/
-
-        addToWishList = (Button) getView().findViewById(R.id.addToListButton);
-        addToWishList.setOnClickListener(onAddToWishListListener);
-
-        addToOfferList = (Button) getView().findViewById(R.id.addToWishListButton);
-        addToOfferList.setOnClickListener(onAddToOfferListListener);
-
-        matchButton = (Button) getView().findViewById(R.id.matchButton);
-        matchButton.setOnClickListener(onMatchClickListener);
-
-        modifyButton = (Button) getView().findViewById(R.id.modifyButton);
-        modifyButton.setOnClickListener(onModifyClickListener);
-
-        switch (operation) {
-            case "browse":
-                matchButton.setVisibility(View.GONE);
-                modifyButton.setVisibility(View.GONE);
-
-                platformSpinner = (Spinner) getView().findViewById(R.id.categoryPlatformSpinner);
-                platformSpinner.setPrompt("Choose platform");
-                platformAdapter = new ArrayAdapter<String>(this.getActivity() , R.layout.support_simple_spinner_dropdown_item, platformList);
-                platformSpinner.setAdapter(platformAdapter);
-                platformSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(AdapterView<?> parent, View view,
-                                               int position, long id) {
-                        Toast.makeText(getActivity(),"Your choice："+platformList.get(position)+platformIdList.get(position), Toast.LENGTH_SHORT).show();
-                        selectedPlatformId = platformIdList.get(position);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        selectedPlatformId = platformIdList.get(0);
-                    }
-                });
-                regionSpinner = (Spinner) getView().findViewById(R.id.categoryRegionSpinner);
-                regionSpinner.setPrompt("Choose region");
-                regionAdapter = new ArrayAdapter<String>(this.getActivity() , R.layout.support_simple_spinner_dropdown_item, regionList);
-                regionSpinner.setAdapter(regionAdapter);
-                regionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(AdapterView<?> parent, View view,
-                                               int position, long id) {
-                        Toast.makeText(getActivity(),"Your choice："+regionList.get(position)+regionIdList.get(position), Toast.LENGTH_SHORT).show();
-                        selectedRegionId = regionIdList.get(position);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        selectedRegionId = regionIdList.get(0);
-                    }
-                });
-                break;
-            case "wishList":
-                addToWishList.setVisibility(View.GONE);
-                modifyButton.setVisibility(View.VISIBLE);
-                matchButton.setVisibility(View.VISIBLE);
-                break;
-            case "offerList":
-                modifyButton.setVisibility(View.VISIBLE);
-                addToOfferList.setVisibility(View.GONE);
-                break;
-            default:
-                break;
+            return gameTransport;
         }
     }
 
+    protected Long getUserId(){
+        String userIdStr = QueryPreferences.
+                getStoredUserIdQuery(getContext().getApplicationContext());
+        Long userId = Long.parseLong(userIdStr);
+        return userId;
+    }
 
 
+    void setAdditionalLayout(){
+        if(OPERATION == OPERATION_OFFER || OPERATION == OPERATION_WISH){
+            mOfferButton.setVisibility(View.GONE);
+            mWishButton.setVisibility(View.GONE);
+            mEditConfirmButton.setVisibility(View.VISIBLE);
 
-    /*****************************************************************************************/
-    /* Helper Function */
+            mPlatformSpinner.setEnabled(false);
+            mRegionSpinner.setEnabled(false);
+        }
+    }
 
+    protected void loadGameDetail(){
+        setProgressLayout();
 
-    private void showDialog(String msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(msg).setCancelable(false).setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+        callGetGameDetailApi().enqueue(new Callback<GameDetailBean>() {
             @Override
-            public void onClick(DialogInterface dialog, int id) {
-                if(toMatch){
-                    Intent intent = new Intent();
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("matchBean", matchBean);
-                    bundle.putSerializable("gameDetailId", gameDetailId);
-                    intent.putExtras(bundle);
-                    intent.setClass(getActivity(), MatchActivity.class);
-                    try{
-                        startActivity(intent);
+            public void onResponse(Call<GameDetailBean> call, Response<GameDetailBean> response) {
+                // Got data. Send it to adapter
+
+                setDetailLayout();
+                setAdditionalLayout();
+
+
+                GameDetailBean result = response.body();
+
+                if(result != null) {
+                    if(isAdded()) {
+                        bindGameDetail(result);
                     }
-                    catch (Exception exc){
-                        showDialog(exc.toString());
-                    }
+
+                } else{
+                    setErrorLayout();
                 }
-                else if(!toMatch){
-                }
+            }
+
+            @Override
+            public void onFailure(Call<GameDetailBean> call, Throwable t) {
+                t.printStackTrace();
+                setErrorLayout();
             }
         });
-        AlertDialog alert = builder.create();
-        alert.show();
+
     }
 
+    protected void saveWishItem(GameTransportBean gameTransport){
+        mWishButton.setVisibility(View.INVISIBLE);
 
-
-    /*****************************************************************************************/
-    /* Button Listener settings */
-
-
-    private View.OnClickListener onMatchClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Match();
-        }
-    };
-
-
-    private View.OnClickListener onModifyClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            try {
-                addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
-                Modify(addToListPoints);
-            } catch (Exception exc) {
-                showDialog("Wrong input");
-            }
-        }
-    };
-
-
-    private View.OnClickListener onAddToWishListListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            boolean canAddToWish;
-            try {
-                addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
-                canAddToWish = true;
-            } catch (Exception ece) {
-                showDialog("Wrong input");
-                canAddToWish = false;
-            }
-            if (canAddToWish) {
-                AddToList(Integer.valueOf(gameDetailId), selectedPlatformId, selectedRegionId, addToListPoints);
-            }
-        }
-    };
-
-
-    private View.OnClickListener onAddToOfferListListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            boolean canAddToOffer;
-            try {
-                addToListPoints = Integer.valueOf(addToListEdit.getText().toString());
-                canAddToOffer = true;
-            } catch (Exception ece) {
-                showDialog("Wrong input");
-                canAddToOffer = false;
-            }
-            if (canAddToOffer) {
-                AddToOfferList(Integer.valueOf(gameDetailId), selectedPlatformId, selectedRegionId, addToListPoints);
-            }
-        }
-    };
-
-
-    /*****************************************************************************************/
-    /* Function for json */
-
-
-    private JSONObject formatJSON(Integer igdbId, Integer platformId, Integer regionId, Integer wishPoints) {
-        final JSONObject root = new JSONObject();
-        try {
-            // JSON
-            // {
-            //     "gameId": gameId,
-            //     "points": wishPoints
-            // }
-            root.put("igdbId", igdbId);
-            root.put("platformId", platformId);
-            root.put("regionId", regionId);
-            root.put("points", wishPoints);
-            return root;
-        } catch (JSONException exc) {
-            exc.printStackTrace();
-        }
-        return root;
     }
 
+    protected void bindGameDetail(GameDetailBean gameDetail){
 
-    private JSONObject formatModifyJSON(Integer wishPoints) {
-        final JSONObject root = new JSONObject();
-        try {
-            // JSON
-            // {
-            //     "points": wishPoints
-            // }
-            root.put("points", wishPoints);
-            return root;
-        } catch (JSONException exc) {
-            exc.printStackTrace();
+
+
+
+        mTitle.setText(gameDetail.getTitle());
+        mSummary.setText(gameDetail.getSummary());
+
+        Locale locale = getCurrentLocale();
+        mPopularity.setText(String.format(locale, "%.1f", gameDetail.getPopularity()));
+
+        Glide
+                .with(getActivity())
+                .load(gameDetail.getCoverUrl())
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        // TODO: 08/11/16 handle failure
+                        if(isAdded()) {
+                            mCoverProgress.setVisibility(View.GONE);
+                        }
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        // image ready, hide progress now
+                        mCoverProgress.setVisibility(View.GONE);
+                        return false;   // return false if you want Glide to handle everything else.
+                    }
+                })
+                .diskCacheStrategy(DiskCacheStrategy.ALL)   // cache both original & resized image
+                .fitCenter()
+                .crossFade()
+                .into(mCoverImage);
+
+        final GameDetailUtility detailUtility = new GameDetailUtility(gameDetail);
+
+        List<PlatformBean> platforms = detailUtility.getPlatforms();
+
+        if(platforms.size() == 0){
+            mPlatformSpinner.setEnabled(false);
+            mRegionSpinner.setEnabled(false);
+            mOfferButton.setEnabled(false);
+            mWishButton.setEnabled(false);
+            return;
         }
-        return root;
-    }
+
+        List<RegionBean> regions = detailUtility.getRegionsWithPlatform(platforms.get(0));
+
+        ArrayAdapter<PlatformBean> platformAdapter = new ArrayAdapter<PlatformBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, platforms
+        );
+        ArrayAdapter<RegionBean> regionAdapter = new ArrayAdapter<RegionBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, regions
+        );
 
 
-    /*****************************************************************************************/
-    /*  Part for game detail task  */
+
+        mPlatformSpinner.setAdapter(platformAdapter);
+
+        mPlatformSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                PlatformBean selectedPlatform =
+                        (PlatformBean)parent.getItemAtPosition(position);
+                mSelectedPlatform = selectedPlatform;
+
+                resetRegionSpinner(detailUtility.getRegionsWithPlatform(selectedPlatform));
+
+                RegionBean selectedRegion =
+                        (RegionBean) mRegionSpinner.getSelectedItem();
+
+                int platformId = selectedPlatform.getPlatformId();
+                int regionId = selectedRegion.getRegionId();
 
 
-    private class GameDetailTask extends AsyncTask<String, Integer, String> {
-        private String status, urlStr;
-        private int responseCode = -1;
-        public GameDetailBean gameDetail;
-        public MyListBean myList;
-        public Boolean finish = false;
-        @Override
-        protected void onPreExecute() {
-        }
-        @Override
-        protected String doInBackground(String... params) {
-            HttpURLConnection urlConn;
-            try {
-                Uri.Builder builder = new Uri.Builder();
-                builder.appendPath("api")
-                        .appendPath("game")
-                        .appendPath("");
-                urlStr = serverUrl + builder.build().toString()+ gameDetailId;
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-                // urlConn.setRequestProperty("Authorization", authorizedHeader);
-                urlConn.setRequestMethod("GET");
-                urlConn.connect();
-                InputStream in = urlConn.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                responseCode = urlConn.getResponseCode();
-                JSONProcessor jsonProcessor = new JSONProcessor();
-                gameDetail = jsonProcessor.GetGameDetailSingleBean(reader.readLine());
+                mGameTradeService.getEvaluatePoint(mIgdbId, platformId, regionId)
+                        .enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                if(response.code() == 200){
+                                    mCreditEvaluate.setText(Integer.toString(response.body()));
+                                }
+                            }
 
-                switch (operation) {
-                    case "wishList":
-                        urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId;
-                        url = new URL(urlStr);
-                        urlConn = (HttpURLConnection) url.openConnection();
-                        urlConn.setRequestProperty("Authorization", authorizedHeader);
-                        urlConn.setRequestMethod("GET");
-                        urlConn.connect();
-                        in = urlConn.getInputStream();
-                        reader = new BufferedReader(new InputStreamReader(in));
-                        responseCode = urlConn.getResponseCode();
-                        jsonProcessor = new JSONProcessor();
-                        myList = jsonProcessor.GetMyListSingleBean(reader.readLine());
-                        credits = String.valueOf(myList.getPoints());
-                        break;
-                    case "offerList":
-                        urlStr = serverUrl+"api/user/" + userId + "/offerlist/" + gameDetailId;
-                        url = new URL(urlStr);
-                        urlConn = (HttpURLConnection) url.openConnection();
-                        urlConn.setRequestProperty("Authorization", authorizedHeader);
-                        urlConn.setRequestMethod("GET");
-                        urlConn.connect();
-                        in = urlConn.getInputStream();
-                        reader = new BufferedReader(new InputStreamReader(in));
-                        responseCode = urlConn.getResponseCode();
-                        jsonProcessor = new JSONProcessor();
-                        myList = jsonProcessor.GetMyListSingleBean(reader.readLine());
-                        credits = String.valueOf(myList.getPoints());
-                        break;
-                    case "browse":
-                        credits = "0";
-                        break;
-                    default:
-                        break;
-                }
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
 
-                List<GameReleaseJson> gameReleaseJsons = gameDetail.getReleases();
-                for (int p = 0; p < gameReleaseJsons.size(); p++) {
-                    platformList.add(gameReleaseJsons.get(p).getPlatform());
-                    platformIdList.add(gameReleaseJsons.get(p).getPlatformId());
-                    regionList.add(gameReleaseJsons.get(p).getRegion());
-                    regionIdList.add(gameReleaseJsons.get(p).getRegionId());
-                }
-                setGameDetail(gameDetail.getTitle(), String.valueOf(((int) gameDetail.getPopularity())), gameDetail.getSummary());
-                finish = true;
-            } catch (Exception exc) {
-                exc.printStackTrace();
-            }
-            return null;
-        }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            try {
+                            }
+                        });
 
             }
-            catch (Exception exc){
-                showDialog(exc.toString());
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
-            super.onPostExecute(result);
-        }
-    }
+        });
+
+        mRegionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                RegionBean selectedRegion =
+                        (RegionBean)parent.getItemAtPosition(position);
+                mSelectedRegion = selectedRegion;
+
+                PlatformBean selectedPlatform =
+                        (PlatformBean) mPlatformSpinner.getSelectedItem();
 
 
-    private void setGameDetail(String title, String popularity, String text/*String language, String genre, String credits*/) {
-        gameTitleView.setText(title);
-        gamePopularity.setText(popularity);
-        gameTextView.setText(text);
-        //gameCategoryPlatform.setText(platform);
-        //gameCategoryLanguage.setText(language);
-        //gameCategoryGenre.setText(genre);
-        //gameCreditView.setText(credits);
-    }
+                int platformId = selectedPlatform.getPlatformId();
+                int regionId = selectedRegion.getRegionId();
 
 
+                mGameTradeService.getEvaluatePoint(mIgdbId, platformId, regionId)
+                        .enqueue(new Callback<Integer>() {
+                            @Override
+                            public void onResponse(Call<Integer> call, Response<Integer> response) {
+                                if(response.code() == 200){
+                                    mCreditEvaluate.setText(Integer.toString(response.body()));
+                                }
+                            }
 
-    /*****************************************************************************************/
-    /* Part for wish list task */
+                            @Override
+                            public void onFailure(Call<Integer> call, Throwable t) {
 
+                            }
+                        });
 
-    private class AddToListTask extends AsyncTask<JSONObject, Integer, String> {
-        private String status, urlStr;
-        private JSONObject postJson;
-        private int responseCode = -1;
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            postJson = params[0];
-            HttpURLConnection urlConn;
-            try {
-                Uri.Builder builder = new Uri.Builder();
-                builder.appendPath("api")
-                        .appendPath("user")
-                        .appendPath(userId)
-                        .appendPath("wishlist");
-                urlStr = serverUrl +builder.build().toString();
-
-                // urlStr = serverUrl + "api/user/" + userId + "/wishlist/";
-
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-                urlConn.setDoOutput(true);
-                urlConn.setDoInput(true);
-                urlConn.setUseCaches(false);
-                urlConn.setRequestProperty("Authorization", authorizedHeader);
-                urlConn.setRequestMethod("POST");
-                urlConn.setRequestProperty("Content-Type", "application/json");
-                urlConn.connect();
-                OutputStream out = urlConn.getOutputStream();
-                out.write(postJson.toString().getBytes());
-                out.flush();
-                out.close();
-                responseCode = urlConn.getResponseCode();
-                if (responseCode == 200) {
-                    status = "Game has been successfully added to your wish list";
-                } else if (responseCode == 409) {
-                    status = "Your wish list includes this game";
-                } else if (responseCode == 404) {
-                    status = "Connection problem, check connect and login";
-                }else if(responseCode == 401){
-                    status = "Please log in";
-                }
-                else{
-                    status = "Connection problem, check connect and login";
-                }
-            } catch (Exception exc) {
-                exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
             }
-            return null;
-        }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            showDialog(status);
-            super.onPostExecute(result);
-        }
-    }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-    private void AddToList(Integer gameId, Integer platformId, Integer regionId, Integer wishPoints) {
-        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
-        new FragmentGameDetail.AddToListTask().execute(postJson);
-    }
-
-
-    /*****************************************************************************************/
-    /* Part for offer list task */
-
-    private class AddToOfferListTask extends AsyncTask<JSONObject, Integer, String> {
-        private String status, urlStr;
-        private JSONObject postJson;
-        private int responseCode = -1;
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            postJson = params[0];
-            HttpURLConnection urlConn;
-            try {
-                Uri.Builder builder = new Uri.Builder();
-                builder.appendPath("api")
-                        .appendPath("user")
-                        .appendPath(userId)
-                        .appendPath("offerlist");
-                urlStr = serverUrl +builder.build().toString();
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-
-                // start connection
-                urlConn.setDoOutput(true);
-                urlConn.setDoInput(true);
-                urlConn.setUseCaches(false);
-
-                urlConn.setRequestProperty("Authorization", authorizedHeader);
-
-                urlConn.setRequestMethod("POST");
-                urlConn.setRequestProperty("Content-Type", "application/json");
-                urlConn.connect();
-                OutputStream out = urlConn.getOutputStream();
-                out.write(postJson.toString().getBytes());
-                out.flush();
-                out.close();
-                // upload json
-
-                responseCode = urlConn.getResponseCode();
-                if (responseCode == 200) {
-                    status = "Game has been successfully added to your offer list";
-                } else if (responseCode == 409) {
-                    status = "Your offer list includes this game";
-                } else if (responseCode == 404) {
-                    status = "Connection problem, check connect and login";
-                }
-                else{
-                    status = "Connection problem, check connect and login";
-                }
-            } catch (Exception exc) {
-                exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
             }
-            return null;
+        });
+
+
+        if(OPERATION == OPERATION_OFFER || OPERATION == OPERATION_WISH) {
+            GameDetailActivity gameDetailActivity = (GameDetailActivity) getActivity();
+            int platformId = gameDetailActivity.platformId;
+            int regionId = gameDetailActivity.regionId;
+
+            mPlatformSpinner.setSelection(platforms.indexOf(new PlatformBean(platformId, "")));
+            mRegionSpinner.setSelection(platforms.indexOf(new PlatformBean(regionId, "")));
         }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            showDialog(status);
-            super.onPostExecute(result);
-        }
+
+
+
+
     }
 
 
-    private void AddToOfferList(Integer gameId, Integer platformId, Integer regionId,Integer wishPoints) {
-        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
-        new FragmentGameDetail.AddToOfferListTask().execute(postJson);
+    Call<GameDetailBean> callGetGameDetailApi(){
+        return mGameTradeService.getDetailGame(
+                mIgdbId
+        );
+    }
+
+    Call<String> callSaveWishItemApi(Long userId, GameTransportBean gameTransport){
+        return mGameTradeService.saveWishItem(
+                userId, gameTransport
+        );
+    }
+
+    Call<String> callSaveOfferItemApi(Long userId, GameTransportBean gameTransport){
+        return mGameTradeService.saveOfferItem(
+                userId, gameTransport
+        );
     }
 
 
-    /*****************************************************************************************/
-    /* Part for modify task */
+    private void showErrorToast(Throwable throwable) {
+        Toast
+                .makeText(getContext(), throwable.toString(), Toast.LENGTH_SHORT)
+                .show();
+    }
 
-    private class ModifyTask extends AsyncTask<JSONObject, Integer, String> {
-        private String status, urlStr;
-        private JSONObject postJson;
-        private int responseCode = -1;
-        private String modifyUrl;
-        @Override
-        protected void onPreExecute() {
-        }
-        @Override
-        protected String doInBackground(JSONObject... params) {
-            postJson = params[0];
-            HttpURLConnection urlConn;
-            try {
-                switch (operation) {
-                    case "browse":
-                        break;
-                    case "wishList":
-                        modifyUrl = "/wishlist/";
-                        break;
-                    case "offerList":
-                        modifyUrl = "/offerlist/";
-                        break;
-                    default:
-                        break;
-                }
-                urlStr = serverUrl + "api/user/" + userId + modifyUrl + gameDetailId + "/modify";
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-                urlConn.setDoOutput(true);
-                urlConn.setDoInput(true);
-                urlConn.setUseCaches(false);
-
-                urlConn.setRequestProperty("Authorization", authorizedHeader);
-
-                urlConn.setRequestMethod("PUT");
-                urlConn.setRequestProperty("Content-Type", "application/json");
-                urlConn.connect();
-                OutputStream out = urlConn.getOutputStream();
-                out.write(postJson.toString().getBytes());
-                out.flush();
-                out.close();
-                responseCode = urlConn.getResponseCode();
-                if (responseCode == 200) {
-                    status = "Game has been successfully modified";
-                    credits = String.valueOf(addToListPoints);
-                } else if (responseCode == 409) {
-                    status = "Modify failed";
-                } else if (responseCode == 404) {
-                    status = "Modify failed";
-                }
-                else{
-                    status = "Connection problem, check connect and login";
-                }
-            } catch (Exception exc) {
-                exc.printStackTrace();
-                status = "Disconnected: " + responseCode;
-            }
-            return null;
-        }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            UIModify();
-            showDialog(status);
-            super.onPostExecute(result);
-        }
+    private void showErrorToast(int errorCode){
+        Toast
+                .makeText(getContext(), "HTTP STATUS CODE: " + errorCode, Toast.LENGTH_SHORT)
+                .show();
     }
 
 
 
-    private void Modify(Integer wishPoints) {
-        final JSONObject postJson = formatModifyJSON(wishPoints);
-        new FragmentGameDetail.ModifyTask().execute(postJson);
+
+    private void clearPickerFocus(){
+        mCreditPicker.clearFocus();
+        InputMethodManager imm = (InputMethodManager) getContext()
+                .getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
     }
 
-
-
-    private void UIModify() {
-        gameCreditView.setText(credits);
-    }
-
-
-
-    /*****************************************************************************************/
-    /* Part for match task */
-
-
-
-    private class MatchCheckTask extends AsyncTask<String, Integer, String> {
-        private String status, urlStr;
-        private int responseCode = -1;
-        public Boolean finish = false;
-        @Override
-        protected void onPreExecute() {
+    public void hideAllLayout(){
+        if(errorLayout.getVisibility() != View.GONE){
+            errorLayout.setVisibility(View.GONE);
         }
-        @Override
-        protected String doInBackground(String... params) {
-            HttpURLConnection urlConn;
-            try {
-                urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId + "/match";
-                URL url = new URL(urlStr);
-                urlConn = (HttpURLConnection) url.openConnection();
-
-                urlConn.setRequestProperty("Authorization", authorizedHeader);
-
-                urlConn.setRequestMethod("GET");
-                urlConn.connect();
-                InputStream in = urlConn.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                responseCode = urlConn.getResponseCode();
-                JSONProcessor jsonProcessor = new JSONProcessor();
-                status = reader.readLine();
-                matchBean = jsonProcessor.GetMatchBean(status);
-                switch (matchBean.length){
-                    case 0:
-                        toMatch = false;
-                        status = "Match not found";
-                        break;
-                    default:
-                        toMatch = true;
-                        status = "Match found";
-                        break;
-                }
-            } catch (Exception exc) {
-                exc.printStackTrace();
-            }
-            return null;
+        if(mDetailProgress.getVisibility() != View.GONE){
+            mDetailProgress.setVisibility(View.GONE);
         }
-        @Override
-        protected void onProgressUpdate(Integer... progresses) {
-            super.onProgressUpdate(progresses);
-        }
-        @Override
-        protected void onPostExecute(String result) {
-            showDialog(status);
-            super.onPostExecute(result);
+        if(mDetailLayout.getVisibility() != View.GONE){
+            mDetailLayout.setVisibility(View.GONE);
         }
     }
 
-    public void Match(){
-        new FragmentGameDetail.MatchCheckTask().execute();
+    public void setDetailLayout(){
+        if(mDetailLayout.getVisibility() != View.VISIBLE){
+            mDetailLayout.setVisibility(View.VISIBLE);
+
+            errorLayout.setVisibility(View.GONE);
+            mDetailProgress.setVisibility(View.GONE);
+        }
     }
 
+    public void setProgressLayout(){
+        if(mDetailProgress.getVisibility() != View.VISIBLE){
+            mDetailProgress.setVisibility(View.VISIBLE);
+
+            errorLayout.setVisibility(View.GONE);
+            mDetailLayout.setVisibility(View.GONE);
+        }
+    }
+
+    public void setErrorLayout(){
+        if(errorLayout.getVisibility() != View.VISIBLE){
+            errorLayout.setVisibility(View.VISIBLE);
+
+            mDetailProgress.setVisibility(View.GONE);
+            mDetailLayout.setVisibility(View.GONE);
+        }
+    }
+
+    public void disableButtons(){
+        mOfferButton.setEnabled(false);
+        mWishButton.setEnabled(false);
+    }
+
+    public void enableButtons(){
+        mOfferButton.setEnabled(true);
+        mWishButton.setEnabled(true);
+    }
+
+    public void resetRegionSpinner(List<RegionBean> regions){
+
+        ArrayAdapter<RegionBean> regionAdapter = new ArrayAdapter<RegionBean>(
+                getActivity(), android.R.layout.simple_spinner_dropdown_item, regions
+        );
+
+        mRegionSpinner.setAdapter(regionAdapter);
+    }
+
+    @TargetApi(Build.VERSION_CODES.N)
+    public Locale getCurrentLocale(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
+            return getResources().getConfiguration().getLocales().get(0);
+        } else{
+            //noinspection deprecation
+            return getResources().getConfiguration().locale;
+        }
+    }
+
+
+//
+//
+//    private JSONObject formatModifyJSON(Integer wishPoints) {
+//        final JSONObject root = new JSONObject();
+//        try {
+//            // JSON
+//            // {
+//            //     "points": wishPoints
+//            // }
+//            root.put("points", wishPoints);
+//            return root;
+//        } catch (JSONException exc) {
+//            exc.printStackTrace();
+//        }
+//        return root;
+//    }
+//
+//
+//    /*****************************************************************************************/
+//    /*  Part for game detail task  */
+//
+//
+//    private class GameDetailTask extends AsyncTask<String, Integer, String> {
+//        private String status, urlStr;
+//        private int responseCode = -1;
+//        public GameDetailBean gameDetail;
+//        public MyListBean myList;
+//        public Boolean finish = false;
+//        @Override
+//        protected void onPreExecute() {
+//        }
+//        @Override
+//        protected String doInBackground(String... params) {
+//            HttpURLConnection urlConn;
+//            try {
+//                Uri.Builder builder = new Uri.Builder();
+//                builder.appendPath("api")
+//                        .appendPath("game")
+//                        .appendPath("");
+//                urlStr = serverUrl + builder.build().toString()+ gameDetailId;
+//                URL url = new URL(urlStr);
+//                urlConn = (HttpURLConnection) url.openConnection();
+//                // urlConn.setRequestProperty("Authorization", authorizedHeader);
+//                urlConn.setRequestMethod("GET");
+//                urlConn.connect();
+//                InputStream in = urlConn.getInputStream();
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//                responseCode = urlConn.getResponseCode();
+//                JSONProcessor jsonProcessor = new JSONProcessor();
+//                gameDetail = jsonProcessor.GetGameDetailSingleBean(reader.readLine());
+//
+//                switch (operation) {
+//                    case "wishList":
+//                        urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId;
+//                        url = new URL(urlStr);
+//                        urlConn = (HttpURLConnection) url.openConnection();
+//                        urlConn.setRequestProperty("Authorization", authorizedHeader);
+//                        urlConn.setRequestMethod("GET");
+//                        urlConn.connect();
+//                        in = urlConn.getInputStream();
+//                        reader = new BufferedReader(new InputStreamReader(in));
+//                        responseCode = urlConn.getResponseCode();
+//                        jsonProcessor = new JSONProcessor();
+//                        myList = jsonProcessor.GetMyListSingleBean(reader.readLine());
+//                        credits = String.valueOf(myList.getPoints());
+//                        break;
+//                    case "offerList":
+//                        urlStr = serverUrl+"api/user/" + userId + "/offerlist/" + gameDetailId;
+//                        url = new URL(urlStr);
+//                        urlConn = (HttpURLConnection) url.openConnection();
+//                        urlConn.setRequestProperty("Authorization", authorizedHeader);
+//                        urlConn.setRequestMethod("GET");
+//                        urlConn.connect();
+//                        in = urlConn.getInputStream();
+//                        reader = new BufferedReader(new InputStreamReader(in));
+//                        responseCode = urlConn.getResponseCode();
+//                        jsonProcessor = new JSONProcessor();
+//                        myList = jsonProcessor.GetMyListSingleBean(reader.readLine());
+//                        credits = String.valueOf(myList.getPoints());
+//                        break;
+//                    case "browse":
+//                        credits = "0";
+//                        break;
+//                    default:
+//                        break;
+//                }
+//
+//                List<GameReleaseJson> gameReleaseJsons = gameDetail.getReleases();
+//                for (int p = 0; p < gameReleaseJsons.size(); p++) {
+//                    platformList.add(gameReleaseJsons.get(p).getPlatform());
+//                    platformIdList.add(gameReleaseJsons.get(p).getPlatformId());
+//                    regionList.add(gameReleaseJsons.get(p).getRegion());
+//                    regionIdList.add(gameReleaseJsons.get(p).getRegionId());
+//                }
+//                setGameDetail(gameDetail.getTitle(), String.valueOf(((int) gameDetail.getPopularity())), gameDetail.getSummary());
+//                finish = true;
+//            } catch (Exception exc) {
+//                exc.printStackTrace();
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onProgressUpdate(Integer... progresses) {
+//            super.onProgressUpdate(progresses);
+//        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            try {
+//
+//            }
+//            catch (Exception exc){
+//                showDialog(exc.toString());
+//            }
+//            super.onPostExecute(result);
+//        }
+//    }
+//
+//
+//    private void setGameDetail(String title, String popularity, String text/*String language, String genre, String credits*/) {
+//        gameTitleView.setText(title);
+//        gamePopularity.setText(popularity);
+//        gameTextView.setText(text);
+//        //gameCategoryPlatform.setText(platform);
+//        //gameCategoryLanguage.setText(language);
+//        //gameCategoryGenre.setText(genre);
+//        //gameCreditView.setText(credits);
+//    }
+//
+//
+//
+//    /*****************************************************************************************/
+//    /* Part for wish list task */
+//
+//
+//    private class AddToListTask extends AsyncTask<JSONObject, Integer, String> {
+//        private String status, urlStr;
+//        private JSONObject postJson;
+//        private int responseCode = -1;
+//
+//        @Override
+//        protected void onPreExecute() {
+//        }
+//
+//        @Override
+//        protected String doInBackground(JSONObject... params) {
+//            postJson = params[0];
+//            HttpURLConnection urlConn;
+//            try {
+//                Uri.Builder builder = new Uri.Builder();
+//                builder.appendPath("api")
+//                        .appendPath("user")
+//                        .appendPath(userId)
+//                        .appendPath("wishlist");
+//                urlStr = serverUrl +builder.build().toString();
+//
+//                // urlStr = serverUrl + "api/user/" + userId + "/wishlist/";
+//
+//                URL url = new URL(urlStr);
+//                urlConn = (HttpURLConnection) url.openConnection();
+//                urlConn.setDoOutput(true);
+//                urlConn.setDoInput(true);
+//                urlConn.setUseCaches(false);
+//                urlConn.setRequestProperty("Authorization", authorizedHeader);
+//                urlConn.setRequestMethod("POST");
+//                urlConn.setRequestProperty("Content-Type", "application/json");
+//                urlConn.connect();
+//                OutputStream out = urlConn.getOutputStream();
+//                out.write(postJson.toString().getBytes());
+//                out.flush();
+//                out.close();
+//                responseCode = urlConn.getResponseCode();
+//                if (responseCode == 200) {
+//                    status = "Game has been successfully added to your wish list";
+//                } else if (responseCode == 409) {
+//                    status = "Your wish list includes this game";
+//                } else if (responseCode == 404) {
+//                    status = "Connection problem, check connect and login";
+//                }else if(responseCode == 401){
+//                    status = "Please log in";
+//                }
+//                else{
+//                    status = "Connection problem, check connect and login";
+//                }
+//            } catch (Exception exc) {
+//                exc.printStackTrace();
+//                status = "Disconnected: " + responseCode;
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onProgressUpdate(Integer... progresses) {
+//            super.onProgressUpdate(progresses);
+//        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            showDialog(status);
+//            super.onPostExecute(result);
+//        }
+//    }
+//
+//
+//    private void AddToList(Integer gameId, Integer platformId, Integer regionId, Integer wishPoints) {
+//        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
+//        new FragmentGameDetail.AddToListTask().execute(postJson);
+//    }
+//
+//
+//    /*****************************************************************************************/
+//    /* Part for offer list task */
+//
+//    private class AddToOfferListTask extends AsyncTask<JSONObject, Integer, String> {
+//        private String status, urlStr;
+//        private JSONObject postJson;
+//        private int responseCode = -1;
+//
+//        @Override
+//        protected void onPreExecute() {
+//        }
+//
+//        @Override
+//        protected String doInBackground(JSONObject... params) {
+//            postJson = params[0];
+//            HttpURLConnection urlConn;
+//            try {
+//                Uri.Builder builder = new Uri.Builder();
+//                builder.appendPath("api")
+//                        .appendPath("user")
+//                        .appendPath(userId)
+//                        .appendPath("offerlist");
+//                urlStr = serverUrl +builder.build().toString();
+//                URL url = new URL(urlStr);
+//                urlConn = (HttpURLConnection) url.openConnection();
+//
+//                // start connection
+//                urlConn.setDoOutput(true);
+//                urlConn.setDoInput(true);
+//                urlConn.setUseCaches(false);
+//
+//                urlConn.setRequestProperty("Authorization", authorizedHeader);
+//
+//                urlConn.setRequestMethod("POST");
+//                urlConn.setRequestProperty("Content-Type", "application/json");
+//                urlConn.connect();
+//                OutputStream out = urlConn.getOutputStream();
+//                out.write(postJson.toString().getBytes());
+//                out.flush();
+//                out.close();
+//                // upload json
+//
+//                responseCode = urlConn.getResponseCode();
+//                if (responseCode == 200) {
+//                    status = "Game has been successfully added to your offer list";
+//                } else if (responseCode == 409) {
+//                    status = "Your offer list includes this game";
+//                } else if (responseCode == 404) {
+//                    status = "Connection problem, check connect and login";
+//                }
+//                else{
+//                    status = "Connection problem, check connect and login";
+//                }
+//            } catch (Exception exc) {
+//                exc.printStackTrace();
+//                status = "Disconnected: " + responseCode;
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onProgressUpdate(Integer... progresses) {
+//            super.onProgressUpdate(progresses);
+//        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            showDialog(status);
+//            super.onPostExecute(result);
+//        }
+//    }
+//
+//
+//    private void AddToOfferList(Integer gameId, Integer platformId, Integer regionId,Integer wishPoints) {
+//        final JSONObject postJson = formatJSON(gameId, platformId, regionId, wishPoints);
+//        new FragmentGameDetail.AddToOfferListTask().execute(postJson);
+//    }
+//
+//
+//    /*****************************************************************************************/
+//    /* Part for modify task */
+//
+//    private class ModifyTask extends AsyncTask<JSONObject, Integer, String> {
+//        private String status, urlStr;
+//        private JSONObject postJson;
+//        private int responseCode = -1;
+//        private String modifyUrl;
+//        @Override
+//        protected void onPreExecute() {
+//        }
+//        @Override
+//        protected String doInBackground(JSONObject... params) {
+//            postJson = params[0];
+//            HttpURLConnection urlConn;
+//            try {
+//                switch (operation) {
+//                    case "browse":
+//                        break;
+//                    case "wishList":
+//                        modifyUrl = "/wishlist/";
+//                        break;
+//                    case "offerList":
+//                        modifyUrl = "/offerlist/";
+//                        break;
+//                    default:
+//                        break;
+//                }
+//                urlStr = serverUrl + "api/user/" + userId + modifyUrl + gameDetailId + "/modify";
+//                URL url = new URL(urlStr);
+//                urlConn = (HttpURLConnection) url.openConnection();
+//                urlConn.setDoOutput(true);
+//                urlConn.setDoInput(true);
+//                urlConn.setUseCaches(false);
+//
+//                urlConn.setRequestProperty("Authorization", authorizedHeader);
+//
+//                urlConn.setRequestMethod("PUT");
+//                urlConn.setRequestProperty("Content-Type", "application/json");
+//                urlConn.connect();
+//                OutputStream out = urlConn.getOutputStream();
+//                out.write(postJson.toString().getBytes());
+//                out.flush();
+//                out.close();
+//                responseCode = urlConn.getResponseCode();
+//                if (responseCode == 200) {
+//                    status = "Game has been successfully modified";
+//                    credits = String.valueOf(addToListPoints);
+//                } else if (responseCode == 409) {
+//                    status = "Modify failed";
+//                } else if (responseCode == 404) {
+//                    status = "Modify failed";
+//                }
+//                else{
+//                    status = "Connection problem, check connect and login";
+//                }
+//            } catch (Exception exc) {
+//                exc.printStackTrace();
+//                status = "Disconnected: " + responseCode;
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onProgressUpdate(Integer... progresses) {
+//            super.onProgressUpdate(progresses);
+//        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            UIModify();
+//            showDialog(status);
+//            super.onPostExecute(result);
+//        }
+//    }
+//
+//
+//
+//    private void Modify(Integer wishPoints) {
+//        final JSONObject postJson = formatModifyJSON(wishPoints);
+//        new FragmentGameDetail.ModifyTask().execute(postJson);
+//    }
+//
+//
+//
+//    private void UIModify() {
+//        gameCreditView.setText(credits);
+//    }
+//
+//
+//
+//    /*****************************************************************************************/
+//    /* Part for match task */
+//
+//
+//
+//    private class MatchCheckTask extends AsyncTask<String, Integer, String> {
+//        private String status, urlStr;
+//        private int responseCode = -1;
+//        public Boolean finish = false;
+//        @Override
+//        protected void onPreExecute() {
+//        }
+//        @Override
+//        protected String doInBackground(String... params) {
+//            HttpURLConnection urlConn;
+//            try {
+//                urlStr = serverUrl + "api/user/" + userId + "/wishlist/" + gameDetailId + "/match";
+//                URL url = new URL(urlStr);
+//                urlConn = (HttpURLConnection) url.openConnection();
+//
+//                urlConn.setRequestProperty("Authorization", authorizedHeader);
+//
+//                urlConn.setRequestMethod("GET");
+//                urlConn.connect();
+//                InputStream in = urlConn.getInputStream();
+//                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+//                responseCode = urlConn.getResponseCode();
+//                JSONProcessor jsonProcessor = new JSONProcessor();
+//                status = reader.readLine();
+//                matchBean = jsonProcessor.GetMatchBean(status);
+//                switch (matchBean.length){
+//                    case 0:
+//                        toMatch = false;
+//                        status = "Match not found";
+//                        break;
+//                    default:
+//                        toMatch = true;
+//                        status = "Match found";
+//                        break;
+//                }
+//            } catch (Exception exc) {
+//                exc.printStackTrace();
+//            }
+//            return null;
+//        }
+//        @Override
+//        protected void onProgressUpdate(Integer... progresses) {
+//            super.onProgressUpdate(progresses);
+//        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            showDialog(status);
+//            super.onPostExecute(result);
+//        }
+//    }
+//
+//    public void Match(){
+//        new FragmentGameDetail.MatchCheckTask().execute();
+//    }
+//
 
     /*****************************************************************************************/
 
